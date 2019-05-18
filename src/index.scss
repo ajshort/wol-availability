@@ -1,5 +1,12 @@
 @import 'bootstrap/scss/bootstrap.scss';
 
+.Header .navbar-brand img {
+  display: inline-block;
+  margin-right: 3px;
+  margin-top: 6px;
+  vertical-align: top;
+}
+
 .Login {
   margin-bottom: $spacer;
   margin-top: $spacer;
