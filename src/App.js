@@ -10,8 +10,8 @@ const client = new ApolloClient({ uri: process.env.REACT_APP_API_URI })
 
 const App = () => (
   <ApolloProvider client={client}>
-    <Header />
     <Router>
+      <Header />
       <Switch>
         <Route path='/login' component={Login} />
       </Switch>
