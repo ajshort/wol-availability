@@ -1,26 +1,24 @@
 import gql from 'graphql-tag';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Mutation } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 
+import AuthContext from './AuthContext';
+
 const LOGIN_MUTATION = gql`
   mutation ($memberNumber: Int!, $password: String!) {
     login(memberNumber: $memberNumber, password: $password) {
       token
-      member {
-        number
-        fullName
-        permission
-        team
-      }
     }
   }
 `;
 
 const LoginForm = () => {
+  const { login } = useContext(AuthContext);
+
   const [memberNumber, setMemberNumber] = useState(0);
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -32,7 +30,8 @@ const LoginForm = () => {
     loginMutation();
   };
 
-  const handleCompleted = ({ login }) => {
+  const handleCompleted = (data) => {
+    login(data.login.token);
   };
 
   return (
@@ -41,10 +40,10 @@ const LoginForm = () => {
       variables={{ memberNumber, password }}
       onCompleted={handleCompleted}
     >
-      {(login, { loading, error }) => (
-        <Form onSubmit={event => handleSubmit(event, login)}>
+      {(loginMutation, { loading, error }) => (
+        <Form onSubmit={e => handleSubmit(e, loginMutation)}>
           {error && (
-            <Alert variant='danger'>Invalid login details.</Alert>
+            <Alert variant='danger'>Invalid member number and/or password.</Alert>
           )}
           <Form.Group controlId='member-number'>
             <Form.Label>Member number</Form.Label>
