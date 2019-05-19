@@ -28,7 +28,7 @@ const LOGGED_IN_MEMBERY_QUERY = gql`
 export const AuthProvider = ({ children }) => {
   // The only state is the auth token - we use this to create an ApolloClient and query the server
   // for member details.
-  const [token, setToken] = useState();
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   // Create an apollo client using the bearer token.
   const httpLink = createHttpLink({
@@ -49,8 +49,18 @@ export const AuthProvider = ({ children }) => {
   });
 
   // Exposed functions.
-  const login = (token) => setToken(token);
-  const logout = () => setToken(undefined);
+  const login = (token, remember) => {
+    setToken(token);
+
+    if (remember) {
+      localStorage.setItem('token', token);
+    }
+  };
+
+  const logout = () => {
+    setToken(token);
+    localStorage.removeItem('token');
+  };
 
   return (
     <ApolloProvider client={client}>

@@ -32,7 +32,7 @@ const LoginForm = ({ history }) => {
   };
 
   const handleCompleted = (data) => {
-    login(data.login.token);
+    login(data.login.token, remember);
     history.push('/');
   };
 
