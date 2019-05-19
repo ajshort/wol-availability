@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import { AuthProvider } from './components/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -13,9 +14,9 @@ const App = () => (
     <Router>
       <Header />
       <Switch>
-        <Route path='/' exact component={Home} />
-        <Route path='/member' component={Member} />
-        <Route path='/unit' component={Unit} />
+        <ProtectedRoute path='/' exact component={Home} />
+        <ProtectedRoute path='/member' component={Member} />
+        <ProtectedRoute path='/unit' component={Unit} />
         <Route path='/login' component={Login} />
       </Switch>
     </Router>
