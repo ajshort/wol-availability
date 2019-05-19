@@ -2,6 +2,8 @@ import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import { FaUser } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import logo from '../assets/logo.svg';
@@ -26,6 +28,16 @@ const Header = () => (
           <NavLink to='/' exact>Home</NavLink>
           <NavLink to='/member'>Member</NavLink>
           <NavLink to='/unit'>Unit</NavLink>
+        </Nav>
+        <Nav className='ml-auto'>
+          <NavDropdown title={<><FaUser /> User Name</>}>
+            <LinkContainer to='/member/me'>
+              <NavDropdown.Item>My availability</NavDropdown.Item>
+            </LinkContainer>
+            <LinkContainer to='/logout'>
+              <NavDropdown.Item>Logout</NavDropdown.Item>
+            </LinkContainer>
+          </NavDropdown>
         </Nav>
       </Navbar.Collapse>
     </Container>
