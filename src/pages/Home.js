@@ -14,6 +14,7 @@ import { getDocumentTitle } from '../utils';
 const AVAILABLE_MEMBERS_QUERY = gql`
   query ($instant: DateTime!) {
     membersAvailable(instant: $instant) {
+      _id
       fullName
       surname
     }

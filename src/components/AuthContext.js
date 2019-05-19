@@ -17,6 +17,7 @@ const AuthContext = React.createContext({
 const LOGGED_IN_MEMBERY_QUERY = gql`
   {
     member: loggedInMember {
+      _id
       number
       fullName
       permission

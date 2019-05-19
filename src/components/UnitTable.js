@@ -22,6 +22,7 @@ const MemberRow = ({ member }) => (
 const MEMBERS_QUERY = gql`
   {
     members {
+      _id
       number
       fullName
       surname
