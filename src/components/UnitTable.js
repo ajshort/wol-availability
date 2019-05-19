@@ -4,11 +4,18 @@ import { Query } from 'react-apollo';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 
+import QualificationBadge from './QualificationBadge';
+import TeamBadge from './TeamBadge';
+
 const MemberRow = ({ member }) => (
   <tr>
     <td>{member.fullName}</td>
-    <td>{member.team}</td>
-    <td>{member.qualifications.join(' ')}</td>
+    <td><TeamBadge team={member.team} /></td>
+    <td>
+      {member.qualifications.map(qual => (
+        <QualificationBadge key={qual} qualification={qual} />
+      ))}
+    </td>
   </tr>
 );
 
