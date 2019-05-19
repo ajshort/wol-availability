@@ -26,8 +26,6 @@ const LOGGED_IN_MEMBERY_QUERY = gql`
 `;
 
 export const AuthProvider = ({ children }) => {
-  console.log('AuthProvider');
-
   // The only state is the auth token - we use this to create an ApolloClient and query the server
   // for member details.
   const [token, setToken] = useState();
