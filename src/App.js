@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Logout from './pages/Logout';
 import Member from './pages/Member';
 import Unit from './pages/Unit';
 
@@ -18,6 +19,7 @@ const App = () => (
         <ProtectedRoute path='/member' component={Member} />
         <ProtectedRoute path='/unit' component={Unit} />
         <Route path='/login' component={Login} />
+        <Route path='/logout' component={Logout} />
       </Switch>
     </Router>
   </AuthProvider>
