@@ -1,5 +1,39 @@
+import moment from 'moment-timezone';
+
+import { TIME_ZONE, WEEK_START_DAY, WEEK_START_SHIFT } from './config';
+
 export function getDocumentTitle(pageTitle) {
   return `${pageTitle} | WOL SES Availability`;
+}
+
+export function getWeekStart(instant = moment()) {
+  const result = instant.clone().tz(TIME_ZONE);
+
+  if (result.day() < WEEK_START_DAY) {
+    result.subtract(1, 'week').day(WEEK_START_DAY);
+  } else if (result.day() > WEEK_START_DAY) {
+    result.day(WEEK_START_DAY);
+  } else {
+    const start = getShiftHours(WEEK_START_SHIFT)[0];
+
+    if (result.hour() < start) {
+      result.subtract(1, 'week').day(WEEK_START_DAY);
+    }
+  }
+
+  return result;
+}
+
+export function getShiftHours(shift) {
+  if (shift === 'MORNING') {
+    return [6, 12];
+  } else if (shift === 'AFTERNOON') {
+    return [12, 18];
+  } else if (shift === 'NIGHT') {
+    return [18, 6];
+  } else {
+    throw new Error(`Unknown shift ${shift}`);
+  }
 }
 
 export function getQualificationName(value) {
