@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import UnitTable from '../components/UnitTable';
 import { getDocumentTitle } from '../utils';
 
 const Unit = () => {
@@ -7,7 +8,9 @@ const Unit = () => {
     document.title = getDocumentTitle('Unit Availability');
   });
 
-  return '';
+  return (
+    <UnitTable />
+  );
 }
 
 export default Unit;
