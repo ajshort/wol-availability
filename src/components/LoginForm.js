@@ -5,6 +5,7 @@ import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import { withRouter } from 'react-router-dom';
 
 import AuthContext from './AuthContext';
 
@@ -16,7 +17,7 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-const LoginForm = () => {
+const LoginForm = ({ history }) => {
   const { login } = useContext(AuthContext);
 
   const [memberNumber, setMemberNumber] = useState(0);
@@ -32,6 +33,7 @@ const LoginForm = () => {
 
   const handleCompleted = (data) => {
     login(data.login.token);
+    history.push('/');
   };
 
   return (
@@ -84,4 +86,4 @@ const LoginForm = () => {
   )
 };
 
-export default LoginForm;
+export default withRouter(LoginForm);
