@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   // Create an apollo client using the bearer token.
   const httpLink = createHttpLink({
-    uri: process.env.REACT_APP_API_URI,
+    uri: process.env.REACT_APP_API_URI || 'https://wol-api.ajshort.now.sh/graphql',
   });
 
   const authLink = setContext((_operation, { headers }) => {
