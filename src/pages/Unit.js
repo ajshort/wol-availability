@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { withRouter } from 'react-router-dom';
 
 import QualificationsDropdown from '../components/QualificationsDropdown';
+import TeamSelect from '../components/TeamSelect';
 import UnitTable from '../components/UnitTable';
 import { getDocumentTitle } from '../utils';
 
@@ -16,15 +16,17 @@ const Unit = withRouter(({ match }) => {
   return (
     <React.Fragment>
       <div className='d-flex justify-content-between align-items-center p-3'>
-        <ButtonToolbar>
+        <div className='d-flex align-items-center'>
+          <label>Team</label>
+          <TeamSelect size='sm' className='mr-1 custom-select' />
+          <label>Qualifications</label>
           <QualificationsDropdown
             id='qualifications-filter'
             selected={qualifications}
             onChange={setQualifications}
             variant='info'
-            size='sm'
           />
-        </ButtonToolbar>
+        </div>
       </div>
       <UnitTable qualifications={qualifications} />
     </React.Fragment>

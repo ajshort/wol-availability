@@ -3,7 +3,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import FormCheck from 'react-bootstrap/FormCheck';
 
 import QualificationBadge from './QualificationBadge';
-import { getQualificationName } from '../utils';
+import { getQualificationName, getQualificationAbbreviation } from '../utils';
 
 const QUALIFICATIONS = [
   'CHAINSAW_CROSSCUT',
@@ -39,7 +39,11 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
   return (
     <Dropdown show={show} onToggle={handleToggle}>
       <Dropdown.Toggle id={id} {...props}>
-        Qualifications {selected.length > 0 && `(${selected.length})`}
+        {selected && selected.length > 0 ? (
+          selected.map(getQualificationAbbreviation).join(', ')
+        ) : (
+          'none'
+        )}
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
