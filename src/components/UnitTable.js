@@ -32,7 +32,7 @@ const MEMBERS_QUERY = gql`
   }
 `;
 
-const UnitTable = () => (
+const UnitTable = ({ qualifications = [] }) => (
   <Table size='sm'>
     <thead>
       <tr>
@@ -63,6 +63,15 @@ const UnitTable = () => (
           }
 
           return data.members
+            .filter(member => {
+              for (let qualification of qualifications) {
+                if (!member.qualifications.includes(qualification)) {
+                  return false;
+                }
+              }
+
+              return true;
+            })
             .sort((a, b) => {
               return a.team.localeCompare(b.team) ||
                      a.surname.localeCompare(b.surname)

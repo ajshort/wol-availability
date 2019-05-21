@@ -26,7 +26,7 @@ const Unit = withRouter(({ match }) => {
           />
         </ButtonToolbar>
       </div>
-      <UnitTable />
+      <UnitTable qualifications={qualifications} />
     </React.Fragment>
   );
 });
