@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import React from 'react';
 import { Query } from 'react-apollo';
+import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 
@@ -33,54 +34,55 @@ const MEMBERS_QUERY = gql`
 `;
 
 const UnitTable = ({ qualifications = [] }) => (
-  <Table size='sm'>
-    <thead>
-      <tr>
-        <th scope='col'>Member</th>
-        <th scope='col'>Team</th>
-        <th scope='col'>Qualifications</th>
-      </tr>
-    </thead>
-    <tbody>
-      <Query query={MEMBERS_QUERY}>
-        {({ loading, error, data }) => {
-          if (loading) {
-            return (
-              <tr>
-                <td colSpan={3}>
-                  <Spinner animation='border' size='sm' /> Loading members&hellip;
-                </td>
-              </tr>
-            );
+  <Query query={MEMBERS_QUERY}>
+    {({ loading, error, data }) => {
+      if (loading) {
+        return (
+          <Alert variant='info' className='mx-3'>
+            <Spinner animation='border' size='sm' /> Loading members&hellip;
+          </Alert>
+        );
+      }
+
+      if (error) {
+        return <Alert variant='danger' className='mx-3'>Error loading members.</Alert>;
+      }
+
+      const members = data.members
+        .filter(member => {
+          for (let qualification of qualifications) {
+            if (!member.qualifications.includes(qualification)) {
+              return false;
+            }
           }
 
-          if (error) {
-            return (
-              <tr>
-                <td colSpan={3} className='text-danger'>Error loading members.</td>
-              </tr>
-            );
-          }
+          return true;
+        })
+        .sort((a, b) => (
+          a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
+        ));
 
-          return data.members
-            .filter(member => {
-              for (let qualification of qualifications) {
-                if (!member.qualifications.includes(qualification)) {
-                  return false;
-                }
-              }
-
-              return true;
-            })
-            .sort((a, b) => {
-              return a.team.localeCompare(b.team) ||
-                     a.surname.localeCompare(b.surname)
-            })
-            .map(member => <MemberRow key={member.number} member={member} />);
-        }}
-      </Query>
-    </tbody>
-  </Table>
+      return (
+        <Table size='sm'>
+          <thead>
+            <tr>
+              <th scope='col'>Member</th>
+              <th scope='col'>Team</th>
+              <th scope='col'>Qualifications</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map(member => <MemberRow key={member.number} member={member} />)}
+          </tbody>
+          <tfoot>
+            <th scope='col'>{members.length}</th>
+            <th scope='col'></th>
+            <th scope='col'></th>
+          </tfoot>
+        </Table>
+      );
+    }}
+  </Query>
 );
 
 export default UnitTable;
