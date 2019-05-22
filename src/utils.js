@@ -36,6 +36,44 @@ export function getShiftHours(shift) {
   }
 }
 
+/**
+ * Gets the days and shifts for a week.
+ */
+export function getWeekShifts(week) {
+  if (week.day() !== WEEK_START_DAY) {
+    throw new Error('Invalid start day');
+  }
+
+  let first = ['MORNING', 'AFTERNOON', 'NIGHT'];
+  let last = [];
+
+  if (WEEK_START_SHIFT === 'AFTERNOON') {
+    last.push(first.shift());
+  } else if (WEEK_START_SHIFT === 'NIGHT') {
+    last.push(first.shift());
+    last.push(first.shift());
+  }
+
+  const days = [];
+  const max = (WEEK_START_SHIFT === 'MORNING') ? 7 : 8;
+
+  for (let i = 0; i < max; ++i) {
+    let shifts;
+
+    if (i === 0) {
+      shifts = first;
+    } else if (i === 7) {
+      shifts = last;
+    } else {
+      shifts = ['MORNING', 'AFTERNOON', 'NIGHT'];
+    }
+
+    days.push({ date: week.clone().add(i, 'days'), shifts });
+  }
+
+  return days;
+}
+
 export function getQualificationName(value) {
   switch (value) {
     case 'CHAINSAW_CROSSCUT':

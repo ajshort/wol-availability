@@ -13,7 +13,7 @@ import { withRouter } from 'react-router-dom';
 import QualificationsDropdown from '../components/QualificationsDropdown';
 import UnitTable from '../components/UnitTable';
 import { WEEK_START_DAY } from '../config';
-import { getDocumentTitle, getWeekStart } from '../utils';
+import { getDocumentTitle, getWeekShifts, getWeekStart } from '../utils';
 
 const MEMBERS_QUERY = gql`
   query {
@@ -29,12 +29,12 @@ const MEMBERS_QUERY = gql`
 `;
 
 const Unit = withRouter(({ match }) => {
-  let from;
+  let week;
 
   if (match.params.week !== undefined) {
-    from = moment(match.params.week, 'YYYY-MM-DD');
+    week = moment(match.params.week, 'YYYY-MM-DD');
   } else {
-    from = getWeekStart();
+    week = getWeekStart();
   }
 
   const [qualifications, setQualifications] = useState([]);
@@ -45,12 +45,16 @@ const Unit = withRouter(({ match }) => {
   });
 
   // Check we actually have a valid start date.
-  if (from.day() !== WEEK_START_DAY) {
+  if (week.day() !== WEEK_START_DAY) {
     return <Alert variant='danger' className='m-3'>Invalid week start.</Alert>;
   }
 
-  const prevWeek = `/unit/${from.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
-  const nextWeek = `/unit/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
+  // If we start in the morning show the week, otherwise we have to cut into the next week.
+  const days = getWeekShifts(week);
+
+  // Week links.
+  const prevWeek = `/unit/${week.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
+  const nextWeek = `/unit/${week.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
   return (
     <Query query={MEMBERS_QUERY}>
@@ -117,7 +121,7 @@ const Unit = withRouter(({ match }) => {
                 <Button variant='secondary'>Next week <FaArrowRight /></Button>
               </LinkContainer>
             </div>
-            <UnitTable members={members} />
+            <UnitTable members={members} days={days} />
           </React.Fragment>
         )
       }}

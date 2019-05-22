@@ -13,6 +13,11 @@
   max-width: 400px;
 }
 
+.UnitTable {
+  .team, .shift, .day { text-align: center; }
+  .member, .team { white-space: nowrap; width: 1%; }
+}
+
 .QualificationsDropdownMenu .form-check {
   justify-content: left;
 }
