@@ -31,8 +31,6 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
       updated.splice(updated.indexOf(qual), 1);
     }
 
-    console.log(updated);
-
     onChange(updated);
   };
 
@@ -46,7 +44,7 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
         )}
       </Dropdown.Toggle>
 
-      <Dropdown.Menu>
+      <Dropdown.Menu className='QualificationsDropdownMenu'>
         {QUALIFICATIONS.map((qual) => (
           <Dropdown.Item key={qual} as='div'>
             <FormCheck
