@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
@@ -11,7 +12,8 @@ import { withRouter } from 'react-router-dom';
 
 import QualificationsDropdown from '../components/QualificationsDropdown';
 import UnitTable from '../components/UnitTable';
-import { getDocumentTitle } from '../utils';
+import { WEEK_START_DAY } from '../config';
+import { getDocumentTitle, getWeekStart } from '../utils';
 
 const MEMBERS_QUERY = gql`
   query {
@@ -27,12 +29,28 @@ const MEMBERS_QUERY = gql`
 `;
 
 const Unit = withRouter(({ match }) => {
+  let from;
+
+  if (match.params.week !== undefined) {
+    from = moment(match.params.week, 'YYYY-MM-DD');
+  } else {
+    from = getWeekStart();
+  }
+
   const [qualifications, setQualifications] = useState([]);
   const [team, setTeam] = useState();
 
   useEffect(() => {
     document.title = getDocumentTitle('Unit Availability');
   });
+
+  // Check we actually have a valid start date.
+  if (from.day() !== WEEK_START_DAY) {
+    return <Alert variant='danger' className='m-3'>Invalid week start.</Alert>;
+  }
+
+  const prevWeek = `/unit/${from.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
+  const nextWeek = `/unit/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
   return (
     <Query query={MEMBERS_QUERY}>
@@ -67,7 +85,7 @@ const Unit = withRouter(({ match }) => {
         return (
           <React.Fragment>
             <div className='m-3 d-flex align-items-center justify-content-between'>
-              <LinkContainer to='/'>
+              <LinkContainer to={prevWeek}>
                 <Button variant='secondary'><FaArrowLeft /> Previous week</Button>
               </LinkContainer>
               <Form inline>
@@ -95,7 +113,7 @@ const Unit = withRouter(({ match }) => {
                   />
                 </Form.Group>
               </Form>
-              <LinkContainer to='/'>
+              <LinkContainer to={nextWeek}>
                 <Button variant='secondary'>Next week <FaArrowRight /></Button>
               </LinkContainer>
             </div>
