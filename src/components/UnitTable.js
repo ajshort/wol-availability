@@ -10,7 +10,7 @@ const MemberRow = ({ member, days }) => (
     <td className='team'><TeamBadge team={member.team} /></td>
     <td className='quals'>
       {member.qualifications.map(qual => (
-        <QualificationBadge key={qual} qualification={qual} />
+        <QualificationBadge key={qual} qualification={qual} className='mr-1' />
       ))}
     </td>
     {days.map(({ date, shifts }) => {

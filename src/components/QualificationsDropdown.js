@@ -53,7 +53,10 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
               checked={selected.includes(qual)}
               onChange={e => handleChecked(qual, e.target.checked)}
               label={
-                <><QualificationBadge qualification={qual} /> {getQualificationName(qual)}</>
+                <>
+                  <QualificationBadge qualification={qual} className='mr-1' />
+                  {getQualificationName(qual)}
+                </>
               }
             />
           </Dropdown.Item>
