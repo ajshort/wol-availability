@@ -4,7 +4,7 @@ import Table from 'react-bootstrap/Table';
 import QualificationBadge from './QualificationBadge';
 import TeamBadge from './TeamBadge';
 
-const MemberRow = ({ member }) => (
+const MemberRow = ({ member, days }) => (
   <tr>
     <td className='member'>{member.fullName}</td>
     <td className='team'><TeamBadge team={member.team} /></td>
@@ -13,8 +13,25 @@ const MemberRow = ({ member }) => (
         <QualificationBadge key={qual} qualification={qual} />
       ))}
     </td>
+    {days.map(({ date, shifts }) => {
+      const cell = shift => {
+        if (!shifts.includes(shift)) {
+          return <td className='table-secondary shift'></td>;
+        }
+
+        return <td className='shift'></td>;
+      };
+
+      return (
+        <React.Fragment key={date.unix()}>
+          {cell('MORNING')}
+          {cell('AFTERNOON')}
+          {cell('NIGHT')}
+        </React.Fragment>
+      )
+    })}
   </tr>
-)
+);
 
 const UnitTable = ({ members, days }) => (
   <Table size='sm' responsive className='UnitTable'>
@@ -34,13 +51,13 @@ const UnitTable = ({ members, days }) => (
           <React.Fragment key={date.unix()}>
             <th scope='col' className='shift shift-morning'>🌅</th>
             <th scope='col' className='shift shift-afternoon'>🌞</th>
-            <th scope='col' className='shift shift-evening'>🌃</th>
+            <th scope='col' className='shift shift-night'>🌃</th>
           </React.Fragment>
         ))}
       </tr>
     </thead>
     <tbody>
-      {members.map(member => <MemberRow key={member.number} member={member} />)}
+      {members.map(member => <MemberRow key={member.number} member={member} days={days} />)}
     </tbody>
     <tfoot>
       <tr>
