@@ -16,7 +16,7 @@ import { WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getWeekShifts, getWeekStart } from '../utils';
 
 const MEMBERS_QUERY = gql`
-  query {
+  query ($from: Date!, $to: Date!) {
     members {
       _id
       number
@@ -24,6 +24,11 @@ const MEMBERS_QUERY = gql`
       surname
       team
       qualifications
+      availabilities(from: $from, to: $to) {
+        date
+        shift
+        available
+      }
     }
   }
 `;
@@ -56,8 +61,14 @@ const Unit = withRouter(({ match }) => {
   const prevWeek = `/unit/${week.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
   const nextWeek = `/unit/${week.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
+  // Query vars.
+  const variables = {
+    from: days[0].date.format('YYYY-MM-DD'),
+    to: days[days.length - 1].date.format('YYYY-MM-DD'),
+  }
+
   return (
-    <Query query={MEMBERS_QUERY}>
+    <Query query={MEMBERS_QUERY} variables={variables}>
       {({ loading, error, data }) => {
         if (loading) {
           return (
