@@ -9,6 +9,8 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 
+import QualificationBadge from '../components/QualificationBadge';
+import TeamBadge from '../components/TeamBadge';
 import { getDocumentTitle } from '../utils';
 
 const AVAILABLE_MEMBERS_QUERY = gql`
@@ -17,6 +19,8 @@ const AVAILABLE_MEMBERS_QUERY = gql`
       _id
       fullName
       surname
+      team
+      qualifications
     }
   }
 `;
@@ -64,7 +68,17 @@ const Home = () => {
             return (
               <ListGroup variant='flush'>
                 {members.map((member) => (
-                  <ListGroup.Item>{member.fullName}</ListGroup.Item>
+                  <ListGroup.Item>
+                    <div className='d-flex align-items-center justify-content-between'>
+                      {member.fullName}
+                      <div>
+                        <TeamBadge team={member.team} />
+                        {member.qualifications.sort().map(qual => (
+                          <QualificationBadge key={qual} qualification={qual} className='ml-1' />
+                        ))}
+                      </div>
+                    </div>
+                  </ListGroup.Item>
                 ))}
               </ListGroup>
             )
