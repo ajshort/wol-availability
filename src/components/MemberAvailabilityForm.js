@@ -94,7 +94,7 @@ const MemberAvailabilityForm = ({ member, days }) => {
             <tbody>
               {days.map((day) => (
                 <tr key={day.date.unix()}>
-                  <th scope='row'>{day.date.format('dddd D/M')}</th>
+                  <th scope='row'>{day.date.format('ddd D/M')}</th>
                   {['MORNING', 'AFTERNOON', 'NIGHT'].map(shift => {
                     if (!day.shifts.includes(shift)) {
                       return <td key={shift} className='table-secondary' />;
