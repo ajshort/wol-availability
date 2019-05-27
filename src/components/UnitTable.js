@@ -84,7 +84,7 @@ const MemberRow = ({ member }) => (
   <tr>
     <td className='member' title={member.number}>{member.fullName}</td>
     <td className='team'><TeamBadge team={member.team} /></td>
-    <td className='quals'>
+    <td className='quals d-none d-xl-table-cell'>
       {member.qualifications.sort().map(qual => (
         <QualificationBadge key={qual} qualification={qual} className='mr-1' />
       ))}
@@ -155,7 +155,7 @@ const UnitTable = ({ members, from, to }) => {
         <tr>
           <th scope='col' className='member' rowSpan={2}>Member</th>
           <th scope='col' className='team' rowSpan={2}>Team</th>
-          <th scope='col' className='quals' rowSpan={2}>Qualifications</th>
+          <th scope='col' className='quals d-none d-xl-table-cell' rowSpan={2}>Qualifications</th>
           {days.map(date => (
             <th key={date.unix()} scope='col' colSpan={3} className='day'>
               {date.format('ddd D/M')}
