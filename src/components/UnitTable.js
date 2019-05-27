@@ -1,12 +1,26 @@
 import classnames from 'classnames';
+import gql from 'graphql-tag';
 import React, { useState } from 'react';
+import { Mutation } from 'react-apollo';
+import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 
 import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
 import TeamBadge from './TeamBadge';
 
-const EditableShiftCell = ({ defaultAvailable, shift }) => {
+const SET_AVAILABLE_MUTATION = gql`
+  mutation ($member: Int!, $date: Date!, $shift: Shift!, $available: Boolean!) {
+    setAvailabilities(memberNumber: $member, availabilities: [{
+      date: $date,
+      shift: $shift,
+      available: $available,
+    }])
+  }
+`;
+
+const EditableShiftCell = ({ member, date, defaultAvailable, shift }) => {
+  const [previous, setPrevious] = useState();
   const [available, setAvailable] = useState(defaultAvailable);
 
   const classes = ['shift', `shift-${shift.toLowerCase()}`];
@@ -17,12 +31,53 @@ const EditableShiftCell = ({ defaultAvailable, shift }) => {
     classes.push('table-danger');
   }
 
+  console.log(available);
+
+  const variables = {
+    member: member.number,
+    date: date.format('YYYY-MM-DD'),
+    shift,
+  };
+
+  const handleError = () => {
+    // TODO make this a bit prettier.
+    alert('There was an error saving your availability');
+
+    setAvailable(previous);
+  };
+
   return (
-    <td className={classnames(classes)}>
-      <label>
-        <input type='checkbox' checked={available === true} />
-      </label>
-    </td>
+    <Mutation
+      mutation={SET_AVAILABLE_MUTATION}
+      variables={variables}
+      onError={err => handleError(err)}
+    >
+      {(mutate, { loading }) => {
+        const handleChange = (checked) => {
+          setPrevious(available);
+          setAvailable(checked);
+
+          mutate({ variables: { available: checked } });
+        };
+
+        return (
+          <td className={classnames(classes)}>
+            {loading ? (
+              <Spinner animation='border' size='sm' />
+            ) : (
+              <label>
+                <input
+                  type='checkbox'
+                  checked={available === true}
+                  onChange={e => handleChange(e.target.checked)}
+                />
+              </label>
+            )}
+
+          </td>
+        );
+      }}
+    </Mutation>
   );
 }
 
@@ -60,6 +115,8 @@ const MemberRow = ({ member }) => (
             return (
               <EditableShiftCell
                 key={shift}
+                date={date}
+                member={member}
                 shift={shift}
                 defaultAvailable={available}
               />
