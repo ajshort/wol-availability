@@ -5,6 +5,7 @@ import { Mutation } from 'react-apollo';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
 
+import { getMemberShiftAvailability } from '../utils';
 import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
 import TeamBadge from './TeamBadge';
@@ -30,8 +31,6 @@ const EditableShiftCell = ({ member, date, defaultAvailable, shift }) => {
   } else if (available === false) {
     classes.push('table-danger');
   }
-
-  console.log(available);
 
   const variables = {
     member: member.number,
@@ -135,26 +134,20 @@ const UnitTable = ({ members, from, to }) => {
     days.push(day.clone());
   }
 
-  // TODO Summarise how many members we have available.
-  // const sum = members.reduce((total, member) => {
-  //   let i = 0;
+  // Summarise how many members we have available.
+  const sum = getMemberShiftAvailability(from, []).map(({ shifts }) => (
+    shifts.map(({ enabled }) => ({ enabled, sum: 0 }))
+  ));
 
-  //   for (const { shifts } of member.shifts) {
-  //     for (const { enabled, available } of shifts) {
-  //       if (!enabled) {
-  //         continue;
-  //       }
-
-  //       if (available) {
-  //         ++total[i];
-  //       }
-
-  //       ++i;
-  //     }
-  //   }
-
-  //   return total;
-  // }, new Array(7 * SHIFTS.length).fill(0));
+  for (const member of members) {
+    for (let i = 0; i < member.shifts.length; ++i) {
+      for (let j = 0; j < member.shifts[i].shifts.length; ++j) {
+        if (member.shifts[i].shifts[j].available) {
+          ++sum[i][j].sum;
+        }
+      }
+    }
+  }
 
   return (
     <Table size='sm' responsive className='unit-table'>
@@ -191,6 +184,13 @@ const UnitTable = ({ members, from, to }) => {
       <tfoot>
         <tr>
           <th scope='col' colSpan={3}>{members.length}</th>
+          {sum.flat().map(({ enabled, sum }, i) => {
+            if (!enabled) {
+              return <th key={i}></th>
+            }
+
+            return <th key={i} className='shift'>{sum}</th>;
+          })}
         </tr>
       </tfoot>
     </Table>
