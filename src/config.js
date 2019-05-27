@@ -6,6 +6,20 @@ export const TIME_ZONE = 'Australia/Sydney';
 export const WEEK_START_DAY = 1;
 
 /**
+ * The shifts in each day.
+ */
+export const SHIFTS = ['MORNING', 'AFTERNOON', 'NIGHT'];
+
+/**
+ * Hours for each shift.
+ */
+export const SHIFT_TIMES = {
+  'MORNING': [6, 12],
+  'AFTERNOON': [12, 18],
+  'NIGHT': [18, 6],
+};
+
+/**
  * The shift where the shift week starts.
  */
 export const WEEK_START_SHIFT = 'NIGHT';
