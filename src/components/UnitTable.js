@@ -1,9 +1,30 @@
-import React from 'react';
+import classnames from 'classnames';
+import React, { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 
-import { SHIFTS } from '../config';
+import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
 import TeamBadge from './TeamBadge';
+
+const EditableShiftCell = ({ defaultAvailable, shift }) => {
+  const [available, setAvailable] = useState(defaultAvailable);
+
+  const classes = ['shift', `shift-${shift.toLowerCase()}`];
+
+  if (available === true) {
+    classes.push('table-success');
+  } else if (available === false) {
+    classes.push('table-danger');
+  }
+
+  return (
+    <td className={classnames(classes)}>
+      <label>
+        <input type='checkbox' checked={available === true} />
+      </label>
+    </td>
+  );
+}
 
 const MemberRow = ({ member }) => (
   <tr>
@@ -14,25 +35,39 @@ const MemberRow = ({ member }) => (
         <QualificationBadge key={qual} qualification={qual} className='mr-1' />
       ))}
     </td>
-    {member.shifts.map(({ date, shifts }) => (
-      <React.Fragment key={date.unix()}>
-        {shifts.map(({ shift, enabled, available }) => {
-          if (!enabled) {
-            return <td key={shift} className='table-secondary' />;
-          }
+    <AuthCheck target={member}>
+      {editable => member.shifts.map(({ date, shifts }) => (
+        <React.Fragment key={date.unix()}>
+          {shifts.map(({ shift, enabled, available }) => {
+            if (!enabled) {
+              return <td key={shift} className='table-secondary' />;
+            }
 
-          let cls;
+            if (!editable) {
+              let className = `shift-${shift.toLowerCase()}`;
 
-          if (available === true) {
-            cls = 'table-success';
-          } else if (available === false) {
-            cls = 'table-danger';
-          }
+              if (available === true) {
+                className = 'table-success';
+              } else if (available === false) {
+                className = 'table-danger';
+              }
 
-          return <td key={shift} className={cls}></td>;
-        })}
-      </React.Fragment>
-    ))}
+              return (
+                <td key={shift} className={className}></td>
+              );
+            }
+
+            return (
+              <EditableShiftCell
+                key={shift}
+                shift={shift}
+                defaultAvailable={available}
+              />
+            );
+          })}
+        </React.Fragment>
+      ))}
+    </AuthCheck>
   </tr>
 );
 
@@ -43,30 +78,29 @@ const UnitTable = ({ members, from, to }) => {
     days.push(day.clone());
   }
 
-  // TODO
-  // Summarise how many members we have available.
-  const sum = members.reduce((total, member) => {
-    let i = 0;
+  // TODO Summarise how many members we have available.
+  // const sum = members.reduce((total, member) => {
+  //   let i = 0;
 
-    for (const { shifts } of member.shifts) {
-      for (const { enabled, available } of shifts) {
-        if (!enabled) {
-          continue;
-        }
+  //   for (const { shifts } of member.shifts) {
+  //     for (const { enabled, available } of shifts) {
+  //       if (!enabled) {
+  //         continue;
+  //       }
 
-        if (available) {
-          ++total[i];
-        }
+  //       if (available) {
+  //         ++total[i];
+  //       }
 
-        ++i;
-      }
-    }
+  //       ++i;
+  //     }
+  //   }
 
-    return total;
-  }, new Array(7 * SHIFTS.length).fill(0));
+  //   return total;
+  // }, new Array(7 * SHIFTS.length).fill(0));
 
   return (
-    <Table size='sm' responsive className='UnitTable'>
+    <Table size='sm' responsive className='unit-table'>
       <thead>
         <tr>
           <th scope='col' className='member' rowSpan={2}>Member</th>
