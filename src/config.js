@@ -13,7 +13,7 @@ export const SHIFTS = ['MORNING', 'AFTERNOON', 'NIGHT'];
 /**
  * Hours for each shift.
  */
-export const SHIFT_TIMES = {
+export const SHIFT_HOURS = {
   'MORNING': [6, 12],
   'AFTERNOON': [12, 18],
   'NIGHT': [18, 6],

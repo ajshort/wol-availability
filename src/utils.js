@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 
-import { TIME_ZONE, WEEK_START_DAY, WEEK_START_SHIFT } from './config';
+import { SHIFTS, SHIFT_HOURS, TIME_ZONE, WEEK_START_DAY, WEEK_START_SHIFT } from './config';
 
 export function getDocumentTitle(pageTitle) {
   return `${pageTitle} | WOL SES Availability`;
@@ -24,54 +24,66 @@ export function getWeekStart(instant = moment()) {
   return result;
 }
 
-export function getShiftHours(shift) {
-  if (shift === 'MORNING') {
-    return [6, 12];
-  } else if (shift === 'AFTERNOON') {
-    return [12, 18];
-  } else if (shift === 'NIGHT') {
-    return [18, 6];
-  } else {
-    throw new Error(`Unknown shift ${shift}`);
+export function getWeekEnd(start = moment()) {
+  // Only if we switch shifts at the beginning of the day does the shift week actually contain
+  // 7 days - otherwise it kinda contains 8.
+  if (WEEK_START_SHIFT === SHIFTS[0]) {
+    return start.clone().add(6, 'days');
   }
+
+  return start.clone().add(7, 'days');
+}
+
+export function getShiftHours(shift) {
+  return SHIFT_HOURS[shift];
 }
 
 /**
- * Gets the days and shifts for a week.
+ * Converts an array if individual shift records into a useful 2D array for the week.
  */
-export function getWeekShifts(week) {
+export function getMemberShiftAvailability(week, records) {
   if (week.day() !== WEEK_START_DAY) {
-    throw new Error('Invalid start day');
+    throw new Error('Week does not start of week start day');
   }
 
-  let first = ['MORNING', 'AFTERNOON', 'NIGHT'];
+  const availability = [];
+
+  // How many days are in a week?
+  const days = (WEEK_START_SHIFT === SHIFTS[0]) ? 7 : 8;
+
+  // Which shifts are only present of the first and last days?
+  let first = [...SHIFTS];
   let last = [];
 
-  if (WEEK_START_SHIFT === 'AFTERNOON') {
-    last.push(first.shift());
-  } else if (WEEK_START_SHIFT === 'NIGHT') {
-    last.push(first.shift());
+  for (let i = 0; i < SHIFTS.indexOf(WEEK_START_SHIFT); ++i) {
     last.push(first.shift());
   }
 
-  const days = [];
-  const max = (WEEK_START_SHIFT === 'MORNING') ? 7 : 8;
+  for (let i = 0; i < days; ++i) {
+    const date = week.clone().add(i, 'days').format('YYYY-MM-DD');
 
-  for (let i = 0; i < max; ++i) {
-    let shifts;
+    const shifts = SHIFTS.map(shift => {
+      if (i === 0 && !first.includes(shift)) {
+        return { shift, enabled: false };
+      }
 
-    if (i === 0) {
-      shifts = first;
-    } else if (i === 7) {
-      shifts = last;
-    } else {
-      shifts = ['MORNING', 'AFTERNOON', 'NIGHT'];
-    }
+      if (i === 7 && !last.includes(shift)) {
+        return { shift, enabled: false };
+      }
 
-    days.push({ date: week.clone().add(i, 'days'), shifts });
+      const record = records.find(record => (
+        record.date === date && record.shift === shift
+      ));
+
+      return { shift, enabled: true, available: record ? record.available : undefined };
+    });
+
+    availability.push({
+      date: week.clone().add(i, 'days'), shifts
+    });
   }
 
-  return days;
+  return availability;
 }
 
 export function getQualificationName(value) {

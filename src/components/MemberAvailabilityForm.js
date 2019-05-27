@@ -10,6 +10,8 @@ import Table from 'react-bootstrap/Table';
 import { FaArrowLeft } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 
+import { SHIFTS } from '../config';
+import { getMemberShiftAvailability } from '../utils';
 import AvailableCell from './AvailableCell';
 import QualificationBadge from './QualificationBadge';
 import TeamBadge from './TeamBadge';
@@ -20,24 +22,20 @@ const SET_AVAILABILITIES_MUTATION = gql`
   }
 `;
 
-const MemberAvailabilityForm = ({ member, days }) => {
+const MemberAvailabilityForm = ({ member, week }) => {
+  const initial = getMemberShiftAvailability(week, member.availabilities);
+
   // Put all our availability in a big array.
-  const initial = {};
-
-  for (const { date } of days) {
-    initial[date.format('YYYY-MM-DD')] = { date };
-  }
-
-  for (const { date, shift, available } of member.availabilities) {
-    initial[date][shift] = available;
-  }
-
   const [availabilities, setAvailabilities] = useState(initial);
   const [saved, setSaved] = useState(false);
 
   const handleAvailabilityChange = (date, shift, available) => {
-    const changed = { ...availabilities };
-    changed[date][shift] = available;
+    const dayIndex = date.diff(week, 'days');
+    const shiftIndex = SHIFTS.indexOf(shift);
+
+    const changed = [...availabilities];
+    changed[dayIndex].shifts[shiftIndex].available = available;
+
     setAvailabilities(changed);
   };
 
@@ -51,15 +49,17 @@ const MemberAvailabilityForm = ({ member, days }) => {
 
   const variables = {
     member: member.number,
-    availabilities: days.map(({ date, shifts }) => shifts.map(shift => {
-      const key = date.format('YYYY-MM-DD');
+    availabilities: availabilities.map(({ date, shifts }) => {
+      const records = [];
 
-      return {
-        date: key,
-        shift,
-        available: availabilities[key][shift] === true,
-      };
-    })).flat(),
+      for (const { shift, enabled, available } of shifts) {
+        if (enabled) {
+          records.push({ date: date.format('YYYY-MM-DD'), shift, available: available === true });
+        }
+      }
+
+      return records;
+    }).flat(),
   };
 
   return (
@@ -92,21 +92,19 @@ const MemberAvailabilityForm = ({ member, days }) => {
               </tr>
             </thead>
             <tbody>
-              {days.map((day) => (
-                <tr key={day.date.unix()}>
-                  <th scope='row'>{day.date.format('ddd D/M')}</th>
-                  {['MORNING', 'AFTERNOON', 'NIGHT'].map(shift => {
-                    if (!day.shifts.includes(shift)) {
+              {availabilities.map(({ date, shifts }) => (
+                <tr key={date.unix()}>
+                  <th scope='row'>{date.format('ddd D/M')}</th>
+                  {shifts.map(({ shift, enabled, available }) => {
+                    if (!enabled) {
                       return <td key={shift} className='table-secondary' />;
                     }
-
-                    const key = day.date.format('YYYY-MM-DD');
 
                     return (
                       <AvailableCell
                         key={shift}
-                        available={availabilities[key][shift]}
-                        onChange={available => handleAvailabilityChange(key, shift, available)}
+                        available={available}
+                        onChange={available => handleAvailabilityChange(date, shift, available)}
                       />
                     );
                   })}

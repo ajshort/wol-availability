@@ -14,7 +14,7 @@ import AuthCheck from '../components/AuthCheck';
 import AuthContext from '../components/AuthContext';
 import MemberAvailabilityForm from '../components/MemberAvailabilityForm';
 import { WEEK_START_DAY } from '../config';
-import { getDocumentTitle, getWeekShifts, getWeekStart } from '../utils';
+import { getDocumentTitle, getWeekStart, getWeekEnd } from '../utils';
 
 const MePage = () => {
   const { member } = useContext(AuthContext);
@@ -43,20 +43,19 @@ const MEMBER_AVAILABILITY_QUERY = gql`
 
 const WeekPage = ({ match }) => {
   const number = parseInt(match.params.member);
-  const week = moment(match.params.week, 'YYYY-MM-DD');
+  const start = moment(match.params.week, 'YYYY-MM-DD');
+  const end = getWeekEnd(start);
 
-  if (week.day() !== WEEK_START_DAY) {
+  if (start.day() !== WEEK_START_DAY) {
     return (
       <Alert variant='danger' className='m-3'>Invalid week.</Alert>
     );
   }
 
-  const days = getWeekShifts(week);
-
   const variables = {
     number,
-    from: days[0].date.format('YYYY-MM-DD'),
-    to: days[days.length - 1].date.format('YYYY-MM-DD'),
+    from: start.format('YYYY-MM-DD'),
+    to: end.format('YYYY-MM-DD'),
   };
 
   return (
@@ -83,7 +82,7 @@ const WeekPage = ({ match }) => {
                 );
               }
 
-              return <MemberAvailabilityForm member={data.member} days={days} />;
+              return <MemberAvailabilityForm member={data.member} week={start} />;
             }}
           </AuthCheck>
         );
