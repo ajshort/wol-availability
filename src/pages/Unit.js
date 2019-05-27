@@ -103,10 +103,12 @@ const Unit = withRouter(({ match }) => {
           <React.Fragment>
             <div className='m-3 d-flex align-items-center justify-content-between'>
               <LinkContainer to={prevWeek}>
-                <Button variant='secondary'><FaArrowLeft /> Previous week</Button>
+                <Button variant='secondary'>
+                  <FaArrowLeft /><span className='d-none d-md-inline'>Previous week</span>
+                </Button>
               </LinkContainer>
               <Form inline>
-                <Form.Group controlId='team-filter' className='mr-3'>
+                <Form.Group controlId='team-filter' className='mr-md-3'>
                   <Form.Label className='mr-1'>Team</Form.Label>
                   <Form.Control
                     as='select'
@@ -120,7 +122,7 @@ const Unit = withRouter(({ match }) => {
                     ))}
                   </Form.Control>
                 </Form.Group>
-                <Form.Group controlId='qualifications-filter'>
+                <Form.Group controlId='qualifications-filter' className='d-none d-md-flex'>
                   <Form.Label className='mr-1'>Qualifications</Form.Label>
                   <Form.Control
                     as={QualificationsDropdown}
@@ -131,7 +133,9 @@ const Unit = withRouter(({ match }) => {
                 </Form.Group>
               </Form>
               <LinkContainer to={nextWeek}>
-                <Button variant='secondary'>Next week <FaArrowRight /></Button>
+                <Button variant='secondary'>
+                  <span className='d-none d-md-inline'>Next week</span><FaArrowRight />
+                </Button>
               </LinkContainer>
             </div>
             <UnitTable members={members} from={from} to={to} />
