@@ -70,9 +70,10 @@ const Home = () => {
                 {members.map((member) => (
                   <ListGroup.Item>
                     <div className='d-flex align-items-center justify-content-between'>
-                      {member.fullName}
                       <div>
-                        <TeamBadge team={member.team} />
+                        {member.fullName} <TeamBadge team={member.team} />
+                      </div>
+                      <div>
                         {member.qualifications.sort().map(qual => (
                           <QualificationBadge key={qual} qualification={qual} className='ml-1' />
                         ))}
