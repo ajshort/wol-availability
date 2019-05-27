@@ -32,7 +32,6 @@ const MEMBER_AVAILABILITY_QUERY = gql`
       team
       qualifications
       availabilities(from: $from, to: $to) {
-        _id
         date
         shift
         available

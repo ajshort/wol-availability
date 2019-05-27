@@ -13,7 +13,7 @@ import { withRouter } from 'react-router-dom';
 import QualificationsDropdown from '../components/QualificationsDropdown';
 import UnitTable from '../components/UnitTable';
 import { WEEK_START_DAY } from '../config';
-import { getDocumentTitle, getWeekShifts, getWeekStart } from '../utils';
+import { getDocumentTitle, getMemberShiftAvailability, getWeekStart, getWeekEnd } from '../utils';
 
 const MEMBERS_QUERY = gql`
   query ($from: Date!, $to: Date!) {
@@ -25,7 +25,6 @@ const MEMBERS_QUERY = gql`
       team
       qualifications
       availabilities(from: $from, to: $to) {
-        _id
         date
         shift
         available
@@ -35,12 +34,12 @@ const MEMBERS_QUERY = gql`
 `;
 
 const Unit = withRouter(({ match }) => {
-  let week;
+  let from;
 
   if (match.params.week !== undefined) {
-    week = moment(match.params.week, 'YYYY-MM-DD');
+    from = moment(match.params.week, 'YYYY-MM-DD');
   } else {
-    week = getWeekStart();
+    from = getWeekStart();
   }
 
   const [qualifications, setQualifications] = useState([]);
@@ -51,22 +50,21 @@ const Unit = withRouter(({ match }) => {
   });
 
   // Check we actually have a valid start date.
-  if (week.day() !== WEEK_START_DAY) {
+  if (from.day() !== WEEK_START_DAY) {
     return <Alert variant='danger' className='m-3'>Invalid week start.</Alert>;
   }
 
-  // If we start in the morning show the week, otherwise we have to cut into the next week.
-  const days = getWeekShifts(week);
-
   // Week links.
-  const prevWeek = `/unit/${week.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
-  const nextWeek = `/unit/${week.clone().add(1, 'week').format('YYYY-MM-DD')}`;
+  const prevWeek = `/unit/${from.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
+  const nextWeek = `/unit/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
   // Query vars.
+  const to = getWeekEnd(from);
+
   const variables = {
-    from: days[0].date.format('YYYY-MM-DD'),
-    to: days[days.length - 1].date.format('YYYY-MM-DD'),
-  }
+    from: from.format('YYYY-MM-DD'),
+    to: to.format('YYYY-MM-DD'),
+  };
 
   return (
     <Query query={MEMBERS_QUERY} variables={variables}>
@@ -76,7 +74,7 @@ const Unit = withRouter(({ match }) => {
             <Alert variant='info' className='m-3'>
               <Spinner animation='border' size='sm' /> Loading members&hellip;
             </Alert>
-          )
+          );
         }
 
         if (error) {
@@ -96,7 +94,10 @@ const Unit = withRouter(({ match }) => {
 
             return true;
           })
-          .sort((a, b) => a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname));
+          .sort((a, b) => a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname))
+          .map(member => ({
+            ...member, shifts: getMemberShiftAvailability(from, member.availabilities)
+          }));
 
         return (
           <React.Fragment>
@@ -133,7 +134,7 @@ const Unit = withRouter(({ match }) => {
                 <Button variant='secondary'>Next week <FaArrowRight /></Button>
               </LinkContainer>
             </div>
-            <UnitTable members={members} days={days} />
+            <UnitTable members={members} from={from} to={to} />
           </React.Fragment>
         )
       }}
