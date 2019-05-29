@@ -127,3 +127,13 @@ export function getQualificationAbbreviation(value) {
       return '?';
   }
 }
+
+export function formatMobile(mobile) {
+  const nums = mobile.replace(/\s/g, '');
+
+  if (!/[0-9]{10}/.test(nums)) {
+    return mobile;
+  }
+
+  return [nums.substring(0, 4), nums.substring(4, 7), nums.substring(7, 10)].join(' ');
+}

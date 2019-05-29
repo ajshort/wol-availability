@@ -8,10 +8,11 @@ import Container from 'react-bootstrap/Container';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
+import { FaMobileAlt } from 'react-icons/fa';
 
 import QualificationBadge from '../components/QualificationBadge';
 import TeamBadge from '../components/TeamBadge';
-import { getDocumentTitle } from '../utils';
+import { formatMobile, getDocumentTitle } from '../utils';
 
 const AVAILABLE_MEMBERS_QUERY = gql`
   query ($instant: DateTime!) {
@@ -19,6 +20,7 @@ const AVAILABLE_MEMBERS_QUERY = gql`
       _id
       fullName
       surname
+      mobile
       team
       qualifications
     }
@@ -71,9 +73,15 @@ const Home = () => {
                   <ListGroup.Item>
                     <div className='d-flex align-items-center justify-content-between'>
                       <div>
-                        {member.fullName} <TeamBadge team={member.team} />
+                        {member.fullName}
+                        <a className='ml-1' href={`tel:${member.mobile}`}>
+                          <small>
+                            <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
+                          </small>
+                        </a>
                       </div>
-                      <div>
+                      <div className='text-right'>
+                        <TeamBadge team={member.team} />
                         {member.qualifications.sort().map(qual => (
                           <QualificationBadge key={qual} qualification={qual} className='ml-1' />
                         ))}
