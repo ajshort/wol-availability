@@ -13,8 +13,6 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { SHIFTS } from '../config';
 import { getMemberShiftAvailability } from '../utils';
 import AvailableCell from './AvailableCell';
-import QualificationBadge from './QualificationBadge';
-import TeamBadge from './TeamBadge';
 
 const SET_AVAILABILITIES_MUTATION = gql`
   mutation ($member: Int!, $availabilities: [AvailabilityInput!]!) {
@@ -70,12 +68,6 @@ const MemberAvailabilityForm = ({ member, week }) => {
     >
       {(mutation, { loading, error }) => (
         <Form className='member-availability-form' onSubmit={e => handleSubmit(e, mutation)}>
-          <h3>{member.fullName} <TeamBadge team={member.team} /></h3>
-          <p>
-            {member.qualifications.sort().map(qual => (
-              <QualificationBadge key={qual} qualification={qual} className='mr-1' />
-            ))}
-          </p>
           {saved && (
             <Alert variant='success'>Your availability has been saved.</Alert>
           )}

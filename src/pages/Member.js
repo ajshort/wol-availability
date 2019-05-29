@@ -7,12 +7,15 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { LinkContainer } from 'react-router-bootstrap';
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 
 import AuthCheck from '../components/AuthCheck';
 import AuthContext from '../components/AuthContext';
 import MemberAvailabilityForm from '../components/MemberAvailabilityForm';
+import QualificationBadge from '../components/QualificationBadge';
+import TeamBadge from '../components/TeamBadge';
 import { WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getWeekStart, getWeekEnd } from '../utils';
 
@@ -81,7 +84,35 @@ const WeekPage = ({ match }) => {
                 );
               }
 
-              return <MemberAvailabilityForm member={data.member} week={start} />;
+              const { member } = data;
+
+              const prevWeek = `/member/${number}/${start.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
+              const nextWeek = `/member/${number}/${start.clone().add(1, 'week').format('YYYY-MM-DD')}`;
+
+              return (
+                <React.Fragment>
+                  <h1 className='h3'>{member.fullName} <TeamBadge team={member.team} /></h1>
+                  <p>
+                    {member.qualifications.sort().map(qual => (
+                      <QualificationBadge key={qual} qualification={qual} className='mr-1' />
+                    ))}
+                  </p>
+                  <div className='member-availability-header d-flex justify-content-between align-items-center'>
+                    <LinkContainer to={prevWeek}>
+                      <Button variant='secondary'>
+                        <FaArrowLeft /> <span className='d-none d-md-inline'>Previous week</span>
+                      </Button>
+                    </LinkContainer>
+                    <h2 className='h4'>{start.format('Do MMM YYYY')}</h2>
+                    <LinkContainer to={nextWeek}>
+                      <Button variant='secondary'>
+                        <span className='d-none d-md-inline'>Next week</span> <FaArrowRight />
+                      </Button>
+                    </LinkContainer>
+                  </div>
+                  <MemberAvailabilityForm member={data.member} week={start} />
+                </React.Fragment>
+              );
             }}
           </AuthCheck>
         );

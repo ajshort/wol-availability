@@ -23,6 +23,15 @@
   th.day, .shift-night, .quals { border-right: 1px solid $table-border-color; }
 }
 
+.member-availability-header {
+  background: $table-border-color;
+  padding: $spacer;
+
+  h2 {
+    margin: 0;
+  }
+}
+
 .member-availability-form {
   table { border-bottom: 1px solid $table-border-color; }
   thead th { text-align: center; }
