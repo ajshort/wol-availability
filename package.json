@@ -16,6 +16,7 @@
     "node-sass": "^4.12.0",
     "react": "^16.8.6",
     "react-apollo": "^2.5.5",
+    "react-app-polyfill": "^1.0.1",
     "react-bootstrap": "^1.0.0-beta.8",
     "react-dom": "^16.8.6",
     "react-icons": "^3.7.0",
@@ -42,7 +43,8 @@
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 safari version",
+      "last 1 edge version"
     ]
   }
 }
