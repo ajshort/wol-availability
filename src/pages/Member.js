@@ -91,23 +91,14 @@ const WeekPage = ({ match }) => {
 
               return (
                 <React.Fragment>
-                  <h1 className='h3'>{member.fullName} <TeamBadge team={member.team} /></h1>
-                  <p>
-                    {member.qualifications.sort().map(qual => (
-                      <QualificationBadge key={qual} qualification={qual} className='mr-1' />
-                    ))}
-                  </p>
-                  <div className='member-availability-header d-flex justify-content-between align-items-center'>
+                  <h1 className='h3 text-center'>{member.fullName}</h1>
+                  <div className='d-flex justify-content-center align-items-center my-3'>
                     <LinkContainer to={prevWeek}>
-                      <Button variant='secondary'>
-                        <FaArrowLeft /> <span className='d-none d-md-inline'>Previous week</span>
-                      </Button>
+                      <Button variant='secondary'><FaArrowLeft /></Button>
                     </LinkContainer>
-                    <h2 className='h4'>{start.format('Do MMM YYYY')}</h2>
+                    <strong className='mx-1'>{start.format('Do MMM YYYY')}</strong>
                     <LinkContainer to={nextWeek}>
-                      <Button variant='secondary'>
-                        <span className='d-none d-md-inline'>Next week</span> <FaArrowRight />
-                      </Button>
+                      <Button variant='secondary'><FaArrowRight /></Button>
                     </LinkContainer>
                   </div>
                   <MemberAvailabilityForm member={data.member} week={start} />
