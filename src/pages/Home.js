@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import moment from 'moment';
 import React, { useEffect } from 'react';
 import { Query } from 'react-apollo';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -27,6 +28,41 @@ const AVAILABLE_MEMBERS_QUERY = gql`
   }
 `;
 
+const SHIFT_TEAMS_QUERY = gql`
+  {
+    shiftTeams {
+      day
+      night
+    }
+  }
+`;
+
+const ShiftTeamsAlert = () => (
+  <Query query={SHIFT_TEAMS_QUERY}>
+    {({ loading, error, data }) => (
+      <Alert variant={error ? 'danger' : 'info'} className='mb-3'>
+        {(() => {
+          if (loading) {
+            return (
+              <><Spinner as='span' animation='border' size='sm' /> Loading shift teams&hellip;</>
+            );
+          }
+
+          if (error) {
+            return 'Error loading shift teams';
+          }
+
+          const { day, night } = data.shiftTeams;
+
+          return (
+            <><strong>{day}</strong> is day shift and <strong>{night}</strong> is night shift.</>
+          );
+        })()}
+      </Alert>
+    )}
+  </Query>
+);
+
 const Home = () => {
   useEffect(() => {
     document.title = getDocumentTitle('Home');
@@ -34,6 +70,7 @@ const Home = () => {
 
   return (
     <Container className='my-3'>
+      <ShiftTeamsAlert />
       <Card>
         <Card.Header className='d-flex justify-content-between align-items-center'>
           Available Members
