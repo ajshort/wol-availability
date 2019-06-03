@@ -1,10 +1,10 @@
 import React from 'react';
 import Spinner from 'react-bootstrap/Spinner';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, withRouter } from 'react-router-dom';
 
 import { AuthConsumer } from './AuthContext';
 
-const ProtectedRoute = (props) => (
+const ProtectedRoute = withRouter((props) => (
   <AuthConsumer>
     {({ loading, member }) => {
       if (loading) {
@@ -15,9 +15,18 @@ const ProtectedRoute = (props) => (
         );
       }
 
-      return member ? <Route {...props} /> : <Redirect to='/login' />;
+      if (!member) {
+        const to = {
+          pathname: '/login',
+          state: { redirectTo: props.location }
+        };
+
+        return <Redirect to={to} />;
+      }
+
+      return <Route {...props} />;
     }}
   </AuthConsumer>
-);
+));
 
 export default ProtectedRoute;

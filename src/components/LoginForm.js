@@ -17,7 +17,7 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-const LoginForm = ({ history }) => {
+const LoginForm = ({ location, history }) => {
   const { login } = useContext(AuthContext);
 
   const [memberNumber, setMemberNumber] = useState(0);
@@ -33,7 +33,12 @@ const LoginForm = ({ history }) => {
 
   const handleCompleted = (data) => {
     login(data.login.token, remember);
-    history.push('/');
+
+    if (location.state && location.state.redirectTo) {
+      history.push(location.state.redirectTo);
+    } else {
+      history.push('/');
+    }
   };
 
   return (
