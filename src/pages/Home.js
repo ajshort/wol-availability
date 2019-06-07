@@ -107,7 +107,7 @@ const Home = () => {
             return (
               <ListGroup variant='flush'>
                 {members.map((member) => (
-                  <ListGroup.Item>
+                  <ListGroup.Item key={member.number}>
                     <div className='d-flex align-items-center justify-content-between'>
                       <div>
                         {member.fullName}
