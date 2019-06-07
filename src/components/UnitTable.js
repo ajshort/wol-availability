@@ -1,9 +1,8 @@
 import classnames from 'classnames';
 import gql from 'graphql-tag';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Mutation } from 'react-apollo';
 import Spinner from 'react-bootstrap/Spinner';
-import Table from 'react-bootstrap/Table';
 
 import { getMemberShiftAvailability } from '../utils';
 import AuthCheck from './AuthCheck';
@@ -127,6 +126,19 @@ const MemberRow = ({ member }) => (
   </tr>
 );
 
+function debounce(callback, interval) {
+  let timeout;
+
+  return (...args) => {
+    clearTimeout(timeout);
+    setTimeout(() => { timeout = undefined; }, interval);
+
+    if (!timeout) {
+      callback.apply(this, args);
+    }
+  };
+};
+
 const UnitTable = ({ members, from, to }) => {
   const days = [];
 
@@ -149,9 +161,43 @@ const UnitTable = ({ members, from, to }) => {
     }
   }
 
+  // Make the header and footer sticky.
+  const table = useRef();
+  const thead = useRef();
+  const tfoot = useRef();
+
+  useEffect(() => {
+    const update = debounce(() => {
+      const height = window.innerHeight;
+      const bounds = table.current.getBoundingClientRect();
+
+      if (bounds.top < 0) {
+        thead.current.style.transform = `translateY(${-bounds.top}px) translateZ(0)`;
+      } else {
+        thead.current.style.transform = '';
+      }
+
+      if (bounds.bottom > height) {
+        tfoot.current.style.transform = `translateY(${-bounds.bottom + height}px) translateZ(0)`;
+      } else {
+        tfoot.current.style.transform = '';
+      }
+    }, 10);
+
+    update();
+
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update);
+
+    return () => {
+      window.addEventListener('resize', update);
+      window.removeEventListener('scroll', update);
+    };
+  });
+
   return (
-    <Table size='sm' responsive className='unit-table'>
-      <thead>
+    <table className='table table-responsive table-sm unit-table' ref={table}>
+      <thead ref={thead}>
         <tr>
           <th scope='col' className='member' rowSpan={2}>Member</th>
           <th scope='col' className='team' rowSpan={2}>Team</th>
@@ -181,7 +227,7 @@ const UnitTable = ({ members, from, to }) => {
       <tbody>
         {members.map(member => <MemberRow key={member.number} member={member} />)}
       </tbody>
-      <tfoot>
+      <tfoot ref={tfoot}>
         <tr>
           <th scope='col' colSpan={3}>{members.length}</th>
           {sum.flat().map(({ enabled, sum }, i) => {
@@ -193,7 +239,7 @@ const UnitTable = ({ members, from, to }) => {
           })}
         </tr>
       </tfoot>
-    </Table>
+    </table>
   );
 };
 

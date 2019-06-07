@@ -14,13 +14,8 @@
 }
 
 .unit-table {
-  table {
-    overflow-y: auto; height: 100px;
-  }
-
-  thead th {
-    position: sticky;
-    top: 0;
+  thead, tfoot {
+    background: #fff;
   }
 
   .team, .shift, .day { text-align: center; }
