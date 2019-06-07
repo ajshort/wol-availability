@@ -14,6 +14,15 @@
 }
 
 .unit-table {
+  table {
+    overflow-y: auto; height: 100px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+  }
+
   .team, .shift, .day { text-align: center; }
   .member, .team { white-space: nowrap; width: 1%; }
   th.day { border-bottom: none; }
@@ -34,8 +43,11 @@
   justify-content: left;
 }
 
+.team-badge-delta { background: #81d4fa; }
 .team-badge-oscar { background: #aa66cc; color: #fff; }
 .team-badge-romeo { background: #00c851; color: #fff; }
+.team-badge-sierra { background: #f8bbd0; }
+.team-badge-xray { background: #ffcc80; }
 
 .qual-badge abbr { text-decoration: none; }
 .qual-badge-cs { background: #388e3c; color: #fff; }
