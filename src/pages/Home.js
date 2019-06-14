@@ -189,9 +189,6 @@ const Home = () => {
         <Col lg className='mb-3'>
           <MembersCard />
         </Col>
-        <Col lg className='mb-3'>
-          <VehiclesCard />
-        </Col>
       </Row>
     </Container>
   )
