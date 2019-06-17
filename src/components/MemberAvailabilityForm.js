@@ -21,11 +21,14 @@ const SET_AVAILABILITIES_MUTATION = gql`
 `;
 
 const MemberAvailabilityForm = ({ member, week }) => {
-  const initial = getMemberShiftAvailability(week, member.availabilities);
-
-  // Put all our availability in a big array.
-  const [availabilities, setAvailabilities] = useState(initial);
+  const [availabilities, setAvailabilities] = useState([]);
+  const [prevWeek, setPrevWeek] = useState(undefined);
   const [saved, setSaved] = useState(false);
+
+  if (prevWeek !== week) {
+    setAvailabilities(getMemberShiftAvailability(week, member.availabilities));
+    setPrevWeek(week);
+  }
 
   const handleAvailabilityChange = (date, shift, available) => {
     const dayIndex = date.diff(week, 'days');
