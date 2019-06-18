@@ -67,7 +67,7 @@ const Unit = withRouter(({ match }) => {
   };
 
   return (
-    <Query query={MEMBERS_QUERY} variables={variables}>
+    <Query query={MEMBERS_QUERY} variables={variables} fetchPolicy='network-only'>
       {({ loading, error, data }) => {
         if (loading) {
           return (

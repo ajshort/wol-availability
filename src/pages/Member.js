@@ -14,8 +14,6 @@ import { Redirect, Route, Switch, withRouter } from 'react-router-dom';
 import AuthCheck from '../components/AuthCheck';
 import AuthContext from '../components/AuthContext';
 import MemberAvailabilityForm from '../components/MemberAvailabilityForm';
-import QualificationBadge from '../components/QualificationBadge';
-import TeamBadge from '../components/TeamBadge';
 import { WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getWeekStart, getWeekEnd } from '../utils';
 
@@ -61,7 +59,7 @@ const WeekPage = ({ match }) => {
   };
 
   return (
-    <Query query={MEMBER_AVAILABILITY_QUERY} variables={variables}>
+    <Query query={MEMBER_AVAILABILITY_QUERY} variables={variables} fetchPolicy='network-only'>
       {({ loading, error, data }) => {
         if (loading) {
           return (
