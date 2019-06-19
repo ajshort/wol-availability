@@ -45,6 +45,7 @@ const Unit = withRouter(({ match }) => {
 
   const [qualifications, setQualifications] = useState([]);
   const [team, setTeam] = useState();
+  const [hideBlank, setHideBlank] = useState(false);
 
   useEffect(() => {
     document.title = getDocumentTitle('Unit Availability');
@@ -85,6 +86,7 @@ const Unit = withRouter(({ match }) => {
         const teams = [...new Set(data.members.map(member => member.team))].sort();
 
         const members = data.members
+          .filter(member => !hideBlank || member.availabilities.length > 0)
           .filter(member => !team || member.team === team)
           .filter(member => {
             for (const qual of qualifications) {
@@ -123,13 +125,21 @@ const Unit = withRouter(({ match }) => {
                     ))}
                   </Form.Control>
                 </Form.Group>
-                <Form.Group controlId='qualifications-filter' className='d-none d-md-flex'>
+                <Form.Group controlId='qualifications-filter' className='d-none d-md-flex mr-md-3'>
                   <Form.Label className='mr-1'>Qualifications</Form.Label>
                   <Form.Control
                     as={QualificationsDropdown}
                     variant='info'
                     selected={qualifications}
                     onChange={setQualifications}
+                  />
+                </Form.Group>
+                <Form.Group controlId='hide-blank-filter' className='d-none d-md-flex'>
+                  <Form.Check
+                    type='checkbox'
+                    label='Hide blank?'
+                    checked={hideBlank}
+                    onChange={e => setHideBlank(e.target.checked)}
                   />
                 </Form.Group>
               </Form>
