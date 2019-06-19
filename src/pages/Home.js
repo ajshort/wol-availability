@@ -56,7 +56,7 @@ const ShiftTeamsAlert = () => (
 const AVAILABLE_MEMBERS_QUERY = gql`
   query ($instant: DateTime!) {
     membersAvailable(instant: $instant) {
-      _id
+      number
       fullName
       surname
       mobile
