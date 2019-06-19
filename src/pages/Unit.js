@@ -22,8 +22,9 @@ const MEMBERS_QUERY = gql`
       number
       fullName
       surname
-      team
+      rank
       qualifications
+      team
       availabilities(from: $from, to: $to) {
         date
         shift

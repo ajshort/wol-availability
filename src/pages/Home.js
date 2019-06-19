@@ -14,6 +14,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { FaMobileAlt } from 'react-icons/fa';
 
 import QualificationBadge from '../components/QualificationBadge';
+import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
 import { FEATURED } from '../qualifications';
 import { formatMobile, getDocumentTitle } from '../utils';
@@ -61,6 +62,7 @@ const AVAILABLE_MEMBERS_QUERY = gql`
       surname
       mobile
       team
+      rank
       qualifications
     }
   }
@@ -114,6 +116,7 @@ const MembersCard = () => (
                     </a>
                   </div>
                   <div className='text-right'>
+                    <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
                     <TeamBadge team={member.team} />
                     {
                       member.qualifications

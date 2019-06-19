@@ -8,6 +8,7 @@ import { FEATURED } from '../qualifications';
 import { getMemberShiftAvailability } from '../utils';
 import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
+import RankImage from '../components/RankImage';
 import TeamBadge from './TeamBadge';
 
 const SET_AVAILABLE_MUTATION = gql`
@@ -82,7 +83,9 @@ const EditableShiftCell = ({ member, date, defaultAvailable, shift }) => {
 
 const MemberRow = ({ member }) => (
   <tr>
-    <td className='member' title={member.number}>{member.fullName}</td>
+    <td className='member' title={member.number}>
+      {member.fullName} <RankImage rank={member.rank} width={8} height={16} />
+    </td>
     <td className='team'><TeamBadge team={member.team} /></td>
     <td className='quals d-none d-xl-table-cell'>
       {
