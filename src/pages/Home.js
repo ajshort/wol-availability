@@ -15,6 +15,7 @@ import { FaMobileAlt } from 'react-icons/fa';
 
 import QualificationBadge from '../components/QualificationBadge';
 import TeamBadge from '../components/TeamBadge';
+import { FEATURED } from '../qualifications';
 import { formatMobile, getDocumentTitle } from '../utils';
 
 const SHIFT_TEAMS_QUERY = gql`
@@ -114,9 +115,12 @@ const MembersCard = () => (
                   </div>
                   <div className='text-right'>
                     <TeamBadge team={member.team} />
-                    {member.qualifications.sort().map(qual => (
-                      <QualificationBadge key={qual} qualification={qual} className='ml-1' />
-                    ))}
+                    {
+                      member.qualifications
+                        .filter(qual => FEATURED.includes(qual))
+                        .sort()
+                        .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
+                    }
                   </div>
                 </div>
               </ListGroup.Item>

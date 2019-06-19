@@ -2,18 +2,23 @@ import classnames from 'classnames';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';
 
-import { getQualificationAbbreviation, getQualificationName } from '../utils';
+import { ABBREVIATIONS } from '../qualifications';
 
-const QualificationBadge = ({ qualification, className, ...props }) => {
-  const title = getQualificationName(qualification);
-  const abbr = getQualificationAbbreviation(qualification);
+const QualificationBadge = ({ qualification, className }) => {
+  const classes = ['qual-badge', className];
 
-  const cls = abbr.toLowerCase();
-  const classes = classnames('qual-badge', `qual-badge-${cls}`, className);
+  let text;
+
+  if (qualification in ABBREVIATIONS) {
+    text = ABBREVIATIONS[qualification];
+    classes.push(`qual-badge-${text.toLowerCase()}`);
+  } else {
+    text = qualification;
+  }
 
   return (
-    <Badge className={classes}>
-      <abbr title={title}>{abbr}</abbr>
+    <Badge className={classnames(classes)}>
+      <abbr title={qualification}>{text}</abbr>
     </Badge>
   );
 };

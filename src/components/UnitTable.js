@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Mutation } from 'react-apollo';
 import Spinner from 'react-bootstrap/Spinner';
 
+import { FEATURED } from '../qualifications';
 import { getMemberShiftAvailability } from '../utils';
 import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
@@ -84,9 +85,12 @@ const MemberRow = ({ member }) => (
     <td className='member' title={member.number}>{member.fullName}</td>
     <td className='team'><TeamBadge team={member.team} /></td>
     <td className='quals d-none d-xl-table-cell'>
-      {member.qualifications.sort().map(qual => (
-        <QualificationBadge key={qual} qualification={qual} className='mr-1' />
-      ))}
+      {
+        member.qualifications
+          .filter(qual => FEATURED.includes(qual))
+          .sort()
+          .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
+      }
     </td>
     <AuthCheck target={member}>
       {editable => member.shifts.map(({ date, shifts }) => (
