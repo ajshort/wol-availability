@@ -4,13 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router-dom';
 
-import QualificationsDropdown from '../components/QualificationsDropdown';
+import MemberFilter from '../components/MemberFilter';
 import UnitTable from '../components/UnitTable';
 import { WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getMemberShiftAvailability, getWeekStart, getWeekEnd } from '../utils';
@@ -106,45 +105,21 @@ const Unit = withRouter(({ match }) => {
           <React.Fragment>
             <div className='m-3 d-flex align-items-center justify-content-between'>
               <LinkContainer to={prevWeek}>
-                <Button variant='secondary'>
+                <Button variant='link'>
                   <FaArrowLeft /><span className='d-none d-md-inline'>Previous week</span>
                 </Button>
               </LinkContainer>
-              <Form inline>
-                <Form.Group controlId='team-filter' className='mr-md-3'>
-                  <Form.Label className='mr-1'>Team</Form.Label>
-                  <Form.Control
-                    as='select'
-                    className='custom-select'
-                    value={team}
-                    onChange={e => setTeam(e.target.value)}
-                  >
-                    <option value={''}>All</option>
-                    {teams.map(team => (
-                      <option key={team}>{team}</option>
-                    ))}
-                  </Form.Control>
-                </Form.Group>
-                <Form.Group controlId='qualifications-filter' className='d-none d-md-flex mr-md-3'>
-                  <Form.Label className='mr-1'>Qualifications</Form.Label>
-                  <Form.Control
-                    as={QualificationsDropdown}
-                    variant='info'
-                    selected={qualifications}
-                    onChange={setQualifications}
-                  />
-                </Form.Group>
-                <Form.Group controlId='hide-blank-filter' className='d-none d-md-flex'>
-                  <Form.Check
-                    type='checkbox'
-                    label='Hide blank?'
-                    checked={hideBlank}
-                    onChange={e => setHideBlank(e.target.checked)}
-                  />
-                </Form.Group>
-              </Form>
+              <MemberFilter
+                teams={teams}
+                team={team}
+                onTeamChanged={setTeam}
+                qualifications={qualifications}
+                onQualificationsChanged={setQualifications}
+                hideBlank={hideBlank}
+                onHideBlankChanged={setHideBlank}
+              />
               <LinkContainer to={nextWeek}>
-                <Button variant='secondary'>
+                <Button variant='link'>
                   <span className='d-none d-md-inline'>Next week</span><FaArrowRight />
                 </Button>
               </LinkContainer>
