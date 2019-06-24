@@ -17,12 +17,12 @@ import MemberAvailabilityForm from '../components/MemberAvailabilityForm';
 import { WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getWeekStart, getWeekEnd } from '../utils';
 
-const MePage = () => {
+const MePage = withRouter(({ match }) => {
   const { member } = useContext(AuthContext);
-  const week = getWeekStart().format('YYYY-MM-DD');
+  const week = match.params.week || getWeekStart().format('YYYY-MM-DD');
 
   return <Redirect to={`/member/${member.number}/${week}`} />;
-};
+});
 
 const MEMBER_AVAILABILITY_QUERY = gql`
   query ($number: Int!, $from: Date!, $to: Date!) {
@@ -224,7 +224,7 @@ const Member = ({ match }) => {
   return (
     <Container className='my-3'>
       <Switch>
-        <Route path={`${match.path}/me`} exact component={MePage} />
+        <Route path={`${match.path}/me/:week?`} exact component={MePage} />
         <Route path={`${match.path}/:member/:week`} component={WeekPage} />
         <Route path={`${match.path}/`} exact component={MemberPage} />
       </Switch>
