@@ -69,6 +69,9 @@ const LoginForm = ({ location, history }) => {
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
+            <Form.Text className='text-muted'>
+              Your default password is capital W followed by your member number.
+            </Form.Text>
           </Form.Group>
           <Form.Group controlId='remember'>
             <Form.Check
