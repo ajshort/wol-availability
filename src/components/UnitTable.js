@@ -197,7 +197,7 @@ const UnitTable = ({ members, from, to }) => {
     window.addEventListener('scroll', update);
 
     return () => {
-      window.addEventListener('resize', update);
+      window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update);
     };
   });
