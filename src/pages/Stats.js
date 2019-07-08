@@ -25,6 +25,14 @@ import {
 import { SHIFTS, WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getWeekEnd, getWeekStart } from '../utils';
 
+const TEAM_COLOURS = {
+  'Delta': '#81d4fa',
+  'Oscar': '#aa66cc',
+  'Romeo': '#00c851',
+  'Sierra': '#f8bbd0',
+  'Xray': '#ffcc80',
+};
+
 const AvailableGraph = ({ from, data }) => {
   const [tooltip, setTooltip] = useState(false);
   // Transform the data.
@@ -55,7 +63,10 @@ const AvailableGraph = ({ from, data }) => {
   // Generate a palette.
   const teams =  Object.keys(series);
   const colours = palette('cb-Set1', teams.length);
-  const teamColours = teams.reduce((res, team, i) => (res[team] = `#${colours[i]}`, res), {});
+  const teamColours = teams.reduce((res, team, i) => {
+    res[team] = TEAM_COLOURS[team] || `#${colours[i]}`;
+    return res;
+  }, {});
 
   return (
     <FlexibleWidthXYPlot
