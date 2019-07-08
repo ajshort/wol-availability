@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Member from './pages/Member';
+import Stats from './pages/Stats';
 import Unit from './pages/Unit';
 
 const App = () => (
@@ -20,6 +21,7 @@ const App = () => (
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member' component={Member} />
           <ProtectedRoute path='/unit/:week?' component={Unit} />
+          <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
           <Route path='/logout' component={Logout} />
         </Switch>

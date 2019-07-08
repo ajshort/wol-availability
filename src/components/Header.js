@@ -36,6 +36,7 @@ const Header = () => (
                 <NavLink to='/' exact>Home</NavLink>
                 <NavLink to='/member'>Member</NavLink>
                 <NavLink to='/unit'>Unit</NavLink>
+                <NavLink to='/stats'>Statistics</NavLink>
               </Nav>
               <Nav className='ml-auto'>
                 <NavDropdown title={<><FaUser /> {member.fullName}</>}>
