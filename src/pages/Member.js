@@ -99,7 +99,12 @@ const WeekPage = ({ match }) => {
                       <Button variant='secondary'><FaArrowRight /></Button>
                     </LinkContainer>
                   </div>
-                  <MemberAvailabilityForm member={data.member} week={start} />
+                  <MemberAvailabilityForm
+                    member={data.member}
+                    week={start}
+                    previousWeekLink={prevWeek}
+                    nextWeekLink={nextWeek}
+                  />
                 </React.Fragment>
               );
             }}

@@ -7,7 +7,7 @@ import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import Table from 'react-bootstrap/Table';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import { SHIFTS } from '../config';
@@ -20,7 +20,7 @@ const SET_AVAILABILITIES_MUTATION = gql`
   }
 `;
 
-const MemberAvailabilityForm = ({ member, week }) => {
+const MemberAvailabilityForm = ({ member, week, previousWeekLink, nextWeekLink }) => {
   const [availabilities, setAvailabilities] = useState([]);
   const [prevWeek, setPrevWeek] = useState(undefined);
   const [saved, setSaved] = useState(false);
@@ -92,6 +92,26 @@ const MemberAvailabilityForm = ({ member, week }) => {
                   <th scope='row'>{date.format('ddd D/M')}</th>
                   {shifts.map(({ shift, enabled, available }) => {
                     if (!enabled) {
+                      if (shift === SHIFTS[0]) {
+                        return (
+                          <td key={shift} className='table-secondary'>
+                            <LinkContainer to={previousWeekLink}>
+                              <a href={previousWeekLink}><FaArrowLeft /> Last week</a>
+                            </LinkContainer>
+                          </td>
+                        );
+                      }
+
+                      if (shift === SHIFTS[SHIFTS.length - 1]) {
+                        return (
+                          <td key={shift} className='table-secondary text-right'>
+                            <LinkContainer to={nextWeekLink}>
+                              <a href={nextWeekLink}>Next week <FaArrowRight /></a>
+                            </LinkContainer>
+                          </td>
+                        );
+                      }
+
                       return <td key={shift} className='table-secondary' />;
                     }
 
