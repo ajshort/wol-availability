@@ -73,6 +73,11 @@ export const AuthProvider = ({ children }) => {
             value.member = data.member;
           }
 
+          // If there's an error (e.g. expired token), logout to clear it.
+          if (error && token) {
+            logout();
+          }
+
           return (
             <AuthContext.Provider value={value}>
               {children}
