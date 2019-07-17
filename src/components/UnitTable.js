@@ -89,9 +89,8 @@ const MemberRow = ({ member }) => (
     <td className='team'><TeamBadge team={member.team} /></td>
     <td className='quals d-none d-xl-table-cell'>
       {
-        member.qualifications
-          .filter(qual => FEATURED.includes(qual))
-          .sort()
+        FEATURED
+          .filter(qual => member.qualifications.includes(qual))
           .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
       }
     </td>

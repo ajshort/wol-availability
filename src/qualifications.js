@@ -104,21 +104,27 @@ export const ALL = [
 ];
 
 export const FEATURED = [
+  'Storm and Water Damage Operation',
+  'Land Search Team Member',
   'Chainsaw Operator (Cross-Cut & Limb)',
   'Swiftwater Rescue Awareness (FR L1)',
   'Flood Rescue Boat Operator (FR L2)',
   'Swiftwater Rescue Technician (FR L3)',
-  'Land Search Team Member',
-  'Storm and Water Damage Operation',
   'Vertical Rescue (PUASAR004B/PUASAR032A)',
+  'IMT Member',
+  'Incident Controller',
+  'Key holder',
 ];
 
 export const ABBREVIATIONS = {
   'Chainsaw Operator (Cross-Cut & Limb)': 'CS',
-  'Swiftwater Rescue Awareness (FR L1)': 'L1',
   'Flood Rescue Boat Operator (FR L2)': 'L2',
-  'Swiftwater Rescue Technician (FR L3)': 'L3',
+  'IMT Member': 'IMT',
+  'Incident Controller': 'IC',
+  'Key holder': '🔑',
   'Land Search Team Member': 'LS',
   'Storm and Water Damage Operation': 'SWD',
+  'Swiftwater Rescue Awareness (FR L1)': 'L1',
+  'Swiftwater Rescue Technician (FR L3)': 'L3',
   'Vertical Rescue (PUASAR004B/PUASAR032A)': 'VR',
 };

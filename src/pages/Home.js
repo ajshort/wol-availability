@@ -119,9 +119,8 @@ const MembersCard = () => (
                     <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
                     <TeamBadge team={member.team} />
                     {
-                      member.qualifications
-                        .filter(qual => FEATURED.includes(qual))
-                        .sort()
+                      FEATURED
+                        .filter(qual => member.qualifications.includes(qual))
                         .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
                     }
                   </div>
