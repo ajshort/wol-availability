@@ -40,6 +40,18 @@ const MemberAvailabilityForm = ({ member, week, previousWeekLink, nextWeekLink }
     setAvailabilities(changed);
   };
 
+  const setAllAvailable = () => {
+    setAvailabilities(availabilities.map(({ date, shifts }) => (
+      { date, shifts: shifts.map(shift => ({ ...shift, available: true })) }
+    )));
+  };
+
+  const setAllUnavailable = () => {
+    setAvailabilities(availabilities.map(({ date, shifts }) => (
+      { date, shifts: shifts.map(shift => ({ ...shift, available: false })) }
+    )));
+  };
+
   const handleSubmit = (event, mutation) => {
     event.preventDefault();
     event.stopPropagation();
@@ -77,6 +89,10 @@ const MemberAvailabilityForm = ({ member, week, previousWeekLink, nextWeekLink }
           {error && (
             <Alert variant='danger'>There was an error saving your availability.</Alert>
           )}
+          <div className='d-flex justify-content-center mb-2'>
+            <Button variant='success mr-2' onClick={() => setAllAvailable()}>Set all available</Button>
+            <Button variant='danger' onClick={() => setAllUnavailable()}>Set all unavailable</Button>
+          </div>
           <Table>
             <thead>
               <tr>
