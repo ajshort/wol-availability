@@ -85,7 +85,12 @@ const Unit = withRouter(({ match }) => {
         const teams = [...new Set(data.members.map(member => member.team))].sort();
 
         const members = data.members
-          .filter(member => !hideBlank || member.availabilities.length > 0)
+          .map(member => ({
+            ...member, shifts: getMemberShiftAvailability(from, member.availabilities)
+          }))
+          .filter(member => !hideBlank || member.shifts.some(({ shifts }) => shifts.some(
+            ({ enabled, available }) => enabled && available !== undefined
+          )))
           .filter(member => !team || member.team === team)
           .filter(member => {
             for (const qual of qualifications) {
@@ -97,9 +102,6 @@ const Unit = withRouter(({ match }) => {
             return true;
           })
           .sort((a, b) => a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname))
-          .map(member => ({
-            ...member, shifts: getMemberShiftAvailability(from, member.availabilities)
-          }));
 
         return (
           <React.Fragment>
