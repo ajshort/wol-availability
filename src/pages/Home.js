@@ -16,7 +16,7 @@ import { FaMobileAlt } from 'react-icons/fa';
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
-import { FEATURED } from '../qualifications';
+import { FEATURED, SUPPRESSED_BY } from '../qualifications';
 import { formatMobile, getDocumentTitle } from '../utils';
 
 const SHIFT_TEAMS_QUERY = gql`
@@ -121,6 +121,7 @@ const MembersCard = () => (
                     {
                       FEATURED
                         .filter(qual => member.qualifications.includes(qual))
+                        .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
                         .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
                     }
                   </div>

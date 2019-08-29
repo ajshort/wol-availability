@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Mutation } from 'react-apollo';
 import Spinner from 'react-bootstrap/Spinner';
 
-import { FEATURED } from '../qualifications';
+import {FEATURED, SUPPRESSED_BY} from '../qualifications';
 import { getMemberShiftAvailability } from '../utils';
 import AuthCheck from './AuthCheck';
 import QualificationBadge from './QualificationBadge';
@@ -91,6 +91,7 @@ const MemberRow = ({ member }) => (
       {
         FEATURED
           .filter(qual => member.qualifications.includes(qual))
+          .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
           .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
       }
     </td>

@@ -107,6 +107,7 @@ export const FEATURED = [
   'Storm and Water Damage Operation',
   'Land Search Team Member',
   'Chainsaw Operator (Cross-Cut & Limb)',
+  'Chainsaw Operator (Tree Felling)',
   'Swiftwater Rescue Awareness (FR L1)',
   'Flood Rescue Boat Operator (FR L2)',
   'Swiftwater Rescue Technician (FR L3)',
@@ -116,8 +117,14 @@ export const FEATURED = [
   'Key holder',
 ];
 
+export const SUPPRESSED_BY = {
+  'Chainsaw Operator (Cross-Cut & Limb)': 'Chainsaw Operator (Tree Felling)',
+  'Swiftwater Rescue Awareness (FR L1)': 'Swiftwater Rescue Technician (FR L3)',
+};
+
 export const ABBREVIATIONS = {
   'Chainsaw Operator (Cross-Cut & Limb)': 'CS',
+  'Chainsaw Operator (Tree Felling)': 'CS2',
   'Flood Rescue Boat Operator (FR L2)': 'L2',
   'IMT Member': 'IMT',
   'Incident Controller': 'IC',
