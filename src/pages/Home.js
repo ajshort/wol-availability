@@ -135,55 +135,6 @@ const MembersCard = () => (
   </Card>
 );
 
-const VEHICLES_QUERY = gql`
-  {
-    vehicles {
-      callsign
-      with
-      info
-    }
-  }
-`;
-
-const VehiclesCard = () => (
-  <Card>
-    <Card.Header>Vehicles</Card.Header>
-    <Query query={VEHICLES_QUERY}>
-      {({ loading, error, data }) => {
-        if (loading) {
-          return (
-            <Card.Body>
-              <Spinner animation='border' size='sm' /> Loading vehicles&hellip;
-            </Card.Body>
-          );
-        }
-
-        if (error) {
-          return (
-            <Card.Body className='text-danger'>Error loading vehicles.</Card.Body>
-          );
-        }
-
-        const away = data.vehicles.filter(vehicle => vehicle.with !== null);
-
-        if (away.length === 0) {
-          return <Card.Body>All vehicles are at LHQ.</Card.Body>;
-        }
-
-        return (
-          <ListGroup variant='flush'>
-            {away.map(vehicle => (
-              <ListGroup.Item key={vehicle.callsign}>
-                {vehicle.callsign} is with {vehicle.with}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        );
-      }}
-    </Query>
-  </Card>
-);
-
 const Home = () => {
   useEffect(() => {
     document.title = getDocumentTitle('Home');
