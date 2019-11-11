@@ -24,6 +24,9 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
     onChange(updated);
   };
 
+  // We add some extra quals to the featured list.
+  const filterable = [...FEATURED, 'Bush Fire Awareness'].sort();
+
   return (
     <Dropdown show={show} onToggle={handleToggle}>
       <Dropdown.Toggle id={id} {...props}>
@@ -35,7 +38,7 @@ const QualificationsDropdown = ({ id, selected = [], onChange = () => {}, ...pro
       </Dropdown.Toggle>
 
       <Dropdown.Menu className='QualificationsDropdownMenu'>
-        {FEATURED.map((qual) => (
+        {filterable.map((qual) => (
           <Dropdown.Item key={qual} as='div'>
             <FormCheck
               id={`${id}-${qual}`}

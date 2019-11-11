@@ -123,6 +123,7 @@ export const SUPPRESSED_BY = {
 };
 
 export const ABBREVIATIONS = {
+  'Bush Fire Awareness': 'BFA',
   'Chainsaw Operator (Cross-Cut & Limb)': 'CS',
   'Chainsaw Operator (Tree Felling)': 'CS2',
   'Flood Rescue Boat Operator (FR L2)': 'L2',
