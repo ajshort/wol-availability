@@ -37,9 +37,9 @@ const MemberFilter = (props) => {
         <Form.Group controlId='hide-blank-filter'>
           <Form.Check
             type='checkbox'
-            label='Hide blank?'
-            checked={props.hideBlank}
-            onChange={e => props.onHideBlankChanged(e.target.checked)}
+            label='Hide blank and unavailable?'
+            checked={props.hideBlankAndUnavailable}
+            onChange={e => props.onHideBlankAndUnavailableChanged(e.target.checked)}
           />
         </Form.Group>
       </Form>

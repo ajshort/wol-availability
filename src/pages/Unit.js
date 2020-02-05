@@ -44,7 +44,7 @@ const Unit = withRouter(({ match }) => {
 
   const [qualifications, setQualifications] = useState([]);
   const [team, setTeam] = useState();
-  const [hideBlank, setHideBlank] = useState(false);
+  const [hideBlankAndUnavailable, setHideBlankAndUnavailable] = useState(false);
 
   useEffect(() => {
     document.title = getDocumentTitle('Unit Availability');
@@ -88,8 +88,8 @@ const Unit = withRouter(({ match }) => {
           .map(member => ({
             ...member, shifts: getMemberShiftAvailability(from, member.availabilities)
           }))
-          .filter(member => !hideBlank || member.shifts.some(({ shifts }) => shifts.some(
-            ({ enabled, available }) => enabled && available !== undefined
+          .filter(member => !hideBlankAndUnavailable || member.shifts.some(({ shifts }) => shifts.some(
+            ({ enabled, available }) => enabled && available === true
           )))
           .filter(member => !team || member.team === team)
           .filter(member => {
@@ -117,8 +117,8 @@ const Unit = withRouter(({ match }) => {
                 onTeamChanged={setTeam}
                 qualifications={qualifications}
                 onQualificationsChanged={setQualifications}
-                hideBlank={hideBlank}
-                onHideBlankChanged={setHideBlank}
+                hideBlankAndUnavailable={hideBlankAndUnavailable}
+                onHideBlankAndUnavailableChanged={setHideBlankAndUnavailable}
               />
               <LinkContainer to={nextWeek}>
                 <Button variant='link'>
