@@ -1,3 +1,4 @@
+import stringify from 'csv-stringify';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -5,13 +6,14 @@ import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight, FaTable } from 'react-icons/fa';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router-dom';
 
 import MemberFilter from '../components/MemberFilter';
 import UnitTable from '../components/UnitTable';
 import { WEEK_START_DAY } from '../config';
+import { ABBREVIATIONS, FEATURED, SUPPRESSED_BY } from '../qualifications';
 import { getDocumentTitle, getMemberShiftAvailability, getWeekStart, getWeekEnd } from '../utils';
 
 const MEMBERS_QUERY = gql`
@@ -103,6 +105,61 @@ const Unit = withRouter(({ match }) => {
           })
           .sort((a, b) => a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname))
 
+        const handleExport = () => {
+          const shifts = getMemberShiftAvailability(from, []);
+
+          const data = [
+            [
+              'Name',
+              'Team',
+              'Qualifications',
+              ...shifts
+                .map(day => day.shifts.map(shift => ({ date: day.date, ...shift })))
+                .flat()
+                .filter(shift => shift.enabled)
+                .map(shift => shift.date.format('ddd D/M'))
+            ],
+            ...members.map(member => {
+              return [
+                member.fullName,
+                member.team,
+                FEATURED
+                  .filter(qual => member.qualifications.includes(qual))
+                  .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
+                  .map(qual => ABBREVIATIONS[qual])
+                  .join(' '),
+                ...member.shifts
+                  .map(day => day.shifts)
+                  .flat()
+                  .filter(shift => shift.enabled)
+                  .map(({ available }) => {
+                    if (available === true) {
+                      return '1';
+                    } else if (available === false) {
+                      return '0';
+                    } else {
+                      return '';
+                    }
+                  }),
+              ];
+
+            })
+          ];
+
+          stringify(data, (err, records) => {
+            const blob = new Blob([records], { type: 'text/csv;charset=UTF-8' });
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.style = 'display: none';
+            a.href = url;
+            a.download = 'availability.csv'
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+          });
+        };
+
         return (
           <React.Fragment>
             <div className='m-3 d-flex align-items-center justify-content-between'>
@@ -111,15 +168,24 @@ const Unit = withRouter(({ match }) => {
                   <FaArrowLeft /><span className='d-none d-md-inline'>Previous week</span>
                 </Button>
               </LinkContainer>
-              <MemberFilter
-                teams={teams}
-                team={team}
-                onTeamChanged={setTeam}
-                qualifications={qualifications}
-                onQualificationsChanged={setQualifications}
-                hideBlankAndUnavailable={hideBlankAndUnavailable}
-                onHideBlankAndUnavailableChanged={setHideBlankAndUnavailable}
-              />
+              <div>
+                <MemberFilter
+                  teams={teams}
+                  team={team}
+                  onTeamChanged={setTeam}
+                  qualifications={qualifications}
+                  onQualificationsChanged={setQualifications}
+                  hideBlankAndUnavailable={hideBlankAndUnavailable}
+                  onHideBlankAndUnavailableChanged={setHideBlankAndUnavailable}
+                />
+                <Button
+                  variant='secondary'
+                  className='d-none d-md-inline-block ml-2'
+                  onClick={handleExport}
+                >
+                  <FaTable /> Export
+                </Button>
+              </div>
               <LinkContainer to={nextWeek}>
                 <Button variant='link'>
                   <span className='d-none d-md-inline'>Next week</span><FaArrowRight />
