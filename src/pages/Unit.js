@@ -117,7 +117,7 @@ const Unit = withRouter(({ match }) => {
                 .map(day => day.shifts.map(shift => ({ date: day.date, ...shift })))
                 .flat()
                 .filter(shift => shift.enabled)
-                .map(shift => shift.date.format('ddd D/M'))
+                .map(shift => shift.date.format('ddd D/M') + ' ' + shift.shift.toLowerCase())
             ],
             ...members.map(member => {
               return [
