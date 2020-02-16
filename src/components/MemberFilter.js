@@ -42,6 +42,14 @@ const MemberFilter = (props) => {
             onChange={e => props.onHideBlankAndUnavailableChanged(e.target.checked)}
           />
         </Form.Group>
+        <Form.Group controlId='hide-flexible-support-filter'>
+          <Form.Check
+            type='checkbox'
+            label='Hide blank flexible and support?'
+            checked={props.hideFlexibleAndSupport}
+            onChange={e => props.onHideFlexibleAndSupportChanged(e.target.checked)}
+          />
+        </Form.Group>
       </Form>
     </Popover>
   );

@@ -35,6 +35,9 @@ const MEMBERS_QUERY = gql`
   }
 `;
 
+const FLEXIBLE_TEAMS = ['Foxtrot', 'Quebec'];
+const SUPPORT_TEAMS = ['Catering', 'Logistics', 'Training', 'India', 'Planning'];
+
 const Unit = withRouter(({ match }) => {
   let from;
 
@@ -47,6 +50,7 @@ const Unit = withRouter(({ match }) => {
   const [qualifications, setQualifications] = useState([]);
   const [team, setTeam] = useState();
   const [hideBlankAndUnavailable, setHideBlankAndUnavailable] = useState(false);
+  const [hideFlexibleAndSupport, setHideFlexibleAndSupport] = useState(true);
 
   useEffect(() => {
     document.title = getDocumentTitle('Unit Availability');
@@ -90,9 +94,26 @@ const Unit = withRouter(({ match }) => {
           .map(member => ({
             ...member, shifts: getMemberShiftAvailability(from, member.availabilities)
           }))
-          .filter(member => !hideBlankAndUnavailable || member.shifts.some(({ shifts }) => shifts.some(
-            ({ enabled, available }) => enabled && available === true
-          )))
+          .filter(member => {
+            const some = member.shifts.some(({ shifts }) => shifts.some(
+              ({ enabled, available }) => enabled && available === true
+            ));
+
+            if (some) {
+              return true;
+            }
+
+            if (hideFlexibleAndSupport) {
+              const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
+              const filteredTo = team === member.team;
+
+              if (flexible && !filteredTo) {
+                return false;
+              }
+            }
+
+            return !hideBlankAndUnavailable;
+          })
           .filter(member => !team || member.team === team)
           .filter(member => {
             for (const qual of qualifications) {
@@ -177,6 +198,8 @@ const Unit = withRouter(({ match }) => {
                   onQualificationsChanged={setQualifications}
                   hideBlankAndUnavailable={hideBlankAndUnavailable}
                   onHideBlankAndUnavailableChanged={setHideBlankAndUnavailable}
+                  hideFlexibleAndSupport={hideFlexibleAndSupport}
+                  onHideFlexibleAndSupportChanged={setHideFlexibleAndSupport}
                 />
                 <Button
                   variant='secondary'
