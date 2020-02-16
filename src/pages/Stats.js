@@ -23,7 +23,7 @@ import {
 } from 'react-vis';
 
 import { SHIFTS, WEEK_START_DAY } from '../config';
-import { getDocumentTitle, getWeekEnd, getWeekStart } from '../utils';
+import { getDocumentTitle, getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
 
 const TEAM_COLOURS = {
   'Delta': '#81d4fa',
@@ -220,29 +220,37 @@ const Stats = ({ match }) => {
           let entered = {};
 
           for (const { team, availabilities } of data.members) {
+            const avail = getMemberShiftAvailability(from, availabilities);
+
+            const some = avail.some(({ shifts }) => shifts.some(({ available, enabled }) => (
+              enabled && available !== undefined
+            )));
+
             if (!(team in entered)) {
               entered[team] = { yes: 0, no: 0 };
             }
 
-            if (availabilities.length > 0) {
+            if (some) {
               entered[team].yes++;
             } else {
               entered[team].no++;
             }
 
-            for (const { date, shift, available } of availabilities) {
-              if (!available) {
-                continue;
+            for (const { date, shifts } of avail) {
+              for (const { shift, available } of shifts) {
+                if (!available) {
+                  continue;
+                }
+
+                const offset = Math.ceil(moment(date, 'YYYY-MM-DD').diff(from, 'days', true));
+                const entry = totals[offset][shift];
+
+                if (!(team in entry)) {
+                  entry[team] = 0;
+                }
+
+                entry[team]++;
               }
-
-              const offset = Math.ceil(moment(date, 'YYYY-MM-DD').diff(from, 'days', true));
-              const entry = totals[offset][shift];
-
-              if (!(team in entry)) {
-                entry[team] = 0;
-              }
-
-              entry[team]++;
             }
           }
 
