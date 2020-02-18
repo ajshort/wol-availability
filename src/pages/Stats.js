@@ -21,6 +21,7 @@ import {
   XAxis,
   YAxis,
 } from 'react-vis';
+import _ from 'lodash';
 
 import { SHIFTS, WEEK_START_DAY } from '../config';
 import { getDocumentTitle, getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
@@ -35,18 +36,29 @@ const TEAM_COLOURS = {
 
 const AvailableGraph = ({ from, data }) => {
   const [tooltip, setTooltip] = useState(false);
+
   // Transform the data.
   const series = {};
 
-  for (let i = 0; i < data.length; ++i) {
-    for (const [shift, teams] of Object.entries(data[i])) {
-      for (const [team, available] of Object.entries(teams)) {
-        if (!(team in series)) {
-          series[team] = {};
-        }
+  const teams = _.uniq(data.map(day => (
+    Object.values(day).map(sums => Object.keys(sums)).flat()
+  )).flat());
 
-        if (!(shift in series[team])) {
-          series[team][shift] = [];
+  for (const team of teams) {
+    series[team] = {};
+
+    for (const shift of SHIFTS) {
+      series[team][shift] = [];
+    }
+  }
+
+  for (let i = 0; i < data.length; ++i) {
+    for (const team of teams) {
+      for (const shift of SHIFTS) {
+        let available = 0;
+
+        if (_.has(data[i][shift], team)) {
+          available = data[i][shift][team];
         }
 
         series[team][shift].push({
@@ -61,7 +73,6 @@ const AvailableGraph = ({ from, data }) => {
   }
 
   // Generate a palette.
-  const teams =  Object.keys(series);
   const colours = palette('cb-Set1', teams.length);
   const teamColours = teams.reduce((res, team, i) => {
     res[team] = TEAM_COLOURS[team] || `#${colours[i]}`;
