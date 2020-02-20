@@ -24,6 +24,7 @@ import {
 import _ from 'lodash';
 
 import { SHIFTS, WEEK_START_DAY } from '../config';
+import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../teams';
 import { getDocumentTitle, getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
 
 const TEAM_COLOURS = {
@@ -124,10 +125,11 @@ const AvailableGraph = ({ from, data }) => {
 const EnteredGraph = ({ data }) => {
   const [tooltip, setTooltip] = useState(false);
 
-    // Filter out any teams with less than 3 members.
-    data = Object.keys(data)
-      .filter(team => (data[team].yes + data[team].no) > 3)
-      .reduce((result, key) => (result[key] = data[key], result), {});
+  // Filter out any teams with less than 3 members, and flexible and support teams.
+  data = Object.keys(data)
+    .filter(team => !(FLEXIBLE_TEAMS.includes(team) || SUPPORT_TEAMS.includes(team)))
+    .filter(team => (data[team].yes + data[team].no) > 3)
+    .reduce((result, key) => (result[key] = data[key], result), {});
 
   const teams = Object.keys(data).sort();
   const yes = teams.map(team => ({ x: team, y: data[team].yes }));

@@ -14,6 +14,7 @@ import MemberFilter from '../components/MemberFilter';
 import UnitTable from '../components/UnitTable';
 import { WEEK_START_DAY } from '../config';
 import { ABBREVIATIONS, FEATURED, SUPPRESSED_BY } from '../qualifications';
+import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../teams';
 import { getDocumentTitle, getMemberShiftAvailability, getWeekStart, getWeekEnd } from '../utils';
 
 const MEMBERS_QUERY = gql`
@@ -34,9 +35,6 @@ const MEMBERS_QUERY = gql`
     }
   }
 `;
-
-const FLEXIBLE_TEAMS = ['Foxtrot', 'Quebec'];
-const SUPPORT_TEAMS = ['Catering', 'Logistics', 'Training', 'India', 'Planning'];
 
 const Unit = withRouter(({ match }) => {
   let from;
