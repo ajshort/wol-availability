@@ -6,11 +6,12 @@ import { getDocumentTitle } from '../utils';
 
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
-import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import Spinner from 'react-bootstrap/Spinner';
+import Row from 'react-bootstrap/Row';
+import DatePicker from 'react-datepicker';
 import { FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -24,32 +25,51 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
 
   const [shift, setShift] = useState<Shift>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
-  const [interval, setInterval] = useState<Interval>(
-    Interval.fromDateTimes(getNow(), getWeekInterval().end)
-  );
 
-  const valid = member !== undefined && interval.isValid;
+  const currentWeek = getWeekInterval();
+  const [start, setStart] = useState<DateTime | undefined>(currentWeek.start);
+  const [end, setEnd] = useState<DateTime | undefined>(currentWeek.end);
+
+  const valid = member !== undefined;
 
   return (
-    <Modal show={show} onHide={onHide} size='lg'>
+    <Modal show={show} onHide={onHide}>
       <Form>
         <Modal.Body>
-          <Form.Group controlId='shift'>
-            <Form.Label>Shift</Form.Label>
-            <Form.Control as='select' className='custom-select' value={shift}>
-              <option value={Shift.DAY}>Day shift</option>
-              <option value={Shift.NIGHT}>Night shift</option>
-            </Form.Control>
+          <Form.Group as={Row} controlId='shift'>
+            <Form.Label column sm={3}>Shift</Form.Label>
           </Form.Group>
-          <Form.Group controlId='member'>
-            <Form.Label>Duty officer</Form.Label>
-            <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
+          <Form.Group as={Row} controlId='member'>
+            <Form.Label column sm={3}>Duty officer</Form.Label>
+            <Col sm={9}>
+              <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
+            </Col>
           </Form.Group>
-          <Form.Group controlId='from'>
-            <Form.Label>From</Form.Label>
+          <Form.Group as={Row} controlId='from'>
+            <Form.Label column sm={3}>From</Form.Label>
+            <Col sm={9}>
+              <DatePicker
+                selected={start ? start.toJSDate() : null}
+                onChange={date => setStart(date ? DateTime.fromJSDate(date) : undefined)}
+                showTimeSelect
+                timeFormat='HH:mm'
+                dateFormat='MMMM d, yyyy h:mm aa'
+                className='form-control'
+              />
+            </Col>
           </Form.Group>
-          <Form.Group controlId='to'>
-            <Form.Label>To</Form.Label>
+          <Form.Group as={Row} controlId='to'>
+            <Form.Label column sm={3}>To</Form.Label>
+            <Col sm={9}>
+              <DatePicker
+                selected={end ? end.toJSDate() : null}
+                onChange={date => setEnd(date ? DateTime.fromJSDate(date) : undefined)}
+                showTimeSelect
+                timeFormat='HH:mm'
+                dateFormat='MMMM d, yyyy h:mm aa'
+                className='form-control'
+              />
+            </Col>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
