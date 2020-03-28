@@ -1,13 +1,16 @@
+import MemberSelector from '../components/MemberSelector';
 import WeekBrowser from '../components/WeekBrowser';
 import { Shift } from '../model/availability';
-import { getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getDayIntervals, getNow, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import Spinner from 'react-bootstrap/Spinner';
 import { FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -20,13 +23,16 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
   const onHide = () => setShow(false);
 
   const [shift, setShift] = useState<Shift>(Shift.DAY);
+  const [member, setMember] = useState<number | undefined>(undefined);
+  const [interval, setInterval] = useState<Interval>(
+    Interval.fromDateTimes(getNow(), getWeekInterval().end)
+  );
+
+  const valid = member !== undefined && interval.isValid;
 
   return (
-    <Modal show={show} onHide={onHide}>
+    <Modal show={show} onHide={onHide} size='lg'>
       <Form>
-        <Modal.Header closeButton>
-          <Modal.Title>Set Duty Officer</Modal.Title>
-        </Modal.Header>
         <Modal.Body>
           <Form.Group controlId='shift'>
             <Form.Label>Shift</Form.Label>
@@ -37,6 +43,7 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
           </Form.Group>
           <Form.Group controlId='member'>
             <Form.Label>Duty officer</Form.Label>
+            <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
           </Form.Group>
           <Form.Group controlId='from'>
             <Form.Label>From</Form.Label>
@@ -46,8 +53,8 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button type='submit' variant='success'>
-            Save
+          <Button type='submit' variant='success' disabled={!valid}>
+            Save Duty Officer
           </Button>
         </Modal.Footer>
       </Form>
@@ -71,7 +78,7 @@ const Table: React.FC<TableProps> = ({ interval }) => {
             {day.start.toLocaleString({ weekday: 'short', day: '2-digit' })}
           </div>
           <div className='day-container'>
-            {day.divideEqually(24).map((hour, index) => (
+            {day.divideEqually(24).map((_hour, index) => (
               <div key={index} className='hour' />
             ))}
           </div>
