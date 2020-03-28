@@ -24,7 +24,6 @@ const UnitNavDropdown: React.FC = () => {
       <LinkContainer to='/unit/storm'>
         <NavDropdown.Item>Storm and Support</NavDropdown.Item>
       </LinkContainer>
-      <NavDropdown.Divider />
       <LinkContainer to='/unit/do'>
         <NavDropdown.Item>Duty Officers</NavDropdown.Item>
       </LinkContainer>
@@ -47,7 +46,6 @@ const Header = () => (
             <LinkContainer to='/' exact>
               <Brand />
             </LinkContainer>
-            <Navbar.Toggle />
             <Navbar.Toggle />
             <Navbar.Collapse>
               <Nav>
