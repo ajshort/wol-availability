@@ -1,5 +1,7 @@
 import { DateTime, Interval } from 'luxon';
 
+export const TIME_ZONE = 'Australia/Sydney';
+
 const WEEK_START = {
   hour: 18,
   millisecond: 0,
@@ -12,7 +14,7 @@ const WEEK_START = {
  * Gets the current time in NSW.
  */
 export function getNow(): DateTime {
-  return DateTime.local().setZone('Australia/Sydney');
+  return DateTime.local().setZone(TIME_ZONE);
 }
 
 /**

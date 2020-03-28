@@ -1,5 +1,5 @@
 import WeekBrowser from '../components/WeekBrowser';
-import { getDayIntervals, getWeekInterval } from '../model/dates';
+import { getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
 import { DateTime, Interval } from 'luxon';
@@ -17,10 +17,16 @@ const Table: React.FC<TableProps> = ({ interval }) => {
 
   return (
     <div id='do-table'>
-      {days.map(({ start }, index) => (
-        <div className='day' key={index}>
+      <div className='gutter column'></div>
+      {days.map((day, index) => (
+        <div className='day column' key={index}>
           <div className='date'>
-            {start.toLocaleString({ weekday: 'short', day: '2-digit' })}
+            {day.start.toLocaleString({ weekday: 'short', day: '2-digit' })}
+          </div>
+          <div className='day-container'>
+            {day.divideEqually(24).map((hour, index) => (
+              <div key={index} className='hour' />
+            ))}
           </div>
         </div>
       ))}
@@ -41,7 +47,7 @@ const DutyOfficer: React.FC = () => {
   if (params.week === undefined) {
     week = getWeekInterval();
   } else {
-    week = getWeekInterval(DateTime.fromISO(params.week));
+    week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
   useEffect(() => {
@@ -54,7 +60,7 @@ const DutyOfficer: React.FC = () => {
 
   return (
     <React.Fragment>
-      <div className='p-3 d-flex border-bottom'>
+      <div className='p-3 border-bottom'>
         <Button variant='primary' className='mr-2'>
           <FaUser /> Set Duty Officer
         </Button>

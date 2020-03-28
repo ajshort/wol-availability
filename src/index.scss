@@ -1,6 +1,13 @@
 @import 'bootstrap/scss/bootstrap.scss';
 @import 'react-vis/dist/main.scss';
 
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
 #app-navbar .navbar-brand img {
   display: inline-block;
   margin-right: 3px;
@@ -37,10 +44,15 @@
 
 #do-table {
   display: flex;
+  flex-grow: 1;
   flex-direction: row;
 
-  .day {
+  .column {
     @extend .border-right;
+  }
+  .day {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
   }
 
@@ -49,6 +61,16 @@
     @extend .border-bottom;
     @extend .p-2;
     text-align: center;
+  }
+  .day-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative;
+  }
+  .hour {
+    border-bottom: 1px solid $table-border-color;
+    flex-grow: 1;
   }
 }
 

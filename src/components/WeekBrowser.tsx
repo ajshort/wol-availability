@@ -23,7 +23,7 @@ const WeekBrowser: React.FC<WeekBrowserProps> = ({ value, onChange }) => {
   return (
     <React.Fragment>
       <Button
-        variant='primary'
+        variant='secondary'
         onClick={handleToday}
         disabled={nowWeek.equals(value)}
         className='mr-2'
