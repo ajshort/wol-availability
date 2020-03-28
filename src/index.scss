@@ -35,6 +35,23 @@
   td { vertical-align: middle; }
 }
 
+#do-table {
+  display: flex;
+  flex-direction: row;
+
+  .day {
+    @extend .border-right;
+    flex-grow: 1;
+  }
+
+  .date {
+    @extend .bg-light;
+    @extend .border-bottom;
+    @extend .p-2;
+    text-align: center;
+  }
+}
+
 .QualificationsDropdownMenu .form-check {
   justify-content: left;
 }
