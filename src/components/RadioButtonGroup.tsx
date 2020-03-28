@@ -15,7 +15,7 @@ class RadioButtonGroup<T> extends React.Component<RadioButtonGroupProps<T>> {
     return (
       <ButtonGroup>
         {options.map(({ value: mine, label, variant }) => {
-          const style = value === mine ? variant : `outline-${variant};`
+          const style = value === mine ? variant : `outline-${variant}`;
           const handleClick = () => onChange(value === mine ? undefined : mine);
 
           return (
