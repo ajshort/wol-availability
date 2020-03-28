@@ -5,6 +5,7 @@ import Analytics from './components/Analytics';
 import { AuthProvider } from './components/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
+import DutyOfficer from './pages/DutyOfficer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
@@ -21,6 +22,7 @@ const App = () => (
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member' component={Member} />
           <ProtectedRoute path='/unit/storm/:week?' component={Unit} />
+          <ProtectedRoute path='/unit/do/:week?' component={DutyOfficer} />
           <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
           <Route path='/logout' component={Logout} />
