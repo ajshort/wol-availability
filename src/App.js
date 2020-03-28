@@ -20,7 +20,7 @@ const App = () => (
         <Switch>
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member' component={Member} />
-          <ProtectedRoute path='/unit/:week?' component={Unit} />
+          <ProtectedRoute path='/unit/storm/:week?' component={Unit} />
           <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
           <Route path='/logout' component={Logout} />

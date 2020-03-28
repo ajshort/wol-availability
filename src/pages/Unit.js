@@ -60,8 +60,8 @@ const Unit = withRouter(({ match }) => {
   }
 
   // Week links.
-  const prevWeek = `/unit/${from.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
-  const nextWeek = `/unit/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
+  const prevWeek = `/unit/storm/${from.clone().subtract(1, 'week').format('YYYY-MM-DD')}`;
+  const nextWeek = `/unit/storm/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
   // Query vars.
   const to = getWeekEnd(from);
