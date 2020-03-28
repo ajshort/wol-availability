@@ -1,4 +1,5 @@
 import MemberSelector from '../components/MemberSelector';
+import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import { Shift } from '../model/availability';
 import { getDayIntervals, getNow, getWeekInterval, TIME_ZONE } from '../model/dates';
@@ -23,7 +24,7 @@ interface EditModalProps {
 const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
   const onHide = () => setShow(false);
 
-  const [shift, setShift] = useState<Shift>(Shift.DAY);
+  const [shift, setShift] = useState<Shift | undefined>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
 
   const currentWeek = getWeekInterval();
@@ -38,6 +39,16 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
         <Modal.Body>
           <Form.Group as={Row} controlId='shift'>
             <Form.Label column sm={3}>Shift</Form.Label>
+            <Col sm={9}>
+              <RadioButtonGroup<Shift>
+                options={[
+                  { value: Shift.DAY, label: '☀️ Day', variant: 'primary' },
+                  { value: Shift.NIGHT, label: '🌃 Night', variant: 'primary' },
+                ]}
+                value={shift}
+                onChange={setShift}
+              />
+            </Col>
           </Form.Group>
           <Form.Group as={Row} controlId='member'>
             <Form.Label column sm={3}>Duty officer</Form.Label>
