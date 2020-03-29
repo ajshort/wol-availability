@@ -72,6 +72,16 @@
     border-bottom: 1px solid $table-border-color;
     flex-grow: 1;
   }
+
+  .do-block {
+    left: 0;
+    padding: $spacer * 0.5;
+    position: absolute;
+    right: 0;
+  }
+  .do-day {
+    background: rgba($info, 0.5);
+  }
 }
 
 .QualificationsDropdownMenu .form-check {

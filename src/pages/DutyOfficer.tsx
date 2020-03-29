@@ -2,19 +2,23 @@ import MemberSelector from '../components/MemberSelector';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import { Shift } from '../model/availability';
-import { getDayIntervals, getNow, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
+import gql from 'graphql-tag';
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import { FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
+import { Query } from 'react-apollo';
 
 interface EditModalProps {
   show: boolean;
@@ -33,9 +37,13 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
 
   const valid = member !== undefined;
 
+  const handleSubmit = () => {
+    setShow(false);
+  };
+
   return (
     <Modal show={show} onHide={onHide}>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group as={Row} controlId='shift'>
             <Form.Label column sm={3}>Shift</Form.Label>
@@ -95,32 +103,79 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
 
 interface TableProps {
   interval: Interval;
+  data: Array<{
+    shift: Shift;
+    interval: Interval;
+    member: { fullName: string; };
+  }>;
 }
 
-const Table: React.FC<TableProps> = ({ interval }) => {
+const Table: React.FC<TableProps> = ({ interval, data }) => {
   const days = getDayIntervals(interval);
 
   return (
     <div id='do-table'>
       <div className='gutter column'></div>
-      {days.map((day, index) => (
-        <div className='day column' key={index}>
-          <div className='date'>
-            {day.start.toLocaleString({ weekday: 'short', day: '2-digit' })}
+      {days.map((day, index) => {
+        const overlapped = data.filter(({ interval }) => interval.overlaps(day));
+
+        return (
+          <div className='day column' key={index}>
+            <div className='date'>
+              {day.start.toLocaleString({ weekday: 'short', day: '2-digit' })}
+            </div>
+            <div className='day-container'>
+              {day.divideEqually(24).map((_hour, index) => (
+                <div key={index} className='hour' />
+              ))}
+              {overlapped.map(({ shift, interval, member }) => {
+                const from = getIntervalPosition(day, interval.start);
+                const to = getIntervalPosition(day, interval.end);
+                const style = { top: `${from * 100}%`, bottom: `${(1 - to) * 100}%` };
+
+                return (
+                  <div className={`do-block do-${shift.toLowerCase()}`} style={style}>
+                    {member.fullName}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className='day-container'>
-            {day.divideEqually(24).map((_hour, index) => (
-              <div key={index} className='hour' />
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
 
 interface Params {
   week?: string;
+}
+
+const DUTY_OFFICERS_QUERY = gql`
+  query ($from: DateTime!, $to: DateTime!) {
+    dutyOfficers(from: $from, to: $to) {
+      shift
+      from
+      to
+      member {
+        fullName
+      }
+    }
+  }
+`;
+
+interface DutyOfficerVars {
+  from: Date;
+  to: Date;
+}
+
+interface DutyOfficersData {
+  dutyOfficers: Array<{
+    shift: Shift;
+    from: string;
+    to: string;
+    member: { fullName: string; };
+  }>;
 }
 
 const DutyOfficer: React.FC = () => {
@@ -155,10 +210,37 @@ const DutyOfficer: React.FC = () => {
         </Button>
         <WeekBrowser value={week} onChange={handleWeekChange} />
       </div>
-      <Table interval={week} />
+      <Query<DutyOfficersData, DutyOfficerVars>
+        query={DUTY_OFFICERS_QUERY}
+        variables={{ from: week.start.toJSDate(), to: week.end.toJSDate() }}
+      >
+        {({ loading, error, data }) => {
+          if (loading) {
+            return (
+              <Alert variant='info' className='m-3'>
+                <Spinner size='sm' animation='border' /> Loading duty officers&hellip;
+              </Alert>
+            );
+          }
+
+          if (error || !data) {
+            return (
+              <Alert variant='danger' className='m-3'>Error loading duty officers</Alert>
+            );
+          }
+
+          const transformed = data.dutyOfficers.map(val => ({
+            shift: val.shift,
+            interval: Interval.fromDateTimes(DateTime.fromISO(val.from), DateTime.fromISO(val.to)),
+            member: val.member,
+          }));
+
+          return <Table interval={week} data={transformed} />;
+        }}
+      </Query>
       <EditModal show={editing} setShow={setEditing} />
     </React.Fragment>
-  )
+  );
 };
 
 export default DutyOfficer;
