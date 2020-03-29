@@ -2,6 +2,9 @@ import { DateTime, Interval } from 'luxon';
 
 export const TIME_ZONE = 'Australia/Sydney';
 
+export const DAY_SHIFT_START = { hour: 6 };
+export const NIGHT_SHIFT_START = { hour: 18 };
+
 const WEEK_START = {
   hour: 18,
   millisecond: 0,
@@ -23,6 +26,11 @@ export function getNow(): DateTime {
 export function getWeekInterval(dt?: DateTime): Interval {
   if (dt === undefined) {
     dt = getNow();
+  }
+
+  // If we're on the weekday but before the time, go back a week.
+  if (dt.weekday === WEEK_START.weekday && dt.hour < WEEK_START.hour) {
+    dt = dt.minus({ weeks: 1 });
   }
 
   const start = dt.set(WEEK_START);
