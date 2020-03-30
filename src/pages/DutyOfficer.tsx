@@ -2,7 +2,7 @@ import MemberSelector from '../components/MemberSelector';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import { Shift } from '../model/availability';
-import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
 import gql from 'graphql-tag';
@@ -211,8 +211,15 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
                       return null;
                     }
 
-                    const from = getIntervalPosition(day, intersection.start);
-                    const to = getIntervalPosition(day, intersection.end);
+                    const calculatePosition = (dt: DateTime) => (
+                      dt.hour / 24 +
+                      dt.minute / (24 * 60) +
+                      dt.second / (24 * 60 * 60) +
+                      dt.millisecond / (24 * 60 * 60 * 1000)
+                    );
+
+                    const from = calculatePosition(intersection.start);
+                    const to = calculatePosition(intersection.end);
                     const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
 
                     return (
