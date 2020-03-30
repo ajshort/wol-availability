@@ -25,6 +25,13 @@ const SHIFT_TEAMS_QUERY = gql`
       day
       night
     }
+
+    dutyOfficersAt {
+      shift
+      member {
+        fullName
+      }
+    }
   }
 `;
 
@@ -39,14 +46,20 @@ const ShiftTeamsAlert = () => (
             );
           }
 
-          if (error) {
+          if (error || !data) {
             return 'Error loading shift teams';
           }
 
           const { day, night } = data.shiftTeams;
 
+          const dayDO = data.dutyOfficersAt.find(val => val.shift === 'DAY')?.member;
+          const nightDO = data.dutyOfficersAt.find(val => val.shift === 'NIGHT')?.member;
+
           return (
-            <><strong>{day}</strong> is day shift and <strong>{night}</strong> is night shift.</>
+            <>
+              <p>🌞 Day shift is <strong>{day}</strong>, duty officer <strong>{dayDO ? dayDO.fullName : 'unknown'}</strong>.</p>
+              <p className='mb-0'>🌃 Night shift is <strong>{night}</strong>, duty officer <strong>{nightDO ? nightDO.fullName : 'unknown'}</strong>.</p>
+            </>
           );
         })()}
       </Alert>
