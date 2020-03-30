@@ -81,16 +81,23 @@
   }
 
   .do-block {
+    font-size: 14px;
+    overflow: hidden;
     position: absolute;
     padding: 0.25 * $spacer;
-    overflow: hidden;
+    text-overflow: ellipsis;
     top: 0;
+    white-space: nowrap;
   }
   .do-day {
-    background: rgba($info, 0.5);
+    color: #0c5460;
+    background: #d1ecf1;
+    border-left: 1px solid #bee5eb;
   }
   .do-night {
-    background: rgba($info, 0.8);
+    color: #004085;
+    background: #cce5ff;
+    border-left: 1px solid #b8daff;
   }
 }
 

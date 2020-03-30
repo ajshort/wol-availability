@@ -205,7 +205,7 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
                   .filter(val => val.shift === shift)
                   .filter(val => val.interval.overlaps(block))
                   .map(({ shift, interval, member }) => {
-                    const intersection = block.intersection(block);
+                    const intersection = block.intersection(interval);
 
                     if (!intersection) {
                       return null;
