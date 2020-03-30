@@ -117,28 +117,51 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
     <div id='do-table'>
       <div className='gutter column'></div>
       {days.map((day, index) => {
-        const overlapped = data.filter(({ interval }) => interval.overlaps(day));
+        // We break availability into three chunks - night shift up to 06:00, then day shift
+        // until 18:00, then night shift again.
+        //
+        // TODO ideally this wouldn't be hardcoded here.
+        const morning = day.start.set({ hour: 6 });
+        const evening = day.start.set({ hour: 18 });
+
+        const blocks = [
+          { shift: Shift.NIGHT, block: Interval.fromDateTimes(day.start, morning) },
+          { shift: Shift.DAY, block: Interval.fromDateTimes(morning, evening) },
+          { shift: Shift.NIGHT, block: Interval.fromDateTimes(evening, day.end) },
+        ];
 
         return (
           <div className='day column' key={index}>
             <div className='date'>
-              {day.start.toLocaleString({ weekday: 'short', day: '2-digit' })}
+              <span className='text-muted'>{day.start.toFormat('ccc')}</span>
+              <span className='h5 mb-0'>{day.start.toFormat('d')}</span>
             </div>
             <div className='day-container'>
               {day.divideEqually(24).map((_hour, index) => (
                 <div key={index} className='hour' />
               ))}
-              {overlapped.map(({ shift, interval, member }) => {
-                const from = getIntervalPosition(day, interval.start);
-                const to = getIntervalPosition(day, interval.end);
-                const style = { top: `${from * 100}%`, bottom: `${(1 - to) * 100}%` };
+              {blocks.map(({ shift, block }) => (
+                data
+                  .filter(val => val.shift === shift)
+                  .filter(val => val.interval.overlaps(block))
+                  .map(({ shift, interval, member }) => {
+                    const intersection = block.intersection(block);
 
-                return (
-                  <div className={`do-block do-${shift.toLowerCase()}`} style={style}>
-                    {member.fullName}
-                  </div>
-                );
-              })}
+                    if (!intersection) {
+                      return null;
+                    }
+
+                    const from = getIntervalPosition(day, intersection.start);
+                    const to = getIntervalPosition(day, intersection.end);
+                    const style = { top: `${from * 100}%`, bottom: `${(1 - to) * 100}%` };
+
+                    return (
+                      <div className={`do-block do-${shift.toLowerCase()}`} style={style}>
+                        {member.fullName}
+                      </div>
+                    );
+                 })
+              ))}
             </div>
           </div>
         );

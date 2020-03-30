@@ -60,6 +60,8 @@
     @extend .bg-light;
     @extend .border-bottom;
     @extend .p-2;
+    display: flex;
+    flex-direction: column;
     text-align: center;
   }
   .day-container {
@@ -80,7 +82,7 @@
     right: 0;
   }
   .do-day {
-    background: rgba($info, 0.5);
+    background: rgba($info, 0.6);
   }
 }
 
