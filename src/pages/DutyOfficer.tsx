@@ -5,6 +5,7 @@ import { Shift } from '../model/availability';
 import { getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
+import clsx from 'clsx';
 import gql from 'graphql-tag';
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
@@ -220,10 +221,11 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
 
                     const from = calculatePosition(intersection.start);
                     const to = calculatePosition(intersection.end);
+                    const className = clsx('do-block', `do-${shift.toLowerCase()}`);
                     const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
 
                     return (
-                      <div className={`do-block do-${shift.toLowerCase()}`} style={style}>
+                      <div className={className} style={style}>
                         {member.fullName}
                       </div>
                     );
