@@ -1,7 +1,9 @@
+import TeamBadge from './TeamBadge';
+
 import gql from 'graphql-tag';
 import React from 'react';
 import { Query } from 'react-apollo';
-import { Typeahead } from 'react-bootstrap-typeahead';
+import { Typeahead, Highlighter } from 'react-bootstrap-typeahead';
 
 const GET_MEMBERS_QUERY = gql`
   {
@@ -20,6 +22,7 @@ interface MemberData {
   fullName: string;
   number: number;
   surname: string;
+  team: string;
 }
 
 interface GetMembersData {
@@ -32,13 +35,19 @@ interface MemberSelectorProps {
   onChange: (value: number | undefined) => void;
 }
 
+interface Model {
+  id: number;
+  label: string;
+  team: string;
+}
+
 const MemberSelector: React.FC<MemberSelectorProps> = ({ id, value, onChange }) => {
   return (
     <Query<GetMembersData> query={GET_MEMBERS_QUERY}>
       {({ loading, error, data }) => {
         let placeholder: string;
         let disabled = false;
-        let members: Array<{ id: number, label: string }> = [];
+        let members: Model[] = [];
 
         if (loading) {
           placeholder = 'Loading members...';
@@ -51,15 +60,24 @@ const MemberSelector: React.FC<MemberSelectorProps> = ({ id, value, onChange }) 
 
           members = data.members
             .sort((a, b) => a.surname.localeCompare(b.surname))
-            .map((member) => ({ id: member.number, label: member.fullName }));
+            .map((member) => ({ id: member.number, label: member.fullName, team: member.team }));
         }
 
         return (
-          <Typeahead
+          <Typeahead<Model>
             id={id}
             placeholder={placeholder}
             disabled={disabled}
             options={members}
+            renderMenuItemChildren={(option, props, _index) => (
+              <React.Fragment>
+                <Highlighter key='name' search={props.text}>
+                  {option.label}
+                </Highlighter>
+                {' '}
+                <TeamBadge team={option.team} />
+              </React.Fragment>
+            )}
             onChange={(selected) => onChange(selected.length === 0 ? undefined : selected[0].id)}
           />
         );
