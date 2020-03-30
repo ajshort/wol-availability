@@ -276,7 +276,9 @@ const DutyOfficer: React.FC = () => {
     <React.Fragment>
       <div className='p-3 border-bottom'>
         <Button variant='primary' className='mr-2' onClick={handleEdit}>
-          <FaUser /> Set Duty Officer
+          <FaUser />
+          <span className='d-sm-none'>Set DO</span>
+          <span className='d-none d-sm-inline'>Set Duty Officer</span>
         </Button>
         <WeekBrowser value={week} onChange={handleWeekChange} />
       </div>

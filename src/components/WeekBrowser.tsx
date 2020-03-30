@@ -35,7 +35,7 @@ const WeekBrowser: React.FC<WeekBrowserProps> = ({ value, onChange }) => {
         <Button variant='outline-secondary' onClick={handlePrevious}><FaArrowLeft /></Button>
         <Button variant='outline-secondary' onClick={handleNext}><FaArrowRight /></Button>
       </ButtonGroup>
-      <span>{value.start.toLocaleString(DateTime.DATE_MED)}</span>
+      <span className='d-none d-sm-inline'>{value.start.toLocaleString(DateTime.DATE_MED)}</span>
     </React.Fragment>
   );
 };
