@@ -191,7 +191,7 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
         ];
 
         return (
-          <div className='day column' key={index}>
+          <div className='day' key={index}>
             <div className='date'>
               <span className='text-muted'>{day.start.toFormat('ccc')}</span>
               <span className='h5 mb-0'>{day.start.toFormat('d')}</span>
@@ -213,7 +213,7 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
 
                     const from = getIntervalPosition(day, intersection.start);
                     const to = getIntervalPosition(day, intersection.end);
-                    const style = { top: `${from * 100}%`, bottom: `${(1 - to) * 100}%` };
+                    const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
 
                     return (
                       <div className={`do-block do-${shift.toLowerCase()}`} style={style}>

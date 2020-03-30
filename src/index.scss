@@ -44,29 +44,28 @@
 
 #do-table {
   display: flex;
-  flex-grow: 1;
-  flex-direction: row;
+  flex-direction: column;
 
-  .column {
-    @extend .border-right;
-  }
   .day {
+    border-bottom: 1px solid $table-border-color;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-grow: 1;
   }
 
   .date {
     @extend .bg-light;
-    @extend .border-bottom;
-    @extend .p-2;
+    border-right: 1px solid $table-border-color;
     display: flex;
     flex-direction: column;
+    height: 64px;
+    justify-content: center;
     text-align: center;
+    width: 64px;
   }
   .day-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-grow: 1;
     position: relative;
   }
@@ -74,18 +73,18 @@
     flex-grow: 1;
 
     @include media-breakpoint-up(md) {
-      &:nth-child(2n) { border-bottom: 1px solid $table-border-color; }
+      &:nth-child(2n) { border-right: 1px solid $table-border-color; }
     }
     &:nth-child(6), &:nth-child(18) {
-      border-bottom: 1px solid darken($table-border-color, 25);
+      border-right: 1px solid $table-border-color;
     }
   }
 
   .do-block {
-    left: 0;
-    padding: $spacer * 0.5;
     position: absolute;
-    right: 0;
+    padding: 0.25 * $spacer;
+    overflow: hidden;
+    top: 0;
   }
   .do-day {
     background: rgba($info, 0.5);
