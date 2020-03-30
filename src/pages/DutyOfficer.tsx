@@ -18,7 +18,20 @@ import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import { FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
-import { Query } from 'react-apollo';
+import { Mutation, Query } from 'react-apollo';
+
+const SET_AVAILABILITY_MUTATION = gql`
+  mutation ($shift: TeamShift!, $member: Int!, $from: DateTime!, $to: DateTime!) {
+    setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
+  }
+`;
+
+interface SetAvailabilityData {
+  shift: Shift;
+  member: number;
+  from: DateTime;
+  to: DateTime;
+}
 
 interface EditModalProps {
   show: boolean;
@@ -28,76 +41,98 @@ interface EditModalProps {
 const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
   const onHide = () => setShow(false);
 
-  const [shift, setShift] = useState<Shift | undefined>(Shift.DAY);
+  const [shift, setShift] = useState<Shift>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
 
   const currentWeek = getWeekInterval();
-  const [start, setStart] = useState<DateTime | undefined>(currentWeek.start);
-  const [end, setEnd] = useState<DateTime | undefined>(currentWeek.end);
+  const [from, setFrom] = useState<DateTime | undefined>(currentWeek.start);
+  const [to, setTo] = useState<DateTime | undefined>(currentWeek.end);
 
-  const valid = member !== undefined;
+  const valid = member !== undefined &&
+                from !== undefined &&
+                to !== undefined &&
+                Interval.fromDateTimes(from, to).isValid;
 
-  const handleSubmit = () => {
-    setShow(false);
+  const handleCompleted = () => {
+    onHide();
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body>
-          <Form.Group as={Row} controlId='shift'>
-            <Form.Label column sm={3}>Shift</Form.Label>
-            <Col sm={9}>
-              <RadioButtonGroup<Shift>
-                options={[
-                  { value: Shift.DAY, label: '☀️ Day', variant: 'primary' },
-                  { value: Shift.NIGHT, label: '🌃 Night', variant: 'primary' },
-                ]}
-                value={shift}
-                onChange={setShift}
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} controlId='member'>
-            <Form.Label column sm={3}>Duty officer</Form.Label>
-            <Col sm={9}>
-              <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} controlId='from'>
-            <Form.Label column sm={3}>From</Form.Label>
-            <Col sm={9}>
-              <DatePicker
-                selected={start ? start.toJSDate() : null}
-                onChange={date => setStart(date ? DateTime.fromJSDate(date) : undefined)}
-                showTimeSelect
-                timeFormat='HH:mm'
-                dateFormat='MMMM d, yyyy h:mm aa'
-                className='form-control'
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} controlId='to'>
-            <Form.Label column sm={3}>To</Form.Label>
-            <Col sm={9}>
-              <DatePicker
-                selected={end ? end.toJSDate() : null}
-                onChange={date => setEnd(date ? DateTime.fromJSDate(date) : undefined)}
-                showTimeSelect
-                timeFormat='HH:mm'
-                dateFormat='MMMM d, yyyy h:mm aa'
-                className='form-control'
-              />
-            </Col>
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button type='submit' variant='success' disabled={!valid}>
-            Save Duty Officer
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+    <Mutation<Boolean, SetAvailabilityData>
+      mutation={SET_AVAILABILITY_MUTATION}
+      variables={{ shift, member: member!, from: from!, to: to! }}
+      onCompleted={handleCompleted}
+    >
+      {(mutate, { loading, error }) => (
+        <Modal show={show} onHide={onHide}>
+          <Form
+            onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault();
+              event.stopPropagation();
+              mutate();
+            }}
+          >
+            <Modal.Body>
+              {error && (
+                <Alert variant='danger'>Error saving duty officer</Alert>
+              )}
+              <Form.Group as={Row} controlId='shift'>
+                <Form.Label column sm={3}>Shift</Form.Label>
+                <Col sm={9}>
+                  <RadioButtonGroup<Shift>
+                    options={[
+                      { value: Shift.DAY, label: '☀️ Day', variant: 'primary' },
+                      { value: Shift.NIGHT, label: '🌃 Night', variant: 'primary' },
+                    ]}
+                    value={shift}
+                    onChange={shift => (shift !== undefined && setShift(shift))}
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId='member'>
+                <Form.Label column sm={3}>Duty officer</Form.Label>
+                <Col sm={9}>
+                  <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId='from'>
+                <Form.Label column sm={3}>From</Form.Label>
+                <Col sm={9}>
+                  <DatePicker
+                    selected={from ? from.toJSDate() : null}
+                    onChange={date => setFrom(date ? DateTime.fromJSDate(date) : undefined)}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    dateFormat='MMMM d, yyyy h:mm aa'
+                    className='form-control'
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId='to'>
+                <Form.Label column sm={3}>To</Form.Label>
+                <Col sm={9}>
+                  <DatePicker
+                    selected={to ? to.toJSDate() : null}
+                    onChange={date => setTo(date ? DateTime.fromJSDate(date) : undefined)}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    dateFormat='MMMM d, yyyy h:mm aa'
+                    className='form-control'
+                  />
+                </Col>
+              </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button type='submit' variant='success' disabled={!valid || loading}>
+                {loading ? (
+                  <><Spinner size='sm' animation='border' /> Saving Duty Officer &hellip;</>
+                ) : 'Save Duty Officer'}
+              </Button>
+            </Modal.Footer>
+          </Form>
+        </Modal>
+      )}
+    </Mutation>
   );
 };
 

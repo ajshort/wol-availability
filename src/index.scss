@@ -82,7 +82,10 @@
     right: 0;
   }
   .do-day {
-    background: rgba($info, 0.6);
+    background: rgba($info, 0.5);
+  }
+  .do-night {
+    background: rgba($info, 0.8);
   }
 }
 
