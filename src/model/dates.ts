@@ -29,9 +29,9 @@ export function getWeekInterval(dt?: DateTime): Interval {
   }
 
   // If we're on the weekday but before the time, go back a week.
-  if (dt.weekday === WEEK_START.weekday && dt.hour < WEEK_START.hour) {
-    dt = dt.minus({ weeks: 1 });
-  }
+  // if (dt.weekday === WEEK_START.weekday && dt.hour < WEEK_START.hour) {
+  //   dt = dt.minus({ weeks: 1 });
+  // }
 
   const start = dt.set(WEEK_START);
   const end = start.plus({ weeks: 1 });

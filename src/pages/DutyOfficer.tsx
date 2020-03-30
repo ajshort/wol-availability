@@ -20,6 +20,19 @@ import { FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import { Mutation, Query } from 'react-apollo';
 
+const DUTY_OFFICERS_QUERY = gql`
+  query ($from: DateTime!, $to: DateTime!) {
+    dutyOfficers(from: $from, to: $to) {
+      shift
+      from
+      to
+      member {
+        fullName
+      }
+    }
+  }
+`;
+
 const SET_AVAILABILITY_MUTATION = gql`
   mutation ($shift: TeamShift!, $member: Int!, $from: DateTime!, $to: DateTime!) {
     setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
@@ -34,11 +47,12 @@ interface SetAvailabilityData {
 }
 
 interface EditModalProps {
+  interval: Interval;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
+const EditModal: React.FC<EditModalProps> = ({ interval, show, setShow }) => {
   const onHide = () => setShow(false);
 
   const [shift, setShift] = useState<Shift>(Shift.DAY);
@@ -62,6 +76,12 @@ const EditModal: React.FC<EditModalProps> = ({ show, setShow }) => {
       mutation={SET_AVAILABILITY_MUTATION}
       variables={{ shift, member: member!, from: from!, to: to! }}
       onCompleted={handleCompleted}
+      refetchQueries={() => [
+        {
+          query: DUTY_OFFICERS_QUERY,
+          variables: { from: interval.start.toJSDate(), to: interval.end.toJSDate() },
+        },
+      ]}
     >
       {(mutate, { loading, error }) => (
         <Modal show={show} onHide={onHide}>
@@ -209,19 +229,6 @@ interface Params {
   week?: string;
 }
 
-const DUTY_OFFICERS_QUERY = gql`
-  query ($from: DateTime!, $to: DateTime!) {
-    dutyOfficers(from: $from, to: $to) {
-      shift
-      from
-      to
-      member {
-        fullName
-      }
-    }
-  }
-`;
-
 interface DutyOfficerVars {
   from: Date;
   to: Date;
@@ -255,7 +262,7 @@ const DutyOfficer: React.FC = () => {
   });
 
   const handleWeekChange = (value: Interval) => {
-    history.replace(`/unit/do/${value.start.toISODate()}`);
+    history.push(`/unit/do/${value.start.toISODate()}`);
   };
 
   const handleEdit = () => setEditing(true);
@@ -271,6 +278,7 @@ const DutyOfficer: React.FC = () => {
       <Query<DutyOfficersData, DutyOfficerVars>
         query={DUTY_OFFICERS_QUERY}
         variables={{ from: week.start.toJSDate(), to: week.end.toJSDate() }}
+        fetchPolicy='network-only'
       >
         {({ loading, error, data }) => {
           if (loading) {
@@ -296,7 +304,7 @@ const DutyOfficer: React.FC = () => {
           return <Table interval={week} data={transformed} />;
         }}
       </Query>
-      <EditModal show={editing} setShow={setEditing} />
+      <EditModal interval={week} show={editing} setShow={setEditing} />
     </React.Fragment>
   );
 };
