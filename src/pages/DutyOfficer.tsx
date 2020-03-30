@@ -143,10 +143,15 @@ const EditModal: React.FC<EditModalProps> = ({ interval, show, setShow }) => {
               </Form.Group>
             </Modal.Body>
             <Modal.Footer>
+              <Button variant='secondary' disabled={loading} onClick={onHide}>
+                Close
+              </Button>
               <Button type='submit' variant='success' disabled={!valid || loading}>
                 {loading ? (
                   <><Spinner size='sm' animation='border' /> Saving Duty Officer &hellip;</>
-                ) : 'Save Duty Officer'}
+                ) : (
+                  <>Save Duty Officer</>
+                )}
               </Button>
             </Modal.Footer>
           </Form>
