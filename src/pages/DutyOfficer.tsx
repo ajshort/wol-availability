@@ -284,6 +284,7 @@ const DutyOfficer: React.FC = () => {
       <div className='p-3 border-bottom'>
         <Button variant='primary' className='mr-2' onClick={handleEdit}>
           <FaUser />
+          {' '}
           <span className='d-sm-none'>Set DO</span>
           <span className='d-none d-sm-inline'>Set Duty Officer</span>
         </Button>
