@@ -1,13 +1,19 @@
 import 'react-app-polyfill/ie11';
 import 'react-app-polyfill/stable';
 
+import locale from 'date-fns/locale/en-AU';
 import React from 'react';
+import { registerLocale, setDefaultLocale } from  'react-datepicker';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './index.scss';
+
+// Set the default datepicker locale.
+registerLocale('en-AU', locale);
+setDefaultLocale('en-AU');
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
