@@ -31,17 +31,17 @@ interface GetMembersData {
 
 interface MemberSelectorProps {
   id: string;
-  value?: number;
   onChange: (value: number | undefined) => void;
+  allowNone?: boolean;
 }
 
 interface Model {
   id: number;
   label: string;
-  team: string;
+  team?: string;
 }
 
-const MemberSelector: React.FC<MemberSelectorProps> = ({ id, value, onChange }) => {
+const MemberSelector: React.FC<MemberSelectorProps> = ({ id, onChange, allowNone }) => {
   return (
     <Query<GetMembersData> query={GET_MEMBERS_QUERY}>
       {({ loading, error, data }) => {
@@ -61,6 +61,13 @@ const MemberSelector: React.FC<MemberSelectorProps> = ({ id, value, onChange }) 
           members = data.members
             .sort((a, b) => a.surname.localeCompare(b.surname))
             .map((member) => ({ id: member.number, label: member.fullName, team: member.team }));
+
+          if (allowNone) {
+            members.unshift({
+              id: 0,
+              label: 'None',
+            });
+          }
         }
 
         return (
@@ -69,13 +76,13 @@ const MemberSelector: React.FC<MemberSelectorProps> = ({ id, value, onChange }) 
             placeholder={placeholder}
             disabled={disabled}
             options={members}
-            renderMenuItemChildren={(option, props, _index) => (
+            renderMenuItemChildren={({ label, team }, props, _index) => (
               <React.Fragment>
                 <Highlighter key='name' search={props.text}>
-                  {option.label}
+                  {label}
                 </Highlighter>
                 {' '}
-                <TeamBadge team={option.team} />
+                {team && <TeamBadge team={team} />}
               </React.Fragment>
             )}
             onChange={(selected) => onChange(selected.length === 0 ? undefined : selected[0].id)}

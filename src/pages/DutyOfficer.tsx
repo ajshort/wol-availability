@@ -36,14 +36,14 @@ const DUTY_OFFICERS_QUERY = gql`
 `;
 
 const SET_AVAILABILITY_MUTATION = gql`
-  mutation ($shift: TeamShift!, $member: Int!, $from: DateTime!, $to: DateTime!) {
+  mutation ($shift: TeamShift!, $member: Int, $from: DateTime!, $to: DateTime!) {
     setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
   }
 `;
 
 interface SetAvailabilityData {
   shift: Shift;
-  member: number;
+  member: number | null;
   from: Date;
   to: Date;
 }
@@ -139,7 +139,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
       mutation={SET_AVAILABILITY_MUTATION}
       variables={{
         shift,
-        member: member!,
+        member: member !== undefined && member !== 0 ? member : null,
         from: interval.start.toJSDate(),
         to: interval.end.toJSDate(),
       }}
@@ -178,7 +178,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
               <Form.Group as={Row} controlId='member'>
                 <Form.Label column sm={3}>Duty officer</Form.Label>
                 <Col sm={9}>
-                  <MemberSelector id='do-member-selector' value={member} onChange={setMember} />
+                  <MemberSelector id='do-member-selector' onChange={setMember} allowNone />
                 </Col>
               </Form.Group>
               <Form.Group as={Row} controlId='from'>
