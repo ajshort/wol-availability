@@ -7,6 +7,7 @@ import { getDocumentTitle } from '../utils';
 
 import clsx from 'clsx';
 import gql from 'graphql-tag';
+import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
@@ -248,7 +249,13 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
 
   return (
     <div id='do-table'>
-      <div className='gutter column'></div>
+      <div id='do-table-header'>
+        {_.range(0, 24).map(hour => (
+          <div className='do-table-header-hour'>
+            {hour > 0 && (<small>{_.padStart(hour.toString(), 2, '0') + ':00'}</small>)}
+          </div>
+        ))}
+      </div>
       {days.map((day, index) => {
         // We break availability into three chunks - night shift up to 06:00, then day shift
         // until 18:00, then night shift again.

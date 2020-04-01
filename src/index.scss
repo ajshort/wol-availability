@@ -109,6 +109,39 @@
     top: 0;
   }
 }
+#do-table-header {
+  border-bottom: 1px solid $table-border-color;
+  display: flex;
+  flex-direction: row;
+  padding-left: 64px;
+  height: 25px;
+
+  .do-table-header-hour {
+    flex-grow: 1;
+    position: relative;
+
+    small {
+      @extend .text-muted;
+      bottom: 0;
+      display: none;
+      left: -32px;
+      position: absolute;
+      text-align: center;
+      width: 64px;
+    }
+
+    @include media-breakpoint-up(md) {
+      &:nth-child(2n + 1) {
+        small { display: block; }
+      }
+    }
+    &:nth-child(7), &:nth-child(19) {
+      small {
+        display: block;
+      }
+    }
+  }
+}
 
 .QualificationsDropdownMenu .form-check {
   justify-content: left;
