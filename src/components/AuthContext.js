@@ -3,7 +3,7 @@ import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import gql from 'graphql-tag';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ApolloProvider, Query } from 'react-apollo';
 
 const AuthContext = React.createContext({
@@ -90,5 +90,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const AuthConsumer = AuthContext.Consumer;
+
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
