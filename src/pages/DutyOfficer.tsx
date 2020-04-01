@@ -379,7 +379,7 @@ const DutyOfficer: React.FC = () => {
 
   return (
     <React.Fragment>
-      <div className='p-3 border-bottom'>
+      <div className='p-3 border-bottom display-flex align-items-center'>
         <Button variant='primary' className='mr-2' onClick={handleEdit}>
           <FaUser />
           {' '}
