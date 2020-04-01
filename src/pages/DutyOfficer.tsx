@@ -2,7 +2,7 @@ import MemberSelector from '../components/MemberSelector';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import { Shift } from '../model/availability';
-import { getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
 import clsx from 'clsx';
@@ -263,6 +263,11 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
           { shift: Shift.NIGHT, block: Interval.fromDateTimes(evening, day.end) },
         ];
 
+        // Check if this day is partially outside the week interval - of so, then draw a gray box to
+        // mark it so.
+        const weekStartInDay = 100 * (1 - getIntervalPosition(day, interval.start));
+        const weekEndInDay = 100 * getIntervalPosition(day, interval.end);
+
         return (
           <div className='day' key={index}>
             <div className='date'>
@@ -303,6 +308,18 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
                     );
                  })
               ))}
+              {(weekStartInDay > 0) && (
+                <div
+                  className='week-bound'
+                  style={{ left: 0, right: `${weekStartInDay}%` }}
+                />
+              )}
+              {(weekEndInDay < 100) && (
+                <div
+                  className='week-bound'
+                  style={{ left: `${weekEndInDay}%`, right: 0 }}
+                />
+              )}
             </div>
           </div>
         );
