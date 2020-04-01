@@ -43,46 +43,110 @@ const SET_AVAILABILITY_MUTATION = gql`
 interface SetAvailabilityData {
   shift: Shift;
   member: number;
-  from: DateTime;
-  to: DateTime;
+  from: Date;
+  to: Date;
 }
 
 interface EditModalProps {
-  interval: Interval;
+  week: Interval;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-const EditModal: React.FC<EditModalProps> = ({ interval, show, setShow }) => {
-  const onHide = () => setShow(false);
-
+const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
   const [shift, setShift] = useState<Shift>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
+  const [interval, setInterval] = useState(week);
+  const [custom, setCustom] = useState(false);
 
-  const currentWeek = getWeekInterval();
-  const [from, setFrom] = useState<DateTime | undefined>(currentWeek.start);
-  const [to, setTo] = useState<DateTime | undefined>(currentWeek.end);
+  const valid = member !== undefined && interval.isValid;
 
-  const valid = member !== undefined &&
-                from !== undefined &&
-                to !== undefined &&
-                Interval.fromDateTimes(from, to).isValid;
+  // If we're not display a custom time, we truncate the from and to to be at the start/end of
+  // the shift on the selected day.
+  let { start, end } = interval;
 
-  const handleCompleted = () => {
-    onHide();
+  if (!custom) {
+    if (shift === Shift.DAY) {
+      start = start.plus({ days: start.hour >= 18 ? 1 : 0 });
+      end = end.minus({ days: end.minus({ milliseconds: 1 }).hour < 6 ? 1 : 0 });
+    } else {
+      start = start.minus({ days: start.hour < 6 ? 1 : 0 });
+      end = end.minus({ days: end.minus({ milliseconds: 1 }).hour < 18 ? 1 : 0 });
+    }
+  }
+
+  const getShiftStart = (value: DateTime) => {
+    if (shift === Shift.DAY) {
+      return value.set({ hour: 6, minute: 0, second: 0, millisecond: 0 });
+    } else {
+      return value.set({ hour: 18, minute: 0, second: 0, millisecond: 0 });
+    }
+  };
+
+  const setFrom = (value?: DateTime) => {
+    if (!value) {
+      return;
+    }
+
+    if (custom) {
+      setInterval(interval.set({ start: value }));
+    } else {
+      setInterval(interval.set({ start: getShiftStart(value) }));
+    }
+  };
+
+  const getShiftEnd = (value: DateTime) => {
+    if (shift === Shift.DAY) {
+      return value.set({ hour: 18, minute: 0, second: 0, millisecond: 0 });
+    } else {
+      return value.plus({ days: 1 }).set({ hour: 6, minute: 0, second: 0, millisecond: 0 });
+    }
+  };
+
+  const setTo = (value?: DateTime) => {
+    if (!value) {
+      return;
+    }
+
+    if (custom) {
+      setInterval(interval.set({ end: value }));
+    } else {
+      setInterval(interval.set({ end: getShiftEnd(value) }));
+    }
+  };
+
+  const handleSetCustom = (set: boolean) => {
+    if (set === custom) {
+      return;
+    }
+
+    setCustom(set);
+
+    // If `custom` has been disabled, we need to call the from and to setters to change the times.
+    if (!set) {
+      setFrom(getShiftStart(interval.start));
+      setTo(getShiftEnd(interval.end));
+    }
+  };
+
+  const onHide = () => {
+    setShow(false);
   };
 
   return (
     <Mutation<Boolean, SetAvailabilityData>
       mutation={SET_AVAILABILITY_MUTATION}
-      variables={{ shift, member: member!, from: from!, to: to! }}
-      onCompleted={handleCompleted}
-      refetchQueries={() => [
-        {
-          query: DUTY_OFFICERS_QUERY,
-          variables: { from: interval.start.toJSDate(), to: interval.end.toJSDate() },
-        },
-      ]}
+      variables={{
+        shift,
+        member: member!,
+        from: interval.start.toJSDate(),
+        to: interval.end.toJSDate(),
+      }}
+      onCompleted={onHide}
+      refetchQueries={() => [{
+        query: DUTY_OFFICERS_QUERY,
+        variables: { from: week.start.toJSDate(), to: week.end.toJSDate() },
+      }]}
     >
       {(mutate, { loading, error }) => (
         <Modal show={show} onHide={onHide}>
@@ -120,11 +184,10 @@ const EditModal: React.FC<EditModalProps> = ({ interval, show, setShow }) => {
                 <Form.Label column sm={3}>From</Form.Label>
                 <Col sm={9}>
                   <DatePicker
-                    selected={from ? from.toJSDate() : null}
+                    selected={start.toJSDate()}
                     onChange={date => setFrom(date ? DateTime.fromJSDate(date) : undefined)}
-                    showTimeSelect
-                    timeFormat='HH:mm'
-                    dateFormat='MMMM d, yyyy h:mm aa'
+                    showTimeSelect={custom}
+                    dateFormat={custom ? 'cccc do MMM yyyy HH:mm' : 'cccc do MMM yyyy'}
                     className='form-control'
                   />
                 </Col>
@@ -133,12 +196,21 @@ const EditModal: React.FC<EditModalProps> = ({ interval, show, setShow }) => {
                 <Form.Label column sm={3}>To</Form.Label>
                 <Col sm={9}>
                   <DatePicker
-                    selected={to ? to.toJSDate() : null}
+                    selected={end.toJSDate()}
                     onChange={date => setTo(date ? DateTime.fromJSDate(date) : undefined)}
-                    showTimeSelect
-                    timeFormat='HH:mm'
-                    dateFormat='MMMM d, yyyy h:mm aa'
+                    showTimeSelect={custom}
+                    dateFormat={custom ? 'cccc do MMM yyyy HH:mm' : 'cccc do MMM yyyy'}
                     className='form-control'
+                  />
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId='custom-times'>
+                <Col sm={{ span: 9, offset: 3 }}>
+                  <Form.Check
+                    custom
+                    label='Enter custom start and end times?'
+                    checked={custom}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSetCustom(e.target.checked)}
                   />
                 </Col>
               </Form.Group>
@@ -261,7 +333,7 @@ const DutyOfficer: React.FC = () => {
   const history = useHistory();
   const params = useParams<Params>();
 
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(true);
 
   let week: Interval;
 
@@ -321,7 +393,7 @@ const DutyOfficer: React.FC = () => {
           return <Table interval={week} data={transformed} />;
         }}
       </Query>
-      <EditModal interval={week} show={editing} setShow={setEditing} />
+      {editing && <EditModal week={week} show={editing} setShow={setEditing} />}
     </React.Fragment>
   );
 };
