@@ -129,7 +129,10 @@ const EnteredGraph = ({ data }) => {
   data = Object.keys(data)
     .filter(team => !(FLEXIBLE_TEAMS.includes(team) || SUPPORT_TEAMS.includes(team)))
     .filter(team => (data[team].yes + data[team].no) > 3)
-    .reduce((result, key) => (result[key] = data[key], result), {});
+    .reduce((result, key) => {
+      result[key] = data[key];
+      return result;
+    }, {});
 
   const teams = Object.keys(data).sort();
   const yes = teams.map(team => ({ x: team, y: data[team].yes }));

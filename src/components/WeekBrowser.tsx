@@ -1,4 +1,4 @@
-import { getNow, getWeekInterval } from '../model/dates';
+import { getWeekInterval } from '../model/dates';
 
 import { DateTime, Interval } from 'luxon';
 import React from 'react';

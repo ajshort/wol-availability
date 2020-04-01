@@ -57,8 +57,14 @@ const ShiftTeamsAlert = () => (
 
           return (
             <>
-              <p>🌞 Day shift is <strong>{day}</strong>, duty officer <strong>{dayDO ? dayDO.fullName : 'unknown'}</strong>.</p>
-              <p className='mb-0'>🌃 Night shift is <strong>{night}</strong>, duty officer <strong>{nightDO ? nightDO.fullName : 'unknown'}</strong>.</p>
+              <p>
+                <span role="img" aria-label="Day">🌞</span>{' '}
+                Day shift is <strong>{day}</strong>, duty officer <strong>{dayDO ? dayDO.fullName : 'unknown'}</strong>.
+              </p>
+              <p className='mb-0'>
+                <span role="img" aria-label="Night">🌃</span>{' '}
+                Night shift is <strong>{night}</strong>, duty officer <strong>{nightDO ? nightDO.fullName : 'unknown'}</strong>.
+              </p>
             </>
           );
         })()}

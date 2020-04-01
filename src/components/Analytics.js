@@ -14,7 +14,7 @@ const AnalyticsContent = ({ children, history, location, loading, member }) => {
       ReactGA.pageview(location.pathname);
       history.listen(location => ReactGA.pageview(location.pathname));
     }
-  }, [loading]);
+  });
 
   return children;
 };
