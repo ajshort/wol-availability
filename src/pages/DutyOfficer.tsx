@@ -333,7 +333,7 @@ const DutyOfficer: React.FC = () => {
   const history = useHistory();
   const params = useParams<Params>();
 
-  const [editing, setEditing] = useState(true);
+  const [editing, setEditing] = useState(false);
 
   let week: Interval;
 
