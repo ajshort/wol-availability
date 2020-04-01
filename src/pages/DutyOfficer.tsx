@@ -250,39 +250,37 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
   return (
     <div id='do-table'>
       <div id='do-table-header'>
-        {_.range(0, 24).map(hour => (
+        {_.range(6, 30).map(hour => (
           <div className='do-table-header-hour'>
-            {hour > 0 && (<small>{_.padStart(hour.toString(), 2, '0') + ':00'}</small>)}
+            {<small>{_.padStart((hour % 24).toString(), 2, '0') + ':00'}</small>}
           </div>
         ))}
       </div>
       {days.map((day, index) => {
-        // We break availability into three chunks - night shift up to 06:00, then day shift
-        // until 18:00, then night shift again.
-        //
-        // TODO ideally this wouldn't be hardcoded here.
-        const morning = day.start.set({ hour: 6 });
-        const evening = day.start.set({ hour: 18 });
+        // We break availability up into two chunks - 0600 to 1800, then 1800 to 0600.
+        const start = day.start.set({ hour: 6 });
+        const split = day.start.set({ hour: 18 });
+        const end = start.plus({ days: 1 }).set({ hour: 6 });
+        const whole = Interval.fromDateTimes(start, end);
 
         const blocks = [
-          { shift: Shift.NIGHT, block: Interval.fromDateTimes(day.start, morning) },
-          { shift: Shift.DAY, block: Interval.fromDateTimes(morning, evening) },
-          { shift: Shift.NIGHT, block: Interval.fromDateTimes(evening, day.end) },
+          { shift: Shift.DAY, block: Interval.fromDateTimes(start, split) },
+          { shift: Shift.NIGHT, block: Interval.fromDateTimes(split, end) },
         ];
 
-        // Check if this day is partially outside the week interval - of so, then draw a gray box to
-        // mark it so.
-        const weekStartInDay = 100 * (1 - getIntervalPosition(day, interval.start));
-        const weekEndInDay = 100 * getIntervalPosition(day, interval.end);
+        // Check if this day is partially outside the week interval - of so, then draw a hatched box
+        // to mark it so.
+        const weekStartInDay = 100 * (1 - getIntervalPosition(whole, interval.start));
+        const weekEndInDay = 100 * getIntervalPosition(whole, interval.end);
 
         return (
           <div className='day' key={index}>
             <div className='date'>
-              <span className='text-muted'>{day.start.toFormat('ccc')}</span>
-              <span className='h5 mb-0'>{day.start.toFormat('d')}</span>
+              <span className='text-muted'>{start.toFormat('ccc')}</span>
+              <span className='h5 mb-0'>{start.toFormat('d')}</span>
             </div>
             <div className='day-container'>
-              {day.divideEqually(24).map((_hour, index) => (
+              {_.range(0, 24).map((_i, index) => (
                 <div key={index} className='hour' />
               ))}
               {blocks.map(({ shift, block }) => (
@@ -296,15 +294,25 @@ const Table: React.FC<TableProps> = ({ interval, data }) => {
                       return null;
                     }
 
-                    const calculatePosition = (dt: DateTime) => (
-                      dt.hour / 24 +
-                      dt.minute / (24 * 60) +
-                      dt.second / (24 * 60 * 60) +
-                      dt.millisecond / (24 * 60 * 60 * 1000)
-                    );
+                    const calculatePosition = (dt: DateTime, closed: boolean) => {
+                      let hour: number;
 
-                    const from = calculatePosition(intersection.start);
-                    const to = calculatePosition(intersection.end);
+                      if (closed) {
+                        hour = (dt.hour < 6) ? dt.hour + 18 : dt.hour - 6;
+                      } else {
+                        hour = (dt.hour <= 6) ? dt.hour + 18 : dt.hour - 6;
+                      }
+
+                      return (
+                        hour / 24 +
+                        dt.minute / (24 * 60) +
+                        dt.second / (24 * 60 * 60) +
+                        dt.millisecond / (24 * 60 * 60 * 1000)
+                      );
+                    };
+
+                    const from = calculatePosition(intersection.start, true);
+                    const to = calculatePosition(intersection.end, false);
                     const className = clsx('do-block', `do-${shift.toLowerCase()}`);
                     const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
 

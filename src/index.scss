@@ -76,7 +76,7 @@
     @include media-breakpoint-up(md) {
       &:nth-child(2n) { border-right: 1px solid $table-border-color; }
     }
-    &:nth-child(6), &:nth-child(18) {
+    &:nth-child(6n) {
       border-right: 1px solid $table-border-color;
     }
   }
@@ -135,7 +135,7 @@
         small { display: block; }
       }
     }
-    &:nth-child(7), &:nth-child(19) {
+    &:nth-child(1), &:nth-child(13) {
       small {
         display: block;
       }
