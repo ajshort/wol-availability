@@ -2,8 +2,9 @@ import { useAuth } from '../components/AuthContext';
 import MemberSelector from '../components/MemberSelector';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
+import WeekTable from '../components/WeekTable';
 import { Shift } from '../model/availability';
-import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getWeekInterval, TIME_ZONE } from '../model/dates';
 import { getDocumentTitle } from '../utils';
 
 import clsx from 'clsx';
@@ -245,104 +246,60 @@ interface TableProps {
   }>;
 }
 
-const Table: React.FC<TableProps> = ({ interval, data }) => {
-  const days = getDayIntervals(interval);
+const Table: React.FC<TableProps> = ({ interval, data }) => (
+  <WeekTable interval={interval}>
+    {row => {
+      // We split the row into two blocks at 1800.
+      const split = row.start.set({ hour: 18 });
 
-  return (
-    <div id='do-table'>
-      <div id='do-table-header'>
-        {_.range(6, 30).map(hour => (
-          <div className='do-table-header-hour'>
-            {<small>{_.padStart((hour % 24).toString(), 2, '0') + ':00'}</small>}
-          </div>
-        ))}
-      </div>
-      {days.map((day, index) => {
-        // We break availability up into two chunks - 0600 to 1800, then 1800 to 0600.
-        const start = day.start.set({ hour: 6 });
-        const split = day.start.set({ hour: 18 });
-        const end = start.plus({ days: 1 }).set({ hour: 6 });
-        const whole = Interval.fromDateTimes(start, end);
+      const blocks = [
+        { shift: Shift.DAY, block: Interval.fromDateTimes(row.start, split) },
+        { shift: Shift.NIGHT, block: Interval.fromDateTimes(split, row.end) },
+      ];
 
-        const blocks = [
-          { shift: Shift.DAY, block: Interval.fromDateTimes(start, split) },
-          { shift: Shift.NIGHT, block: Interval.fromDateTimes(split, end) },
-        ];
+      return blocks.map(({ shift, block }) => (
+        data
+          .filter(val => val.shift === shift)
+          .filter(val => val.interval.overlaps(block))
+          .map(({ shift, interval, member }) => {
+            const intersection = block.intersection(interval);
 
-        // Check if this day is partially outside the week interval - of so, then draw a hatched box
-        // to mark it so.
-        const weekStartInDay = 100 * (1 - getIntervalPosition(whole, interval.start));
-        const weekEndInDay = 100 * getIntervalPosition(whole, interval.end);
+            if (!intersection) {
+              return null;
+            }
 
-        return (
-          <div className='day' key={index}>
-            <div className='date'>
-              <span className='text-muted'>{start.toFormat('ccc')}</span>
-              <span className='h5 mb-0'>{start.toFormat('d')}</span>
-            </div>
-            <div className='day-container'>
-              {_.range(0, 24).map((_i, index) => (
-                <div key={index} className='hour' />
-              ))}
-              {blocks.map(({ shift, block }) => (
-                data
-                  .filter(val => val.shift === shift)
-                  .filter(val => val.interval.overlaps(block))
-                  .map(({ shift, interval, member }) => {
-                    const intersection = block.intersection(interval);
+            const calculatePosition = (dt: DateTime, closed: boolean) => {
+              let hour: number;
 
-                    if (!intersection) {
-                      return null;
-                    }
+              if (closed) {
+                hour = (dt.hour < 6) ? dt.hour + 18 : dt.hour - 6;
+              } else {
+                hour = (dt.hour <= 6) ? dt.hour + 18 : dt.hour - 6;
+              }
 
-                    const calculatePosition = (dt: DateTime, closed: boolean) => {
-                      let hour: number;
+              return (
+                hour / 24 +
+                dt.minute / (24 * 60) +
+                dt.second / (24 * 60 * 60) +
+                dt.millisecond / (24 * 60 * 60 * 1000)
+              );
+            };
 
-                      if (closed) {
-                        hour = (dt.hour < 6) ? dt.hour + 18 : dt.hour - 6;
-                      } else {
-                        hour = (dt.hour <= 6) ? dt.hour + 18 : dt.hour - 6;
-                      }
+            const from = calculatePosition(intersection.start, true);
+            const to = calculatePosition(intersection.end, false);
+            const className = clsx('do-block', `do-${shift.toLowerCase()}`);
+            const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
 
-                      return (
-                        hour / 24 +
-                        dt.minute / (24 * 60) +
-                        dt.second / (24 * 60 * 60) +
-                        dt.millisecond / (24 * 60 * 60 * 1000)
-                      );
-                    };
-
-                    const from = calculatePosition(intersection.start, true);
-                    const to = calculatePosition(intersection.end, false);
-                    const className = clsx('do-block', `do-${shift.toLowerCase()}`);
-                    const style = { left: `${from * 100}%`, right: `${(1 - to) * 100}%` };
-
-                    return (
-                      <div className={className} style={style}>
-                        {member.fullName}
-                      </div>
-                    );
-                 })
-              ))}
-              {(weekStartInDay > 0) && (
-                <div
-                  className='week-bound'
-                  style={{ left: 0, right: `${weekStartInDay}%` }}
-                />
-              )}
-              {(weekEndInDay < 100) && (
-                <div
-                  className='week-bound'
-                  style={{ left: `${weekEndInDay}%`, right: 0 }}
-                />
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+            return (
+              <div className={className} style={style}>
+                {member.fullName}
+              </div>
+            );
+         })
+      ))
+    }}
+  </WeekTable>
+);
 
 interface Params {
   week?: string;
