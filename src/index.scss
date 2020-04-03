@@ -8,6 +8,7 @@
 }
 
 #app-navbar .navbar-brand img {
+  display: inline-block;
   margin-right: 3px;
   margin-top: 6px;
   vertical-align: top;
@@ -28,6 +29,7 @@
   .member, .team { white-space: nowrap; width: 1%; }
   th.day { border-bottom: none; }
   thead th.shift { border-top: none; }
+  label { display: block; margin: 0; text-align: center; }
   td { vertical-align: middle; }
   th.day, .shift-night, .quals { border-right: 1px solid $table-border-color; }
 }
@@ -35,6 +37,7 @@
 .member-availability-form {
   table { border-bottom: 1px solid $table-border-color; }
   thead th { text-align: center; }
+  label { display: block; margin: 0; text-align: center; }
   td { vertical-align: middle; }
 }
 
