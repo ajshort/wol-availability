@@ -59,14 +59,17 @@ interface EditModalProps {
 const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
   const [shift, setShift] = useState<Shift>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
-  const [interval, setInterval] = useState(week);
+  const [from, setFrom] = useState<DateTime>(week.start);
+  const [to, setTo] = useState<DateTime>(week.end);
   const [custom, setCustom] = useState(false);
 
+  const interval = Interval.fromDateTimes(from, to);
   const valid = member !== undefined && interval.isValid;
 
   // If we're not display a custom time, we truncate the from and to to be at the start/end of
   // the shift on the selected day.
-  let { start, end } = interval;
+  let start = from;
+  let end = to;
 
   if (!custom) {
     if (shift === Shift.DAY) {
@@ -86,15 +89,15 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
     }
   };
 
-  const setFrom = (value?: DateTime) => {
+  const handleSetFrom = (value?: DateTime) => {
     if (!value) {
       return;
     }
 
     if (custom) {
-      setInterval(interval.set({ start: value }));
+      setFrom(value);
     } else {
-      setInterval(interval.set({ start: getShiftStart(value) }));
+      setFrom(getShiftStart(value));
     }
   };
 
@@ -106,15 +109,15 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
     }
   };
 
-  const setTo = (value?: DateTime) => {
+  const handleSetTo = (value?: DateTime) => {
     if (!value) {
       return;
     }
 
     if (custom) {
-      setInterval(interval.set({ end: value }));
+      setTo(value);
     } else {
-      setInterval(interval.set({ end: getShiftEnd(value) }));
+      setTo(getShiftEnd(value));
     }
   };
 
@@ -127,8 +130,8 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
 
     // If `custom` has been disabled, we need to call the from and to setters to change the times.
     if (!set) {
-      setFrom(getShiftStart(interval.start));
-      setTo(getShiftEnd(interval.end));
+      setFrom(getShiftStart(from));
+      setTo(getShiftEnd(to));
     }
   };
 
@@ -142,8 +145,8 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
       variables={{
         shift,
         member: member !== undefined && member !== 0 ? member : null,
-        from: interval.start.toJSDate(),
-        to: interval.end.toJSDate(),
+        from: from.toJSDate(),
+        to: to.toJSDate(),
       }}
       onCompleted={onHide}
       refetchQueries={() => [{
@@ -188,7 +191,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
                 <Col sm={9}>
                   <DatePicker
                     selected={start.toJSDate()}
-                    onChange={date => setFrom(date ? DateTime.fromJSDate(date) : undefined)}
+                    onChange={date => handleSetFrom(date ? DateTime.fromJSDate(date) : undefined)}
                     showTimeSelect={custom}
                     dateFormat={custom ? 'cccc do MMM yyyy HH:mm' : 'cccc do MMM yyyy'}
                     className='form-control'
@@ -200,7 +203,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
                 <Col sm={9}>
                   <DatePicker
                     selected={end.toJSDate()}
-                    onChange={date => setTo(date ? DateTime.fromJSDate(date) : undefined)}
+                    onChange={date => handleSetTo(date ? DateTime.fromJSDate(date) : undefined)}
                     showTimeSelect={custom}
                     dateFormat={custom ? 'cccc do MMM yyyy HH:mm' : 'cccc do MMM yyyy'}
                     className='form-control'
