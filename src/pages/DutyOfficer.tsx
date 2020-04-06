@@ -5,11 +5,16 @@ import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
 import { Shift } from '../model/availability';
 import { getWeekInterval, TIME_ZONE } from '../model/dates';
+import {
+  GET_DUTY_OFFICERS_QUERY,
+  GetDutyOfficersData,
+  GetDutyOfficersVars,
+  SET_DUTY_OFFICER_MUTATION,
+  SetDutyOfficerVars
+} from '../queries/do';
 import { getDocumentTitle } from '../utils';
 
 import clsx from 'clsx';
-import gql from 'graphql-tag';
-import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
@@ -23,32 +28,6 @@ import DatePicker from 'react-datepicker';
 import { FaLock, FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import { Mutation, Query } from 'react-apollo';
-
-const DUTY_OFFICERS_QUERY = gql`
-  query ($from: DateTime!, $to: DateTime!) {
-    dutyOfficers(from: $from, to: $to) {
-      shift
-      from
-      to
-      member {
-        fullName
-      }
-    }
-  }
-`;
-
-const SET_AVAILABILITY_MUTATION = gql`
-  mutation ($shift: TeamShift!, $member: Int, $from: DateTime!, $to: DateTime!) {
-    setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
-  }
-`;
-
-interface SetAvailabilityData {
-  shift: Shift;
-  member: number | null;
-  from: Date;
-  to: Date;
-}
 
 interface EditModalProps {
   week: Interval;
@@ -140,8 +119,8 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
   };
 
   return (
-    <Mutation<Boolean, SetAvailabilityData>
-      mutation={SET_AVAILABILITY_MUTATION}
+    <Mutation<boolean, SetDutyOfficerVars>
+      mutation={SET_DUTY_OFFICER_MUTATION}
       variables={{
         shift,
         member: member !== undefined && member !== 0 ? member : null,
@@ -150,7 +129,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
       }}
       onCompleted={onHide}
       refetchQueries={() => [{
-        query: DUTY_OFFICERS_QUERY,
+        query: GET_DUTY_OFFICERS_QUERY,
         variables: { from: week.start.toJSDate(), to: week.end.toJSDate() },
       }]}
     >
@@ -308,20 +287,6 @@ interface Params {
   week?: string;
 }
 
-interface DutyOfficerVars {
-  from: Date;
-  to: Date;
-}
-
-interface DutyOfficersData {
-  dutyOfficers: Array<{
-    shift: Shift;
-    from: string;
-    to: string;
-    member: { fullName: string; };
-  }>;
-}
-
 const DutyOfficer: React.FC = () => {
   const auth = useAuth();
   const history = useHistory();
@@ -361,8 +326,8 @@ const DutyOfficer: React.FC = () => {
         </Button>
         <WeekBrowser value={week} onChange={handleWeekChange} />
       </div>
-      <Query<DutyOfficersData, DutyOfficerVars>
-        query={DUTY_OFFICERS_QUERY}
+      <Query<GetDutyOfficersData, GetDutyOfficersVars>
+        query={GET_DUTY_OFFICERS_QUERY}
         variables={{ from: week.start.toJSDate(), to: week.end.toJSDate() }}
         fetchPolicy='network-only'
       >
