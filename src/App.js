@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import ManageMember from './pages/ManageMember';
+import NotFound from './pages/NotFound';
 import Stats from './pages/Stats';
 import Unit from './pages/Unit';
 
@@ -24,6 +25,7 @@ const App = () => (
           <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
           <Route path='/logout' component={Logout} />
+          <Route component={NotFound} />
         </Switch>
       </Analytics>
     </Router>
