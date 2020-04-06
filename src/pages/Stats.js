@@ -1,7 +1,7 @@
 import * as palette from 'google-palette';
 import gql from 'graphql-tag';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
@@ -23,9 +23,10 @@ import {
 } from 'react-vis';
 import _ from 'lodash';
 
+import Page from '../components/Page';
 import { SHIFTS, WEEK_START_DAY } from '../config';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../teams';
-import { getDocumentTitle, getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
+import { getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
 
 const TEAM_COLOURS = {
   'Delta': '#81d4fa',
@@ -183,10 +184,6 @@ const MEMBER_AVAILABILITY_QUERY = gql`
 `;
 
 const Stats = ({ match }) => {
-  useEffect(() => {
-    document.title = getDocumentTitle('Statistics');
-  });
-
   let from;
 
   if (match.params.week !== undefined) {
@@ -208,96 +205,98 @@ const Stats = ({ match }) => {
   const nextWeek = `/stats/${from.clone().add(1, 'week').format('YYYY-MM-DD')}`;
 
   return (
-    <Container className='my-3'>
-      <Query
-        query={MEMBER_AVAILABILITY_QUERY}
-        variables={{ from: from.format('YYYY-MM-DD'), to: to.format('YYYY-MM-DD') }}
-      >
-        {({ loading, error, data }) => {
-          if (loading) {
-            return (
-              <Alert variant='info'>
-                <Spinner animation='border' size='sm' /> Loading statistics&hellip;
-              </Alert>
-            );
-          }
-
-          if (error) {
-            return <Alert variant='danger'>Error loading statistics.</Alert>;
-          }
-
-          // Sum availability across all days by team.
-          const totals = [];
-
-          for (let i = 0; i <= diff; ++i) {
-            totals.push({ MORNING: {}, AFTERNOON: {}, NIGHT: {} });
-          }
-
-          let entered = {};
-
-          for (const { team, availabilities } of data.members) {
-            const avail = getMemberShiftAvailability(from, availabilities);
-
-            const some = avail.some(({ shifts }) => shifts.some(({ available, enabled }) => (
-              enabled && available !== undefined
-            )));
-
-            if (!(team in entered)) {
-              entered[team] = { yes: 0, no: 0 };
+    <Page title='Statistics'>
+      <Container className='my-3'>
+        <Query
+          query={MEMBER_AVAILABILITY_QUERY}
+          variables={{ from: from.format('YYYY-MM-DD'), to: to.format('YYYY-MM-DD') }}
+        >
+          {({ loading, error, data }) => {
+            if (loading) {
+              return (
+                <Alert variant='info'>
+                  <Spinner animation='border' size='sm' /> Loading statistics&hellip;
+                </Alert>
+              );
             }
 
-            if (some) {
-              entered[team].yes++;
-            } else {
-              entered[team].no++;
+            if (error) {
+              return <Alert variant='danger'>Error loading statistics.</Alert>;
             }
 
-            for (const { date, shifts } of avail) {
-              for (const { shift, available } of shifts) {
-                if (!available) {
-                  continue;
+            // Sum availability across all days by team.
+            const totals = [];
+
+            for (let i = 0; i <= diff; ++i) {
+              totals.push({ MORNING: {}, AFTERNOON: {}, NIGHT: {} });
+            }
+
+            let entered = {};
+
+            for (const { team, availabilities } of data.members) {
+              const avail = getMemberShiftAvailability(from, availabilities);
+
+              const some = avail.some(({ shifts }) => shifts.some(({ available, enabled }) => (
+                enabled && available !== undefined
+              )));
+
+              if (!(team in entered)) {
+                entered[team] = { yes: 0, no: 0 };
+              }
+
+              if (some) {
+                entered[team].yes++;
+              } else {
+                entered[team].no++;
+              }
+
+              for (const { date, shifts } of avail) {
+                for (const { shift, available } of shifts) {
+                  if (!available) {
+                    continue;
+                  }
+
+                  const offset = Math.ceil(moment(date, 'YYYY-MM-DD').diff(from, 'days', true));
+                  const entry = totals[offset][shift];
+
+                  if (!(team in entry)) {
+                    entry[team] = 0;
+                  }
+
+                  entry[team]++;
                 }
-
-                const offset = Math.ceil(moment(date, 'YYYY-MM-DD').diff(from, 'days', true));
-                const entry = totals[offset][shift];
-
-                if (!(team in entry)) {
-                  entry[team] = 0;
-                }
-
-                entry[team]++;
               }
             }
-          }
 
-          return (
-            <div className='text-center'>
-              <h2 className='text-center'>Statistics</h2>
-              <div className='d-flex align-items-center justify-content-center'>
-                <LinkContainer to={prevWeek}>
-                  <Button variant='link'><FaArrowLeft /> Previous week</Button>
-                </LinkContainer>
-                <span>Week of {from.format('Do MMM YYYY')}</span>
-                <LinkContainer to={nextWeek}>
-                  <Button variant='link'>Next week <FaArrowRight /></Button>
-                </LinkContainer>
+            return (
+              <div className='text-center'>
+                <h2 className='text-center'>Statistics</h2>
+                <div className='d-flex align-items-center justify-content-center'>
+                  <LinkContainer to={prevWeek}>
+                    <Button variant='link'><FaArrowLeft /> Previous week</Button>
+                  </LinkContainer>
+                  <span>Week of {from.format('Do MMM YYYY')}</span>
+                  <LinkContainer to={nextWeek}>
+                    <Button variant='link'>Next week <FaArrowRight /></Button>
+                  </LinkContainer>
+                </div>
+                <p>
+                  The number of available members for each day and shift, clustered by team.
+                </p>
+                <AvailableGraph from={from} to={to} data={totals} />
+
+                <h2>Entered Availability</h2>
+                <p>
+                  A count of members who have <Badge variant='success'>entered availability</Badge>
+                  {' '} or <Badge variant='danger'>not entered availability</Badge> for each team.
+                </p>
+                <EnteredGraph data={entered} />
               </div>
-              <p>
-                The number of available members for each day and shift, clustered by team.
-              </p>
-              <AvailableGraph from={from} to={to} data={totals} />
-
-              <h2>Entered Availability</h2>
-              <p>
-                A count of members who have <Badge variant='success'>entered availability</Badge>
-                {' '} or <Badge variant='danger'>not entered availability</Badge> for each team.
-              </p>
-              <EnteredGraph data={entered} />
-            </div>
-          );
-        }}
-      </Query>
-    </Container>
+            );
+          }}
+        </Query>
+      </Container>
+    </Page>
   );
 }
 

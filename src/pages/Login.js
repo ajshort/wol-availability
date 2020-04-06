@@ -1,18 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Spinner from 'react-bootstrap/Spinner';
 import { Redirect } from 'react-router';
 
 import { AuthConsumer } from '../components/AuthContext';
 import LoginForm from '../components/LoginForm';
-import { getDocumentTitle } from '../utils';
+import Page from '../components/Page';
 
-const Login = () => {
-  useEffect(() => {
-    document.title = getDocumentTitle('Login');
-  });
-
-  return (
+const Login = () => (
+  <Page title='Log In'>
     <AuthConsumer>
       {({ loading, member }) => {
         if (loading) {
@@ -34,7 +30,7 @@ const Login = () => {
         );
       }}
     </AuthConsumer>
-  );
-};
+  </Page>
+);
 
 export default Login;

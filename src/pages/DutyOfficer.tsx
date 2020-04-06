@@ -1,5 +1,6 @@
 import { useAuth } from '../components/AuthContext';
 import MemberSelector from '../components/MemberSelector';
+import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
@@ -12,11 +13,10 @@ import {
   SET_DUTY_OFFICER_MUTATION,
   SetDutyOfficerVars
 } from '../queries/do';
-import { getDocumentTitle } from '../utils';
 
 import clsx from 'clsx';
 import { DateTime, Interval } from 'luxon';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -302,10 +302,6 @@ const DutyOfficer: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  useEffect(() => {
-    document.title = getDocumentTitle('Duty Officers');
-  });
-
   const handleWeekChange = (value: Interval) => {
     history.push(`/unit/do/${value.start.toISODate()}`);
   };
@@ -316,7 +312,7 @@ const DutyOfficer: React.FC = () => {
   const handleEdit = () => setEditing(true);
 
   return (
-    <React.Fragment>
+    <Page title='Duty Officers'>
       <div className='p-3 border-bottom display-flex align-items-center'>
         <Button variant='primary' className='mr-2' disabled={!canEdit} onClick={handleEdit}>
           {canEdit ? <FaUser /> : <FaLock />}
@@ -356,7 +352,7 @@ const DutyOfficer: React.FC = () => {
         }}
       </Query>
       {editing && <EditModal week={week} show={editing} setShow={setEditing} />}
-    </React.Fragment>
+    </Page>
   );
 };
 

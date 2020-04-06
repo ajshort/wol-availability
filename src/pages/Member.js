@@ -221,20 +221,12 @@ const MemberPage = withRouter(({ history }) => {
   )
 });
 
-const Member = ({ match }) => {
-  useEffect(() => {
-    document.title = getDocumentTitle('Member Availability');
-  });
-
-  return (
-    <Container className='my-3'>
-      <Switch>
-        <Route path={`${match.path}/me/:week?`} exact component={MePage} />
-        <Route path={`${match.path}/:member/:week`} component={WeekPage} />
-        <Route path={`${match.path}/`} exact component={MemberPage} />
-      </Switch>
-    </Container>
-  );
-};
+const Member = ({ match }) => (
+  <Switch>
+    <Route path={`${match.path}/me/:week?`} exact component={MePage} />
+    <Route path={`${match.path}/:member/:week`} component={WeekPage} />
+    <Route path={`${match.path}/`} exact component={MemberPage} />
+  </Switch>
+);
 
 export default withRouter(Member);
