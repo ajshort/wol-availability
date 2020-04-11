@@ -2,7 +2,7 @@ import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
-import { Availability, StormAvailable } from '../model/availability';
+import { Availability, StormAvailable, RescueAvailable } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 
 import gql from 'graphql-tag';
@@ -10,12 +10,13 @@ import { DateTime, Interval } from 'luxon';
 import React from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
-import Badge from 'react-bootstrap/Badge';
+import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Spinner from 'react-bootstrap/Spinner';
 import { FaBolt, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
+import clsx from 'clsx';
 
 const GET_MEMBER_QUERY = gql`
   query ($number: Int!) {
@@ -34,14 +35,37 @@ interface GetMemberData {
 }
 
 const StormBadge: React.FC<{ available?: StormAvailable }> = ({ available }) => {
-  if (available === undefined) {
-    return null;
+  let variant = 'info';
+
+  if (available === 'AVAILABLE') {
+    variant = 'success';
+  } else if (available === 'UNAVAILABLE') {
+    variant = 'danger';
   }
 
   return (
-    <Badge variant='success' className='mr-1'>
+    <Badge variant={variant as BadgeProps['variant']} className='mr-1'>
       <span className='d-md-none'><FaBolt /></span>
       <span className='d-none d-md-inline'>Storm</span>
+    </Badge>
+  );
+};
+
+const RescueBadge: React.FC<{ available?: RescueAvailable }> = ({ available }) => {
+  let variant = 'info';
+
+  if (available === 'IMMEDIATE') {
+    variant = 'success';
+  } else if (available === 'SUPPORT') {
+    variant = 'warning';
+  } else if (available === 'UNAVAILABLE') {
+    variant = 'danger';
+  }
+
+  return (
+    <Badge variant={variant as BadgeProps['variant']} className='mr-1'>
+      <span className='d-md-none'><FaExclamationTriangle /></span>
+      <span className='d-none d-md-inline'>Rescue</span>
     </Badge>
   );
 };
@@ -49,12 +73,13 @@ const StormBadge: React.FC<{ available?: StormAvailable }> = ({ available }) => 
 interface RowProps {
   interval: Interval;
   availabilities: Availability[];
-  rescue?: boolean;
+  rescueMember?: boolean;
 }
 
-const Row: React.FC<RowProps> = ({ interval, availabilities, rescue }) => (
+const Row: React.FC<RowProps> = ({ interval, availabilities, rescueMember }) => (
   <React.Fragment>
     {availabilities.filter(a => a.interval.overlaps(interval)).map(availability => {
+      const { storm, rescue, note, vehicle } = availability;
       const intersection = availability.interval.intersection(interval)!;
 
       const l = getIntervalPosition(interval, intersection.start);
@@ -64,27 +89,26 @@ const Row: React.FC<RowProps> = ({ interval, availabilities, rescue }) => (
       // If we're a rescue member, we require both to be green to go green and vice versa for red.
       // Otherwise we just go yellow. For non-rescue members, just use the colour of the storm
       // availability.
-      if (!rescue) {
-        return (
-          <div className='availability-block' style={style}>
-            <Badge variant='info'>{availability.note}</Badge>
-          </div>
-        );
+      const classes = ['availability-block'];
+
+      if ((!rescueMember || rescue === 'IMMEDIATE') && storm === 'AVAILABLE') {
+        classes.push('availability-success');
+      } else if ((!rescueMember || rescue === 'UNAVAILABLE') && storm === 'UNAVAILABLE') {
+        classes.push('availability-danger');
+      } else {
+        classes.push('availability-warning');
       }
 
       return (
-        <div className='availability-block' style={style}>
-          <StormBadge available={availability.storm} />
-          <Badge variant='warning' className='mr-1'>
-            <span className='d-md-none'><FaExclamationTriangle /></span>
-            <span className='d-none d-md-inline'>Rescue</span>
-          </Badge>
-          {availability.vehicle && (
-            <Badge variant='info' className='mr-1'>{availability.vehicle}</Badge>
+        <div className={clsx(classes)} style={style}>
+          {rescueMember && (
+            <React.Fragment>
+              <StormBadge available={storm} />
+              <RescueBadge available={rescue} />
+            </React.Fragment>
           )}
-          {availability.note && (
-            <Badge variant='info'>{availability.note}</Badge>
-          )}
+          {vehicle && <Badge variant='info'>{vehicle}</Badge>}
+          {note && <Badge variant='secondary'>{note}</Badge>}
         </div>
       );
     })}
@@ -126,13 +150,25 @@ const ManageMember: React.FC = () => {
   };
 
   // Hard-coded test data.
+  const thirds = week.divideEqually(3);
+
   const availabilities: Availability[] = [
     {
-      interval: week,
-      storm: 'UNAVAILABLE',
+      interval: thirds[0],
+      storm: 'AVAILABLE',
       rescue: 'IMMEDIATE',
       vehicle: 'WOL43',
+    },
+    {
+      interval: thirds[1],
+      storm: 'UNAVAILABLE',
+      rescue: 'UNAVAILABLE',
       note: 'OOA',
+    },
+    {
+      interval: thirds[2],
+      storm: 'AVAILABLE',
+      rescue: 'SUPPORT',
     },
   ];
 
@@ -187,7 +223,7 @@ const ManageMember: React.FC = () => {
               <WeekBrowser value={week} onChange={handleChangeWeek} />
             </div>
             <WeekTable interval={week}>
-              {row => <Row interval={row} availabilities={availabilities} rescue />}
+              {row => <Row interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
           </Page>
         );

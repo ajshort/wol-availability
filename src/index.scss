@@ -93,14 +93,14 @@
   }
   .week-table-hour {
     flex-grow: 1;
-    &:last-child {
-      border-right: none;
-    }
     &:nth-child(6n) {
       border-right: 1px solid $table-border-color;
     }
     &:nth-child(2n) {
       @include media-breakpoint-up(lg) { border-right: 1px solid $table-border-color; }
+    }
+    &:nth-child(24) {
+      border-right: none;
     }
   }
   .week-table-bound {
@@ -135,14 +135,18 @@
 
 .availability-block {
   display: flex;
-  background: #d4edda;
   padding: 0.5 * $spacer;
   position: absolute;
+  height: 34px;
   top: 0;
 
   .badge {
     font-weight: normal;
   }
+
+  &.availability-success { background: #d4edda; }
+  &.availability-warning { background: #fff3cd; }
+  &.availability-danger { background: #f8d7da; }
 }
 
 .QualificationsDropdownMenu .form-check {
