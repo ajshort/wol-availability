@@ -34,39 +34,59 @@ interface GetMemberData {
   member: MemberData | null;
 }
 
-const StormBadge: React.FC<{ available?: StormAvailable }> = ({ available }) => {
-  let variant = 'info';
+interface RescueMemberBadgesProps {
+  storm?: StormAvailable;
+  rescue?: RescueAvailable;
+}
 
-  if (available === 'AVAILABLE') {
-    variant = 'success';
-  } else if (available === 'UNAVAILABLE') {
-    variant = 'danger';
-  }
-
-  return (
-    <Badge variant={variant as BadgeProps['variant']} className='mr-1'>
-      <span className='d-md-none'><FaBolt /></span>
-      <span className='d-none d-md-inline'>Storm</span>
-    </Badge>
+const RescueMemberBadges: React.FC<RescueMemberBadgesProps> = ({ storm, rescue }) => {
+  const both = (
+    <React.Fragment>
+      <span className='d-md-none'><FaBolt /> <FaExclamationTriangle /></span>
+      <span className='d-none d-md-inline'>Storm and rescue</span>
+    </React.Fragment>
   );
-};
 
-const RescueBadge: React.FC<{ available?: RescueAvailable }> = ({ available }) => {
-  let variant = 'info';
+  if (storm === 'AVAILABLE' && rescue === 'IMMEDIATE') {
+    return <Badge variant='success' className='mr-1'>{both}</Badge>;
+  }
 
-  if (available === 'IMMEDIATE') {
-    variant = 'success';
-  } else if (available === 'SUPPORT') {
-    variant = 'warning';
-  } else if (available === 'UNAVAILABLE') {
-    variant = 'danger';
+  if (storm === 'UNAVAILABLE' && rescue === 'UNAVAILABLE') {
+    return <Badge variant='danger' className='mr-1'>{both}</Badge>;
+  }
+
+  if (storm === undefined && rescue === undefined) {
+    return <Badge variant='secondary' className='mr-1'>{both}</Badge>;
+  }
+
+  let stormVariant: BadgeProps['variant'] = 'secondary';
+  let rescueVariant: BadgeProps['variant'] = 'secondary';
+
+  if (storm === 'AVAILABLE') {
+    stormVariant = 'success';
+  } else if (storm === 'UNAVAILABLE') {
+    stormVariant = 'danger';
+  }
+
+  if (rescue === 'IMMEDIATE') {
+    stormVariant = 'success';
+  } else if (rescue === 'SUPPORT') {
+    rescueVariant = 'warning';
+  } else if (rescue === 'UNAVAILABLE') {
+    stormVariant = 'danger';
   }
 
   return (
-    <Badge variant={variant as BadgeProps['variant']} className='mr-1'>
-      <span className='d-md-none'><FaExclamationTriangle /></span>
-      <span className='d-none d-md-inline'>Rescue</span>
-    </Badge>
+    <React.Fragment>
+      <Badge variant={stormVariant} className='mr-1'>
+        <span className='d-md-none'><FaBolt /></span>
+        <span className='d-none d-md-inline'>Storm</span>
+      </Badge>
+      <Badge variant={rescueVariant} className='mr-1'>
+        <span className='d-md-none'><FaExclamationTriangle /></span>
+        <span className='d-none d-md-inline'>Rescue</span>
+      </Badge>
+    </React.Fragment>
   );
 };
 
@@ -101,12 +121,7 @@ const Row: React.FC<RowProps> = ({ interval, availabilities, rescueMember }) => 
 
       return (
         <div className={clsx(classes)} style={style}>
-          {rescueMember && (
-            <React.Fragment>
-              <StormBadge available={storm} />
-              <RescueBadge available={rescue} />
-            </React.Fragment>
-          )}
+          {rescueMember && <RescueMemberBadges storm={storm} rescue={rescue} />}
           {vehicle && <Badge variant='info'>{vehicle}</Badge>}
           {note && <Badge variant='secondary'>{note}</Badge>}
         </div>
