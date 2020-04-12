@@ -7,7 +7,7 @@ import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates'
 
 import gql from 'graphql-tag';
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
+import React, { useState } from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
@@ -164,10 +164,13 @@ const ManageMember: React.FC = () => {
     }
   };
 
+  // The intervals the user has clicked on.
+  const [selections, setSelections] = useState<Interval[]>([]);
+
   // Hard-coded test data.
   const thirds = week.divideEqually(3);
 
-  const availabilities: Availability[] = [
+  const [availabilities, setAvailabilities] = useState<Availability[]>([
     {
       interval: thirds[0],
       storm: 'AVAILABLE',
@@ -185,7 +188,7 @@ const ManageMember: React.FC = () => {
       storm: 'AVAILABLE',
       rescue: 'SUPPORT',
     },
-  ];
+  ]);
 
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
@@ -237,7 +240,7 @@ const ManageMember: React.FC = () => {
               </Dropdown>
               <WeekBrowser value={week} onChange={handleChangeWeek} />
             </div>
-            <WeekTable interval={week}>
+            <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
               {row => <Row interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
           </Page>
