@@ -43,17 +43,9 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     .map(i => interval.start.startOf('day').plus({ days: i }))
     .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
 
-  // Based on the size of the screen, we split each day into blocks of 2 hours or 6 hours.
-  const [columns, setColumns] = useState(4);
+  // Display each day as 4 columns. This used to switch dynamically.
+  const columns = 4;
   const times = rows[0].divideEqually(columns);
-
-  const handleResize = (rect: ContentRect) => {
-    if (!rect.bounds) {
-      return;
-    }
-
-    // setColumns(rect.bounds.width >= 992 ? 12 : 4);
-  };
 
   const handleSelect = (selected: Interval[]) => {
     if (!onChangeSelections) {
@@ -96,7 +88,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
   });
 
   return (
-    <Measure bounds onResize={handleResize}>
+    <Measure bounds>
       {({ measureRef }) => (
         <div className={className} ref={measureRef}>
           <div className='week-table-head'>
