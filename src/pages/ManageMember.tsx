@@ -141,73 +141,88 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilit
 
 interface AvailabilityModalProps {
   onHide: () => void;
+  onSubmit: (value: AvailabilityWithoutInterval) => void;
 }
 
-const AvailabilityModal: React.FC<AvailabilityModalProps> = ({ onHide }) => {
+const AvailabilityModal: React.FC<AvailabilityModalProps> = ({ onHide, onSubmit }) => {
   const [availability, setAvailability] = useState<AvailabilityWithoutInterval>({ });
   const enabled = (availability.storm !== undefined || availability.rescue !== undefined);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    onSubmit(availability);
+  };
+
   return (
     <Modal show={true} onHide={onHide}>
-      <Modal.Body>
-        <Form>
-          <Form.Group controlId='storm'>
-            <Form.Label>Storm and support</Form.Label>
-            <div>
-              <RadioButtonGroup<StormAvailable>
-                options={[
-                  { value: 'AVAILABLE', label: 'Available', variant: 'success'},
-                  { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
-                ]}
-                value={availability.storm}
-                onChange={storm => setAvailability({ ...availability, storm })}
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+            <Form.Group controlId='storm'>
+              <Form.Label>Storm and support</Form.Label>
+              <div>
+                <RadioButtonGroup<StormAvailable>
+                  options={[
+                    { value: 'AVAILABLE', label: 'Available', variant: 'success'},
+                    { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
+                  ]}
+                  value={availability.storm}
+                  onChange={storm => setAvailability({ ...availability, storm })}
+                />
+              </div>
+            </Form.Group>
+            <Form.Group controlId='rescue'>
+              <Form.Label>Rescue</Form.Label>
+              <div>
+                <RadioButtonGroup<RescueAvailable>
+                  options={[
+                    { value: 'IMMEDIATE', label: 'Immediate', variant: 'success'},
+                    { value: 'SUPPORT', label: 'Support', variant: 'warning'},
+                    { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
+                  ]}
+                  value={availability.rescue}
+                  onChange={rescue => setAvailability({ ...availability, rescue })}
+                />
+              </div>
+            </Form.Group>
+            <Form.Group controlId='note'>
+              <Form.Label>Note</Form.Label>
+              <Form.Control
+                type='text'
+                value={availability.note || ''}
+                onChange={(e: React.FormEvent<FormControlProps>) => {
+                  setAvailability({ ...availability, note: e.currentTarget.value })
+                }}
               />
-            </div>
-          </Form.Group>
-          <Form.Group controlId='rescue'>
-            <Form.Label>Rescue</Form.Label>
-            <div>
-              <RadioButtonGroup<RescueAvailable>
-                options={[
-                  { value: 'IMMEDIATE', label: 'Immediate', variant: 'success'},
-                  { value: 'SUPPORT', label: 'Support', variant: 'warning'},
-                  { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
-                ]}
-                value={availability.rescue}
-                onChange={rescue => setAvailability({ ...availability, rescue })}
-              />
-            </div>
-          </Form.Group>
-          <Form.Group controlId='note'>
-            <Form.Label>Note</Form.Label>
-            <Form.Control
-              type='text'
-              value={availability.note || ''}
-              onChange={(e: React.FormEvent<FormControlProps>) => {
-                setAvailability({ ...availability, note: e.currentTarget.value })
-              }}
-            />
-          </Form.Group>
-          <Form.Group controlId='vehicle'>
-            <Form.Label>Covering vehicle</Form.Label>
-            <Form.Control as='select' className='custom-select'>
-              <option></option>
-              <option>NIC19</option>
-              <option>WOL43</option>
-              <option>WOL32</option>
-              <option>WOL33</option>
-              <option>WOL39</option>
-              <option>WOL55</option>
-              <option>WOL56</option>
-              <option>WOL57</option>
-            </Form.Control>
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant='secondary' onClick={onHide}>Close</Button>
-        <Button variant='primary' disabled={!enabled}>Set Availability</Button>
-      </Modal.Footer>
+            </Form.Group>
+            <Form.Group controlId='vehicle'>
+              <Form.Label>Covering vehicle</Form.Label>
+              <Form.Control
+                as='select'
+                className='custom-select'
+                value={availability.vehicle}
+                onChange={(e: React.FormEvent<FormControlProps>) => {
+                  setAvailability({ ...availability, vehicle: e.currentTarget.value })
+                }}
+              >
+                <option></option>
+                <option>NIC19</option>
+                <option>WOL43</option>
+                <option>WOL32</option>
+                <option>WOL33</option>
+                <option>WOL39</option>
+                <option>WOL55</option>
+                <option>WOL56</option>
+                <option>WOL57</option>
+              </Form.Control>
+            </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={onHide}>Close</Button>
+          <Button variant='primary' type='submit' disabled={!enabled}>Set Availability</Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
   )
 };
@@ -266,6 +281,46 @@ const ManageMember: React.FC = () => {
     setAvailabilities([...updated, ...added]);
   };
 
+  // Sets the availability for the currently selected intervals.
+  const handleSubmit = (data: AvailabilityWithoutInterval) => {
+    let updated = availabilities;
+
+    for (const selection of selections) {
+      // Filter any fully overlapped values.
+      updated = updated.filter(({ interval }) => !selection.engulfs(interval));
+
+      // If an existing range fully engulfs this, update the engulfer to abut this, and then
+      // copy it after.
+      const engulfing = updated.find(({ interval }) => interval.engulfs(selection));
+
+      if (engulfing) {
+        updated.push({ ...engulfing, interval: engulfing.interval.set({ start: selection.end }) });
+        engulfing.interval = engulfing.interval.set({ end: selection.start });
+      }
+
+      // Update an existing range which overlaps the start of this range.
+      const start = updated.find(({ interval }) => selection.contains(interval.end));
+
+      if (start) {
+        start.interval = start.interval.set({ end: selection.start });
+      }
+
+      // Update an existing range which overlaps the end of this range.
+      const end = updated.find(({ interval }) => selection.contains(interval.start));
+
+      if (end) {
+        end.interval = end.interval.set({ start: selection.end });
+      }
+
+      // Then push the actual value.
+      updated.push({ interval: selection, ...data });
+    }
+
+    setAvailabilities(updated);
+    setSelections([]);
+    setEditing(false);
+  }
+
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
       {({ loading, error, data }) => {
@@ -322,7 +377,7 @@ const ManageMember: React.FC = () => {
               {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
             {editing && (
-              <AvailabilityModal onHide={() => setEditing(false)} />
+              <AvailabilityModal onHide={() => setEditing(false)} onSubmit={handleSubmit} />
             )}
           </Page>
         );
