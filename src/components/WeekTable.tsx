@@ -76,12 +76,13 @@ const WeekTable: React.FC<WeekTableProps> = props => {
   };
 
   const handleColumnClick = (time: Interval) => {
-    // TODO this is buggy with the day cross over.
     handleSelect(rows
-      .map(row => row.set({
-        start: row.start.set({ hour: time.start.hour }),
-        end: row.start.set({ hour: time.end.hour }),
-      }))
+      .map(row => {
+        const base = (time.start.hour < 6) ? row.end : row.start;
+        const start = base.set({ hour: time.start.hour });
+
+        return Interval.fromDateTimes(start, start.plus({ hours: 24 / columns }))
+      })
       .filter(selection => selection.overlaps(interval))
     );
   };
