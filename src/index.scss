@@ -81,10 +81,9 @@
   .week-table-hour {
     flex-grow: 1;
     border-right: 1px solid $table-border-color;
-
-    &:last-of-type {
-      border-right: none;
-    }
+  }
+  .week-table-last-hour {
+    border-right: none;
   }
   .week-table-bound {
     background: repeating-linear-gradient(-45deg, #fff, #fff 5px, #f4f4f4 5px, #f4f4f4 10px);

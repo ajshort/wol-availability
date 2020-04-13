@@ -106,7 +106,13 @@ const WeekTable: React.FC<WeekTableProps> = props => {
               </div>
               <div className='week-table-container' onClick={e => handleContainerClick(row, e)}>
                 {times.map((_time, index) => (
-                  <div key={index} className='week-table-hour' />
+                  <div
+                    key={index}
+                    className={clsx({
+                      'week-table-hour': true,
+                      'week-table-last-hour': (index === times.length - 1),
+                    })}
+                  />
                 ))}
                 {children(row)}
                 {selections && selections.filter(sel => sel.overlaps(row)).map(sel => (
