@@ -238,19 +238,21 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const [editing, setEditing] = useState(false);
+  const [selections, setSelections] = useState<Interval[]>([]);
+
+  // TODO the setter should merge together adjacent equivalent availabilities.
+  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
+
   const handleChangeWeek = (value: Interval) => {
+    setSelections([]);
+
     if (number === (auth.member as any).number) {
       history.push(`/member/me/${value.start.toISODate()}`);
     } else {
       history.push(`/member/${number}/${value.start.toISODate()}`);
     }
   };
-
-  const [editing, setEditing] = useState(false);
-  const [selections, setSelections] = useState<Interval[]>([]);
-
-  // TODO the setter should merge together adjacent equivalent availabilities.
-  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
 
   // Handlers to set the entirety of a week to some field.
   const handleSetWeek = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
