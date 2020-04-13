@@ -69,11 +69,11 @@ const RescueMemberBadges: React.FC<RescueMemberBadgesProps> = ({ storm, rescue }
   }
 
   if (rescue === 'IMMEDIATE') {
-    stormVariant = 'success';
+    rescueVariant = 'success';
   } else if (rescue === 'SUPPORT') {
     rescueVariant = 'warning';
   } else if (rescue === 'UNAVAILABLE') {
-    stormVariant = 'danger';
+    rescueVariant = 'danger';
   }
 
   return (
@@ -190,6 +190,15 @@ const ManageMember: React.FC = () => {
     },
   ]);
 
+  // Handlers to set the entirety of a week to some field.
+  const handleSetWeek = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
+    const updated = availabilities.map(availability => ({ ...availability, ...set }));
+    const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
+    const added = missing.map(interval => ({ interval, ...set }));
+
+    setAvailabilities([...updated, ...added]);
+  };
+
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
       {({ loading, error, data }) => {
@@ -226,16 +235,13 @@ const ManageMember: React.FC = () => {
 
                 <Dropdown.Menu>
                   <Dropdown.Header>Storm and Support</Dropdown.Header>
-                  <Dropdown.Item>Set available</Dropdown.Item>
-                  <Dropdown.Item>Set unavailable</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleSetWeek({ storm: 'AVAILABLE'})}>Set available</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleSetWeek({ storm: 'UNAVAILABLE'})}>Set unavailable</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Header>Rescue</Dropdown.Header>
-                  <Dropdown.Item>Set immediate</Dropdown.Item>
-                  <Dropdown.Item>Set support</Dropdown.Item>
-                  <Dropdown.Item>Set unavailable</Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item>Save as my default</Dropdown.Item>
-                  <Dropdown.Item>Set to my default</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'IMMEDIATE'})}>Set immediate</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'SUPPORT'})}>Set support</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'UNAVAILABLE'})}>Set unavailable</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               <WeekBrowser value={week} onChange={handleChangeWeek} />
