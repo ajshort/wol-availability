@@ -170,6 +170,7 @@ const ManageMember: React.FC = () => {
   // Hard-coded test data.
   const thirds = week.divideEqually(3);
 
+  // TODO the setter should merge together adjacent equivalent availabilities.
   const [availabilities, setAvailabilities] = useState<Availability[]>([
     {
       interval: thirds[0],
@@ -195,6 +196,8 @@ const ManageMember: React.FC = () => {
     const updated = availabilities.map(availability => ({ ...availability, ...set }));
     const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
     const added = missing.map(interval => ({ interval, ...set }));
+
+    // TODO this shouldn't apply to existing intervals outside the week.
 
     setAvailabilities([...updated, ...added]);
   };
