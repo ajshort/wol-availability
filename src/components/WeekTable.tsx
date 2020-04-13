@@ -3,8 +3,8 @@ import { getIntervalPosition } from '../model/dates';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React, { useState } from 'react';
-import Measure, { ContentRect } from 'react-measure';
+import React from 'react';
+import Measure from 'react-measure';
 
 interface SelectionProps {
   bounds: Interval;
@@ -121,7 +121,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                 ))}
                 {children(row)}
                 {selections && selections.filter(sel => sel.overlaps(row)).map(sel => (
-                  <Selection bounds={row} interval={sel} />
+                  <Selection key={sel.toString()} bounds={row} interval={sel} />
                 ))}
                 {(interval.start > row.start) && (
                   <div
