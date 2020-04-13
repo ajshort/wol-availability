@@ -279,6 +279,7 @@ const ManageMember: React.FC = () => {
     // which cross week boundaries.
 
     setAvailabilities([...updated, ...added]);
+    setSelections([]);
   };
 
   // Sets the availability for the currently selected intervals.
