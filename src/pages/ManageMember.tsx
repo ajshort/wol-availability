@@ -1,8 +1,14 @@
 import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
+import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
-import { Availability, StormAvailable, RescueAvailable } from '../model/availability';
+import {
+  Availability,
+  AvailabilityWithoutInterval,
+  StormAvailable,
+  RescueAvailable,
+} from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 
 import gql from 'graphql-tag';
@@ -13,6 +19,9 @@ import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Form from 'react-bootstrap/Form';
+import { FormControlProps } from 'react-bootstrap/FormControl';
+import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import { FaBolt, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
@@ -90,13 +99,13 @@ const RescueMemberBadges: React.FC<RescueMemberBadgesProps> = ({ storm, rescue }
   );
 };
 
-interface RowProps {
+interface AvailabilityRowProps {
   interval: Interval;
   availabilities: Availability[];
   rescueMember?: boolean;
 }
 
-const Row: React.FC<RowProps> = ({ interval, availabilities, rescueMember }) => (
+const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilities, rescueMember }) => (
   <React.Fragment>
     {availabilities.filter(a => a.interval.overlaps(interval)).map(availability => {
       const { storm, rescue, note, vehicle } = availability;
@@ -129,6 +138,79 @@ const Row: React.FC<RowProps> = ({ interval, availabilities, rescueMember }) => 
     })}
   </React.Fragment>
 );
+
+interface AvailabilityModalProps {
+  onHide: () => void;
+}
+
+const AvailabilityModal: React.FC<AvailabilityModalProps> = ({ onHide }) => {
+  const [availability, setAvailability] = useState<AvailabilityWithoutInterval>({ });
+  const enabled = (availability.storm !== undefined || availability.rescue !== undefined);
+
+  return (
+    <Modal show={true} onHide={onHide}>
+      <Modal.Body>
+        <Form>
+          <Form.Group controlId='storm'>
+            <Form.Label>Storm and support</Form.Label>
+            <div>
+              <RadioButtonGroup<StormAvailable>
+                options={[
+                  { value: 'AVAILABLE', label: 'Available', variant: 'success'},
+                  { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
+                ]}
+                value={availability.storm}
+                onChange={storm => setAvailability({ ...availability, storm })}
+              />
+            </div>
+          </Form.Group>
+          <Form.Group controlId='rescue'>
+            <Form.Label>Rescue</Form.Label>
+            <div>
+              <RadioButtonGroup<RescueAvailable>
+                options={[
+                  { value: 'IMMEDIATE', label: 'Immediate', variant: 'success'},
+                  { value: 'SUPPORT', label: 'Support', variant: 'warning'},
+                  { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
+                ]}
+                value={availability.rescue}
+                onChange={rescue => setAvailability({ ...availability, rescue })}
+              />
+            </div>
+          </Form.Group>
+          <Form.Group controlId='note'>
+            <Form.Label>Note</Form.Label>
+            <Form.Control
+              type='text'
+              value={availability.note || ''}
+              onChange={(e: React.FormEvent<FormControlProps>) => {
+                setAvailability({ ...availability, note: e.currentTarget.value })
+              }}
+            />
+          </Form.Group>
+          <Form.Group controlId='vehicle'>
+            <Form.Label>Covering vehicle</Form.Label>
+            <Form.Control as='select' className='custom-select'>
+              <option></option>
+              <option>NIC19</option>
+              <option>WOL43</option>
+              <option>WOL32</option>
+              <option>WOL33</option>
+              <option>WOL39</option>
+              <option>WOL55</option>
+              <option>WOL56</option>
+              <option>WOL57</option>
+            </Form.Control>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant='secondary' onClick={onHide}>Close</Button>
+        <Button variant='primary' disabled={!enabled}>Set Availability</Button>
+      </Modal.Footer>
+    </Modal>
+  )
+};
 
 interface Params {
   member: string;
@@ -164,32 +246,11 @@ const ManageMember: React.FC = () => {
     }
   };
 
-  // The intervals the user has clicked on.
+  const [editing, setEditing] = useState(false);
   const [selections, setSelections] = useState<Interval[]>([]);
 
-  // Hard-coded test data.
-  const thirds = week.divideEqually(3);
-
   // TODO the setter should merge together adjacent equivalent availabilities.
-  const [availabilities, setAvailabilities] = useState<Availability[]>([
-    {
-      interval: thirds[0],
-      storm: 'AVAILABLE',
-      rescue: 'IMMEDIATE',
-      vehicle: 'WOL43',
-    },
-    {
-      interval: thirds[1],
-      storm: 'UNAVAILABLE',
-      rescue: 'UNAVAILABLE',
-      note: 'OOA',
-    },
-    {
-      interval: thirds[2],
-      storm: 'AVAILABLE',
-      rescue: 'SUPPORT',
-    },
-  ]);
+  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
 
   // Handlers to set the entirety of a week to some field.
   const handleSetWeek = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
@@ -197,7 +258,8 @@ const ManageMember: React.FC = () => {
     const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
     const added = missing.map(interval => ({ interval, ...set }));
 
-    // TODO this shouldn't apply to existing intervals outside the week.
+    // TODO this shouldn't apply to existing intervals outside the week. It may need to split ones
+    // which cross week boundaries.
 
     setAvailabilities([...updated, ...added]);
   };
@@ -228,7 +290,12 @@ const ManageMember: React.FC = () => {
         return (
           <Page title={member.fullName}>
             <div className='d-flex align-items-center border-bottom p-3'>
-              <Button variant='primary' className='mr-2' disabled={selections.length === 0}>
+              <Button
+                variant='primary'
+                className='mr-2'
+                disabled={selections.length === 0}
+                onClick={() => setEditing(true)}
+              >
                 <FaPlus /> Set Availability
               </Button>
               <Dropdown>
@@ -250,8 +317,11 @@ const ManageMember: React.FC = () => {
               <WeekBrowser value={week} onChange={handleChangeWeek} />
             </div>
             <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-              {row => <Row interval={row} availabilities={availabilities} rescueMember />}
+              {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
+            {editing && (
+              <AvailabilityModal onHide={() => setEditing(false)} />
+            )}
           </Page>
         );
       }}

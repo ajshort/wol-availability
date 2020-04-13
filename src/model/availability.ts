@@ -8,10 +8,13 @@ export enum Shift {
 export type StormAvailable = 'AVAILABLE' | 'UNAVAILABLE';
 export type RescueAvailable = 'IMMEDIATE' | 'SUPPORT' | 'UNAVAILABLE';
 
-export interface Availability {
-  interval: Interval;
+export interface AvailabilityWithoutInterval {
   storm?: StormAvailable;
   rescue?: RescueAvailable;
   vehicle?: string;
   note?: string;
+}
+
+export interface Availability extends AvailabilityWithoutInterval {
+  interval: Interval;
 }
