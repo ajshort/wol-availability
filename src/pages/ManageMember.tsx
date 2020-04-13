@@ -216,7 +216,7 @@ const ManageMember: React.FC = () => {
         return (
           <Page title={member.fullName}>
             <div className='d-flex align-items-center border-bottom p-3'>
-              <Button variant='primary' className='mr-2 d-none d-md-block'>
+              <Button variant='primary' className='mr-2' disabled={selections.length === 0}>
                 <FaPlus /> Set Availability
               </Button>
               <Dropdown>

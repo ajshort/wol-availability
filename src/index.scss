@@ -99,10 +99,18 @@
       cursor: pointer;
     }
     .week-table-selection {
-      background: rgba($primary, 0.33);
+      background: rgba($primary, 0.66);
+      color: #fff;
+      cursor: move;
+      display: flex;
       bottom: 0;
+      justify-content: space-between;
+      padding: 0.25 * $spacer;
       position: absolute;
       top: 0;
+    }
+    .week-table-selection-start, .week-table-selection-end {
+      font-size: 75%;
     }
   }
 }

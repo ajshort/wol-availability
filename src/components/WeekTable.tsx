@@ -2,9 +2,29 @@ import { getIntervalPosition } from '../model/dates';
 
 import clsx from 'clsx';
 import _ from 'lodash';
-import { Duration, Interval } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import Measure, { ContentRect } from 'react-measure';
+
+interface SelectionProps {
+  bounds: Interval;
+  interval: Interval;
+}
+
+const Selection: React.FC<SelectionProps> = ({ bounds, interval }) => {
+  const { start, end } = interval;
+
+  const left = `${100 * getIntervalPosition(bounds, interval.start)}%`;
+  const right = `${100 * (1 - getIntervalPosition(bounds, interval.end))}%`;
+  const style = { left, right };
+
+  return (
+    <div className='week-table-selection' style={style}>
+      <span className='week-table-selection-start'>{start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+      <span className='week-table-selection-end'>{end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+    </div>
+  );
+};
 
 export interface WeekTableProps {
   interval: Interval;
@@ -32,7 +52,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
       return;
     }
 
-    setColumns(rect.bounds.width >= 992 ? 12 : 4);
+    // setColumns(rect.bounds.width >= 992 ? 12 : 4);
   };
 
   const handleSelect = (selected: Interval[]) => {
@@ -97,15 +117,9 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                   <div key={index} className='week-table-hour' />
                 ))}
                 {children(row)}
-                {selections && selections.filter(sel => sel.overlaps(row)).map(sel => {
-                  const left = `${100 * getIntervalPosition(row, sel.start)}%`;
-                  const right = `${100 * (1 - getIntervalPosition(row, sel.end))}%`;
-                  const style = { left, right };
-
-                  return (
-                    <div className='week-table-selection' style={style} />
-                  );
-                })}
+                {selections && selections.filter(sel => sel.overlaps(row)).map(sel => (
+                  <Selection bounds={row} interval={sel} />
+                ))}
                 {(interval.start > row.start) && (
                   <div
                     className='week-table-bound'
