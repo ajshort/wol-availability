@@ -12,7 +12,7 @@ interface SelectionProps {
 }
 
 const Selection: React.FC<SelectionProps> = ({ bounds, interval }) => {
-  const { start, end } = interval;
+  const { start, end } = interval.intersection(bounds)!;
 
   const left = `${100 * getIntervalPosition(bounds, interval.start)}%`;
   const right = `${100 * (1 - getIntervalPosition(bounds, interval.end))}%`;
