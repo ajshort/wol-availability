@@ -370,6 +370,8 @@ const ManageMember: React.FC = () => {
                   <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'IMMEDIATE'})}>Set immediate</Dropdown.Item>
                   <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'SUPPORT'})}>Set support</Dropdown.Item>
                   <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'UNAVAILABLE'})}>Set unavailable</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item disabled>Clear</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               <WeekBrowser value={week} onChange={handleChangeWeek} />
