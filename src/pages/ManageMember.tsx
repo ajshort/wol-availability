@@ -21,9 +21,8 @@ import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import { FormControlProps } from 'react-bootstrap/FormControl';
-import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
-import { FaBolt, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
+import { FaBolt, FaExclamationTriangle, FaPlus, FaCheckSquare } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
@@ -139,94 +138,6 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilit
   </React.Fragment>
 );
 
-interface AvailabilityModalProps {
-  onHide: () => void;
-  onSubmit: (value: AvailabilityWithoutInterval) => void;
-}
-
-const AvailabilityModal: React.FC<AvailabilityModalProps> = ({ onHide, onSubmit }) => {
-  const [availability, setAvailability] = useState<AvailabilityWithoutInterval>({ });
-  const enabled = (availability.storm !== undefined || availability.rescue !== undefined);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    onSubmit(availability);
-  };
-
-  return (
-    <Modal show={true} onHide={onHide}>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body>
-            <Form.Group controlId='storm'>
-              <Form.Label>Storm and support</Form.Label>
-              <div>
-                <RadioButtonGroup<StormAvailable>
-                  options={[
-                    { value: 'AVAILABLE', label: 'Available', variant: 'success'},
-                    { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
-                  ]}
-                  value={availability.storm}
-                  onChange={storm => setAvailability({ ...availability, storm })}
-                />
-              </div>
-            </Form.Group>
-            <Form.Group controlId='rescue'>
-              <Form.Label>Rescue</Form.Label>
-              <div>
-                <RadioButtonGroup<RescueAvailable>
-                  options={[
-                    { value: 'IMMEDIATE', label: 'Immediate', variant: 'success'},
-                    { value: 'SUPPORT', label: 'Support', variant: 'warning'},
-                    { value: 'UNAVAILABLE', label: 'Unavailable', variant: 'danger'},
-                  ]}
-                  value={availability.rescue}
-                  onChange={rescue => setAvailability({ ...availability, rescue })}
-                />
-              </div>
-            </Form.Group>
-            <Form.Group controlId='note'>
-              <Form.Label>Note</Form.Label>
-              <Form.Control
-                type='text'
-                value={availability.note || ''}
-                onChange={(e: React.FormEvent<FormControlProps>) => {
-                  setAvailability({ ...availability, note: e.currentTarget.value })
-                }}
-              />
-            </Form.Group>
-            <Form.Group controlId='vehicle'>
-              <Form.Label>Covering vehicle</Form.Label>
-              <Form.Control
-                as='select'
-                className='custom-select'
-                value={availability.vehicle}
-                onChange={(e: React.FormEvent<FormControlProps>) => {
-                  setAvailability({ ...availability, vehicle: e.currentTarget.value })
-                }}
-              >
-                <option></option>
-                <option>NIC19</option>
-                <option>WOL43</option>
-                <option>WOL32</option>
-                <option>WOL33</option>
-                <option>WOL39</option>
-                <option>WOL55</option>
-                <option>WOL56</option>
-                <option>WOL57</option>
-              </Form.Control>
-            </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant='secondary' onClick={onHide}>Close</Button>
-          <Button variant='primary' type='submit' disabled={!enabled}>Set Availability</Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
-  )
-};
-
 interface Params {
   member: string;
   week?: string;
@@ -253,7 +164,6 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const [editing, setEditing] = useState(false);
   const [selections, setSelections] = useState<Interval[]>([]);
 
   // TODO the setter should merge together adjacent equivalent availabilities.
@@ -269,58 +179,78 @@ const ManageMember: React.FC = () => {
     }
   };
 
-  // Handlers to set the entirety of a week to some field.
-  const handleSetWeek = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
-    const updated = availabilities.map(availability => ({ ...availability, ...set }));
-    const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
-    const added = missing.map(interval => ({ interval, ...set }));
+  const handleSet = (availability: AvailabilityWithoutInterval) => {
+    let updated = [...availabilities];
 
-    // TODO this shouldn't apply to existing intervals outside the week. It may need to split ones
-    // which cross week boundaries.
-
-    setAvailabilities([...updated, ...added]);
-    setSelections([]);
-  };
-
-  // Sets the availability for the currently selected intervals.
-  const handleSubmit = (data: AvailabilityWithoutInterval) => {
-    let updated = availabilities;
-
+    // TODO update existing availabilities.
     for (const selection of selections) {
-      // Filter any fully overlapped values.
-      updated = updated.filter(({ interval }) => !selection.engulfs(interval));
+      // Update any fully engulfed existing availabilities.
+      updated
+        .filter(({ interval }) => selection.engulfs(interval))
+        .forEach(entry => entry = { interval: entry.interval, ...availability });
+    }
 
-      // If an existing range fully engulfs this, update the engulfer to abut this, and then
-      // copy it after.
-      const engulfing = updated.find(({ interval }) => interval.engulfs(selection));
+    // Create availabilities as required.
+    const missing = Interval.xor([...selections, ...updated.map(a => a.interval)]);
 
-      if (engulfing) {
-        updated.push({ ...engulfing, interval: engulfing.interval.set({ start: selection.end }) });
-        engulfing.interval = engulfing.interval.set({ end: selection.start });
-      }
-
-      // Update an existing range which overlaps the start of this range.
-      const start = updated.find(({ interval }) => selection.contains(interval.end));
-
-      if (start) {
-        start.interval = start.interval.set({ end: selection.start });
-      }
-
-      // Update an existing range which overlaps the end of this range.
-      const end = updated.find(({ interval }) => selection.contains(interval.start));
-
-      if (end) {
-        end.interval = end.interval.set({ start: selection.end });
-      }
-
-      // Then push the actual value.
-      updated.push({ interval: selection, ...data });
+    for (const interval of missing) {
+      updated.push({ interval, ...availability });
     }
 
     setAvailabilities(updated);
-    setSelections([]);
-    setEditing(false);
-  }
+  };
+
+  // // Handlers to set the entirety of a week to some field.
+  // const handleSet = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
+  //   const updated = availabilities.map(availability => ({ ...availability, ...set }));
+  //   const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
+  //   const added = missing.map(interval => ({ interval, ...set }));
+
+  //   // TODO this shouldn't apply to existing intervals outside the week. It may need to split ones
+  //   // which cross week boundaries.
+
+  //   setAvailabilities([...updated, ...added]);
+  //   setSelections([]);
+  // };
+
+  // // Sets the availability for the currently selected intervals.
+  // const handleSubmit = (data: AvailabilityWithoutInterval) => {
+  //   let updated = availabilities;
+
+  //   for (const selection of selections) {
+  //     // Filter any fully overlapped values.
+  //     updated = updated.filter(({ interval }) => !selection.engulfs(interval));
+
+  //     // If an existing range fully engulfs this, update the engulfer to abut this, and then
+  //     // copy it after.
+  //     const engulfing = updated.find(({ interval }) => interval.engulfs(selection));
+
+  //     if (engulfing) {
+  //       updated.push({ ...engulfing, interval: engulfing.interval.set({ start: selection.end }) });
+  //       engulfing.interval = engulfing.interval.set({ end: selection.start });
+  //     }
+
+  //     // Update an existing range which overlaps the start of this range.
+  //     const start = updated.find(({ interval }) => selection.contains(interval.end));
+
+  //     if (start) {
+  //       start.interval = start.interval.set({ end: selection.start });
+  //     }
+
+  //     // Update an existing range which overlaps the end of this range.
+  //     const end = updated.find(({ interval }) => selection.contains(interval.start));
+
+  //     if (end) {
+  //       end.interval = end.interval.set({ start: selection.end });
+  //     }
+
+  //     // Then push the actual value.
+  //     updated.push({ interval: selection, ...data });
+  //   }
+
+  //   setAvailabilities(updated);
+  //   setSelections([]);
+  // }
 
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
@@ -345,43 +275,66 @@ const ManageMember: React.FC = () => {
 
         const { member } = data;
 
+        const storm = (
+          <Dropdown>
+            <Dropdown.Toggle
+              variant='primary'
+              id='storm-dropdown'
+              className='mr-2'
+              disabled={selections.length === 0}
+            >
+              <FaBolt /> Storm and Support
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE'})}>Available</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE'})}>Unavailable</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+
+        const rescue = (
+          <Dropdown>
+            <Dropdown.Toggle
+              variant='warning'
+              id='rescue-dropdown'
+              className='mr-2'
+              disabled={selections.length === 0}
+            >
+              <FaExclamationTriangle /> Rescue
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE'})}>Immediate</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT'})}>Support</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE'})}>Unavailable</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        );
+
+        const note = (
+          <Button
+            variant='info'
+            className='mr-2'
+            disabled={selections.length === 0}
+          >
+            <FaPlus /> Note
+          </Button>
+        );
+
         return (
           <Page title={member.fullName}>
-            <div className='d-flex align-items-center border-bottom p-3'>
-              <Button
-                variant='primary'
-                className='mr-2'
-                disabled={selections.length === 0}
-                onClick={() => setEditing(true)}
-              >
-                <FaPlus /> Set Availability
-              </Button>
-              <Dropdown>
-                <Dropdown.Toggle variant='info' id='week-dropdown' className='mr-2'>
-                  Week
-                </Dropdown.Toggle>
-
-                <Dropdown.Menu>
-                  <Dropdown.Header>Storm and Support</Dropdown.Header>
-                  <Dropdown.Item onClick={() => handleSetWeek({ storm: 'AVAILABLE'})}>Set available</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleSetWeek({ storm: 'UNAVAILABLE'})}>Set unavailable</Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Header>Rescue</Dropdown.Header>
-                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'IMMEDIATE'})}>Set immediate</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'SUPPORT'})}>Set support</Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleSetWeek({ rescue: 'UNAVAILABLE'})}>Set unavailable</Dropdown.Item>
-                  <Dropdown.Divider />
-                  <Dropdown.Item disabled>Clear</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-              <WeekBrowser value={week} onChange={handleChangeWeek} />
+            <div className='d-flex justify-content-between border-bottom p-3'>
+              <div className='d-flex align-items-center'>
+                {storm}
+                {rescue}
+                {note}
+              </div>
+              <div className='d-flex align-items-center'>
+                <WeekBrowser value={week} onChange={handleChangeWeek} />
+              </div>
             </div>
             <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
               {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
-            {editing && (
-              <AvailabilityModal onHide={() => setEditing(false)} onSubmit={handleSubmit} />
-            )}
           </Page>
         );
       }}
