@@ -4,18 +4,19 @@ import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React from 'react';
-import Measure, { ContentRect } from 'react-measure';
+import Measure, { BoundingRect } from 'react-measure';
 
 interface IntervalSelectionProps {
   interval: Interval;
   selections?: Interval[];
+  onClick: (dt: DateTime) => void;
 }
 
 interface IntervalSelectionState {
-  width: number;
+  bounds?: BoundingRect;
 
   drag?: {
-    origin: number;
+    origin: { x: number; y: number; };
     selection: Interval;
     bounds: Interval;
     updated: Interval | null;
@@ -27,7 +28,7 @@ interface IntervalSelectionState {
 class IntervalSelection extends React.Component<IntervalSelectionProps, IntervalSelectionState> {
   constructor(props: IntervalSelectionProps) {
     super(props);
-    this.state = { width: 0 };
+    this.state = {};
   }
 
   componentDidUpdate(_: IntervalSelectionProps, prev: IntervalSelectionState) {
@@ -55,7 +56,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     this.setState({
       ...this.state,
       drag: {
-        origin: e.clientX,
+        origin: { x: e.clientX, y: e.clientY },
         selection,
         bounds,
         updated: selection,
@@ -73,8 +74,8 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     }
 
     const { drag } = this.state;
-    const dx = e.clientX - drag.origin;
-    const ms = (dx / this.state.width) * this.props.interval.length('milliseconds');
+    const dx = e.clientX - drag.origin.x;
+    const ms = (dx / this.state.bounds!.width) * this.props.interval.length('milliseconds');
 
     const round = (dt: DateTime) => {
       return dt.set({
@@ -94,7 +95,27 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     this.setState({ ...this.state, drag: { ...drag, updated } });
   }
 
-  handleMouseUp(e: MouseEvent) {
+  handleContainerMouseUp(e: React.MouseEvent<HTMLDivElement>) {
+    // If the mouse hasn't moved from the mouse down point, we consider this a `click`.
+    const { drag } = this.state;
+
+    if (!drag || (drag.origin.x === e.clientX && drag.origin.y === e.clientY)) {
+      const { interval, onClick } = this.props;
+      const dx = (e.clientX - this.state.bounds!.left);
+      const t = dx / this.state.bounds!.width;
+      const milliseconds = interval.length('milliseconds') * t;
+
+      onClick(interval.start.plus({ milliseconds }));
+    }
+
+    this.handleMouseUp(e);
+  }
+
+  handleMouseUp(e: MouseEvent | React.MouseEvent<HTMLDivElement>) {
+    if (!this.state.drag) {
+      return;
+    }
+
     this.setState({ ...this.state, drag: undefined });
   }
 
@@ -112,14 +133,14 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
         bounds: interval,
       }));
 
-    const handleResize = (rect: ContentRect) => {
-      this.setState({ ...this.state, width: rect.bounds!.width });
-    };
-
     return (
-      <Measure bounds onResize={handleResize}>
+      <Measure bounds onResize={rect => this.setState({ ...this.state, bounds: rect.bounds })}>
         {({ measureRef }) => (
-          <div ref={measureRef} className='interval-selection'>
+          <div
+            ref={measureRef}
+            className='interval-selection'
+            onMouseUp={this.handleContainerMouseUp.bind(this)}
+          >
             {display.map((selection) => {
               // Are we currently being dragged?
               const dragged = drag && selection.interval.equals(drag.selection);
@@ -146,8 +167,12 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
                   onMouseDown={(e) => this.handleMouseDown(e, selection.interval, selection.bounds)}
                 >
                   <div className='interval-selection-drag-start' />
-                  <span className='interval-selection-from'>{draw.start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
-                  <span className='interval-selection-to'>{draw.end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+                  <span className='interval-selection-from'>
+                    {draw.start.toLocaleString(DateTime.TIME_24_SIMPLE)}
+                  </span>
+                  <span className='interval-selection-to'>
+                    {draw.end.toLocaleString(DateTime.TIME_24_SIMPLE)}
+                  </span>
                   <div className='interval-selection-drag-end' />
                 </div>
               );
@@ -212,6 +237,9 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     );
   };
 
+  const handleBodyClick = (dt: DateTime) => {
+  };
+
   const className = clsx({
     'week-table': true,
     'week-table-selectable': onChangeSelections !== undefined,
@@ -248,6 +276,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                 <IntervalSelection
                   interval={row}
                   selections={selections}
+                  onClick={handleBodyClick}
                 />
                 {(interval.start > row.start) && (
                   <div
