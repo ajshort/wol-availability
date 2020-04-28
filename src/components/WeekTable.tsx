@@ -12,27 +12,27 @@ interface IntervalSelectionProps {
 }
 
 interface IntervalSelectionState {
-  dragging: boolean;
-  dragStart?: number;
-  dragSelection?: Interval;
+  drag?: {
+    start: number;
+    selection: Interval;
+    bounds: Interval;
+    updated: Interval;
+  };
+
   width: number;
 }
 
 class IntervalSelection extends React.Component<IntervalSelectionProps, IntervalSelectionState> {
   constructor(props: IntervalSelectionProps) {
     super(props);
-
-    this.state = {
-      dragging: false,
-      width: 0,
-    };
+    this.state = { width: 0 };
   }
 
   componentDidUpdate(_: IntervalSelectionProps, prev: IntervalSelectionState) {
-    if (!prev.dragging && this.state.dragging) {
+    if (!prev.drag && this.state.drag) {
       document.addEventListener('mousemove', this.handleMouseMove.bind(this));
       document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    } else if (prev.dragging && !this.state.dragging) {
+    } else if (prev.drag && !this.state.drag) {
       document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
       document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
     }
@@ -43,36 +43,48 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
   }
 
-  handleMouseDown(e: React.MouseEvent<HTMLDivElement>, selection: Interval) {
+  handleMouseDown(e: React.MouseEvent<HTMLDivElement>, selection: Interval, bounds: Interval) {
     if (e.button !== 0) {
       return;
     }
 
     this.setState({
       ...this.state,
-      dragging: true,
-      dragStart: e.clientX,
-      dragSelection: selection,
+      drag: {
+        start: e.clientX,
+        selection,
+        bounds,
+        updated: selection,
+      },
     });
 
     e.preventDefault();
   }
 
   handleMouseMove(e: MouseEvent) {
-    if (!this.state.dragging) {
+    if (this.state.drag === undefined) {
       return;
     }
 
-    console.log(123);
+    const { drag } = this.state;
+    const dx = e.clientX - drag.start;
+    const ms = (dx / this.state.width) * this.props.interval.length('milliseconds');
+
+    const updated = Interval.fromDateTimes(
+      drag.selection.start.plus({ milliseconds: ms }),
+      drag.selection.end.plus({ milliseconds: ms }),
+    );
+
+    this.setState({ ...this.state, drag: { ...drag, updated } });
   }
 
   handleMouseUp(e: MouseEvent) {
-    this.setState({ ...this.state, dragging: false });
+    this.setState({...this.state, drag: undefined });
   }
 
   render() {
     const { interval, selections } = this.props;
-    const { dragging, dragSelection } = this.state;
+    const { drag } = this.state;
 
     // For each selection in the bounds, we need to figure out the minimum and maximum bound
     // that it can be moved to.
@@ -93,14 +105,17 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
         {({ measureRef }) => (
           <div ref={measureRef} className='interval-selection'>
            {display.map((selection) => {
-             const { start, end } = selection.interval;
+             // Are we currently being dragged?
+             const dragged = drag && selection.interval.equals(drag.selection);
+             const { start, end } = dragged ? drag!.updated : selection.interval;
+
              const left = `${100 * getIntervalPosition(interval, start)}%`;
              const right = `${100 * (1 - getIntervalPosition(interval, end))}%`;
              const style = { left, right };
 
              const className = clsx({
                'interval-selection-selection': true,
-               'interval-selection-dragging': dragging && selection.interval.equals(dragSelection!),
+               'interval-selection-dragging': dragged,
              });
 
              return (
@@ -108,7 +123,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
                  key={interval.toString()}
                  className={className}
                  style={style}
-                 onMouseDown={(e) => this.handleMouseDown(e, selection.interval)}
+                 onMouseDown={(e) => this.handleMouseDown(e, selection.interval, selection.bounds)}
                >
                  <div className='interval-selection-drag-start' />
                  <span className='interval-selection-from'>{start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
