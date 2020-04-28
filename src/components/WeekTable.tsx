@@ -3,7 +3,7 @@ import { getIntervalPosition } from '../model/dates';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Measure, { ContentRect } from 'react-measure';
 
 interface IntervalSelectionProps {
@@ -12,14 +12,16 @@ interface IntervalSelectionProps {
 }
 
 interface IntervalSelectionState {
+  width: number;
+
   drag?: {
-    start: number;
+    origin: number;
     selection: Interval;
     bounds: Interval;
-    updated: Interval;
+    updated: Interval | null;
+    start: boolean;
+    end: boolean;
   };
-
-  width: number;
 }
 
 class IntervalSelection extends React.Component<IntervalSelectionProps, IntervalSelectionState> {
@@ -48,13 +50,17 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
       return;
     }
 
+    const element = e.target as HTMLDivElement;
+
     this.setState({
       ...this.state,
       drag: {
-        start: e.clientX,
+        origin: e.clientX,
         selection,
         bounds,
         updated: selection,
+        start: !element.classList.contains('interval-selection-drag-end'),
+        end: !element.classList.contains('interval-selection-drag-start'),
       },
     });
 
@@ -67,19 +73,29 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     }
 
     const { drag } = this.state;
-    const dx = e.clientX - drag.start;
+    const dx = e.clientX - drag.origin;
     const ms = (dx / this.state.width) * this.props.interval.length('milliseconds');
 
-    const updated = Interval.fromDateTimes(
-      drag.selection.start.plus({ milliseconds: ms }),
-      drag.selection.end.plus({ milliseconds: ms }),
-    );
+    const round = (dt: DateTime) => {
+      return dt.set({
+        minute: Math.round(dt.minute / 15) * 15,
+        second: 0,
+        millisecond: 0,
+      });
+    };
+
+    const updated = Interval
+      .fromDateTimes(
+        drag.start ? round(drag.selection.start.plus({ milliseconds: ms })) : drag.selection.start,
+        drag.end ? round(drag.selection.end.plus({ milliseconds: ms })) : drag.selection.end,
+      )
+      .intersection(drag.bounds);
 
     this.setState({ ...this.state, drag: { ...drag, updated } });
   }
 
   handleMouseUp(e: MouseEvent) {
-    this.setState({...this.state, drag: undefined });
+    this.setState({ ...this.state, drag: undefined });
   }
 
   render() {
@@ -104,34 +120,38 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
       <Measure bounds onResize={handleResize}>
         {({ measureRef }) => (
           <div ref={measureRef} className='interval-selection'>
-           {display.map((selection) => {
-             // Are we currently being dragged?
-             const dragged = drag && selection.interval.equals(drag.selection);
-             const { start, end } = dragged ? drag!.updated : selection.interval;
+            {display.map((selection) => {
+              // Are we currently being dragged?
+              const dragged = drag && selection.interval.equals(drag.selection);
+              const draw = dragged ? drag!.updated : selection.interval;
 
-             const left = `${100 * getIntervalPosition(interval, start)}%`;
-             const right = `${100 * (1 - getIntervalPosition(interval, end))}%`;
-             const style = { left, right };
+              if (draw === null) {
+                return null;
+              }
 
-             const className = clsx({
-               'interval-selection-selection': true,
-               'interval-selection-dragging': dragged,
-             });
+              const left = `${100 * getIntervalPosition(interval, draw.start)}%`;
+              const right = `${100 * (1 - getIntervalPosition(interval, draw.end))}%`;
+              const style = { left, right };
 
-             return (
-               <div
-                 key={interval.toString()}
-                 className={className}
-                 style={style}
-                 onMouseDown={(e) => this.handleMouseDown(e, selection.interval, selection.bounds)}
-               >
-                 <div className='interval-selection-drag-start' />
-                 <span className='interval-selection-from'>{start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
-                 <span className='interval-selection-to'>{end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
-                 <div className='interval-selection-drag-end' />
-               </div>
-             );
-           })}
+              const className = clsx({
+                'interval-selection-selection': true,
+                'interval-selection-dragging': dragged,
+              });
+
+              return (
+                <div
+                  key={interval.toString()}
+                  className={className}
+                  style={style}
+                  onMouseDown={(e) => this.handleMouseDown(e, selection.interval, selection.bounds)}
+                >
+                  <div className='interval-selection-drag-start' />
+                  <span className='interval-selection-from'>{draw.start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+                  <span className='interval-selection-to'>{draw.end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+                  <div className='interval-selection-drag-end' />
+                </div>
+              );
+            })}
           </div>
         )}
       </Measure>
