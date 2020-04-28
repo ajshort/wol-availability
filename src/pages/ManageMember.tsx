@@ -283,7 +283,8 @@ const ManageMember: React.FC = () => {
               className='mr-2'
               disabled={selections.length === 0}
             >
-              <FaBolt /> Storm and Support
+              <span className='d-md-none'><FaBolt /> Storm</span>
+              <span className='d-none d-md-inline'><FaBolt /> Storm and support</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE'})}>Available</Dropdown.Item>
