@@ -3,28 +3,126 @@ import { getIntervalPosition } from '../model/dates';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
-import Measure from 'react-measure';
+import React, { useEffect, useState } from 'react';
+import Measure, { ContentRect } from 'react-measure';
 
-interface SelectionProps {
-  bounds: Interval;
+interface IntervalSelectionProps {
   interval: Interval;
+  selections?: Interval[];
 }
 
-const Selection: React.FC<SelectionProps> = ({ bounds, interval }) => {
-  const { start, end } = interval.intersection(bounds)!;
+interface IntervalSelectionState {
+  dragging: boolean;
+  dragStart?: number;
+  dragSelection?: Interval;
+  width: number;
+}
 
-  const left = `${100 * getIntervalPosition(bounds, interval.start)}%`;
-  const right = `${100 * (1 - getIntervalPosition(bounds, interval.end))}%`;
-  const style = { left, right };
+class IntervalSelection extends React.Component<IntervalSelectionProps, IntervalSelectionState> {
+  constructor(props: IntervalSelectionProps) {
+    super(props);
 
-  return (
-    <div className='week-table-selection' style={style}>
-      <span className='week-table-selection-start'>{start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
-      <span className='week-table-selection-end'>{end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
-    </div>
-  );
-};
+    this.state = {
+      dragging: false,
+      width: 0,
+    };
+  }
+
+  componentDidUpdate(_: IntervalSelectionProps, prev: IntervalSelectionState) {
+    if (!prev.dragging && this.state.dragging) {
+      document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+      document.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    } else if (prev.dragging && !this.state.dragging) {
+      document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
+      document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
+    document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
+  }
+
+  handleMouseDown(e: React.MouseEvent<HTMLDivElement>, selection: Interval) {
+    if (e.button !== 0) {
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      dragging: true,
+      dragStart: e.clientX,
+      dragSelection: selection,
+    });
+
+    e.preventDefault();
+  }
+
+  handleMouseMove(e: MouseEvent) {
+    if (!this.state.dragging) {
+      return;
+    }
+
+    console.log(123);
+  }
+
+  handleMouseUp(e: MouseEvent) {
+    this.setState({ ...this.state, dragging: false });
+  }
+
+  render() {
+    const { interval, selections } = this.props;
+    const { dragging, dragSelection } = this.state;
+
+    // For each selection in the bounds, we need to figure out the minimum and maximum bound
+    // that it can be moved to.
+    const display = (selections || [])
+      .map(selection => selection.intersection(interval))
+      .filter(intersection => intersection && !intersection.isEmpty())
+      .map(intersection => ({
+        interval: intersection!,
+        bounds: interval,
+      }));
+
+    const handleResize = (rect: ContentRect) => {
+      this.setState({ ...this.state, width: rect.bounds!.width });
+    };
+
+    return (
+      <Measure bounds onResize={handleResize}>
+        {({ measureRef }) => (
+          <div ref={measureRef} className='interval-selection'>
+           {display.map((selection) => {
+             const { start, end } = selection.interval;
+             const left = `${100 * getIntervalPosition(interval, start)}%`;
+             const right = `${100 * (1 - getIntervalPosition(interval, end))}%`;
+             const style = { left, right };
+
+             const className = clsx({
+               'interval-selection-selection': true,
+               'interval-selection-dragging': dragging && selection.interval.equals(dragSelection!),
+             });
+
+             return (
+               <div
+                 key={interval.toString()}
+                 className={className}
+                 style={style}
+                 onMouseDown={(e) => this.handleMouseDown(e, selection.interval)}
+               >
+                 <div className='interval-selection-drag-start' />
+                 <span className='interval-selection-from'>{start.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+                 <span className='interval-selection-to'>{end.toLocaleString(DateTime.TIME_24_SIMPLE)}</span>
+                 <div className='interval-selection-drag-end' />
+               </div>
+             );
+           })}
+          </div>
+        )}
+      </Measure>
+    );
+  }
+}
 
 export interface WeekTableProps {
   interval: Interval;
@@ -61,14 +159,6 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     } else {
       onChangeSelections(Interval.merge([...existing, ...selected]));
     }
-  };
-
-  const handleContainerClick = (row: Interval, e: React.MouseEvent<HTMLDivElement>) => {
-    const { x, width } = e.currentTarget.getBoundingClientRect();
-    const t = (e.clientX - x) / width;
-    const index = Math.min(Math.floor((columns * t)), columns - 1);
-
-    handleSelect([row.divideEqually(columns)[index]]);
   };
 
   const handleRowClick = (row: Interval) => {
@@ -109,7 +199,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                 <span className='text-muted'>{row.start.toFormat('ccc')}</span>
                 <span className='h5 mb-0'>{row.start.toFormat('d')}</span>
               </div>
-              <div className='week-table-container' onClick={e => handleContainerClick(row, e)}>
+              <div className='week-table-container'>
                 {times.map((_time, index) => (
                   <div
                     key={index}
@@ -120,9 +210,10 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                   />
                 ))}
                 {children(row)}
-                {selections && selections.filter(sel => sel.overlaps(row)).map(sel => (
-                  <Selection key={sel.toString()} bounds={row} interval={sel} />
-                ))}
+                <IntervalSelection
+                  interval={row}
+                  selections={selections}
+                />
                 {(interval.start > row.start) && (
                   <div
                     className='week-table-bound'
