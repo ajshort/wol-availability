@@ -10,6 +10,7 @@ interface IntervalSelectionProps {
   interval: Interval;
   selections?: Interval[];
   onClick: (dt: DateTime) => void;
+  onChangeSelections?: (selections: Interval[]) => void;
 }
 
 interface IntervalSelectionState {
@@ -28,6 +29,7 @@ interface IntervalSelectionState {
 class IntervalSelection extends React.Component<IntervalSelectionProps, IntervalSelectionState> {
   constructor(props: IntervalSelectionProps) {
     super(props);
+
     this.state = {};
   }
 
@@ -98,8 +100,9 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
   handleContainerMouseUp(e: React.MouseEvent<HTMLDivElement>) {
     // If the mouse hasn't moved from the mouse down point, we consider this a `click`.
     const { drag } = this.state;
+    const click = !drag || (drag.origin.x === e.clientX && drag.origin.y === e.clientY);
 
-    if (!drag || (drag.origin.x === e.clientX && drag.origin.y === e.clientY)) {
+    if (click) {
       const { interval, onClick } = this.props;
       const dx = (e.clientX - this.state.bounds!.left);
       const t = dx / this.state.bounds!.width;
@@ -114,6 +117,23 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
   handleMouseUp(e: MouseEvent | React.MouseEvent<HTMLDivElement>) {
     if (!this.state.drag) {
       return;
+    }
+
+    const onChange = this.props.onChangeSelections;
+
+    if (onChange !== undefined) {
+      // Did we modify or remove the interval?
+      const selections = this.props.selections!;
+      const { selection, updated } = this.state.drag;
+      
+      // The selections with the previous selection removed.
+      const removed = Interval.xor([...selections, selection]);
+
+      if (updated === null) {
+        onChange(removed);
+      } else if (!selection.equals(updated)) {
+        onChange(Interval.merge([...removed, updated]));
+      }
     }
 
     this.setState({ ...this.state, drag: undefined });
@@ -277,6 +297,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                   interval={row}
                   selections={selections}
                   onClick={handleBodyClick}
+                  onChangeSelections={onChangeSelections}
                 />
                 {(interval.start > row.start) && (
                   <div
