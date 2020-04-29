@@ -257,7 +257,26 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     );
   };
 
-  const handleBodyClick = (dt: DateTime) => {
+  const handleBodyClick = (row: Interval, dt: DateTime) => {
+    if (onChangeSelections === undefined) {
+      return;
+    }
+
+    const blocks = row.divideEqually(columns);
+    const clicked = blocks.find(block => block.contains(dt));
+
+    if (clicked === undefined) {
+      return;
+    }
+
+    const selected = selections?.some(selection => selection.contains(dt));
+
+    // If it's selected already, we de-select it.
+    if (selected) {
+      onChangeSelections(Interval.xor([...Interval.merge([...selections || [], clicked]), clicked]));
+    } else {
+      handleSelect(clicked ? [clicked] : []);
+    }
   };
 
   const className = clsx({
@@ -296,7 +315,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                 <IntervalSelection
                   interval={row}
                   selections={selections}
-                  onClick={handleBodyClick}
+                  onClick={dt => handleBodyClick(row, dt)}
                   onChangeSelections={onChangeSelections}
                 />
                 {(interval.start > row.start) && (
