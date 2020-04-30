@@ -19,7 +19,7 @@ import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Spinner from 'react-bootstrap/Spinner';
-import { FaBolt, FaExclamationTriangle, FaPlus, FaCheckSquare } from 'react-icons/fa';
+import { FaBolt, FaExclamationTriangle, FaCheckSquare, FaMinusSquare, FaSquare } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import clsx from 'clsx';
 
@@ -212,6 +212,14 @@ const ManageMember: React.FC = () => {
     setAvailabilities(updated);
   };
 
+  const handleToggleClick = () => {
+    if (selections.length === 0) {
+      setSelections([week]);
+    } else {
+      setSelections([]);
+    }
+  };
+
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
       {({ loading, error, data }) => {
@@ -234,6 +242,20 @@ const ManageMember: React.FC = () => {
         }
 
         const { member } = data;
+
+        const toggle = (
+          <Button variant='light' className='mr-2' onClick={handleToggleClick}>
+            {(() => {
+              if (selections.some(selection => selection.engulfs(week))) {
+                return <FaCheckSquare />;
+              } else if (selections.length > 0) {
+                return <FaMinusSquare />;
+              }
+
+              return <FaSquare />;
+            })()}
+          </Button>
+        );
 
         const storm = (
           <Dropdown>
@@ -276,6 +298,7 @@ const ManageMember: React.FC = () => {
           <Page title={member.fullName}>
             <div className='d-flex justify-content-between border-bottom p-3'>
               <div className='d-flex align-items-center'>
+                {toggle}
                 {storm}
                 {rescue}
               </div>
