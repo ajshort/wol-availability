@@ -246,8 +246,8 @@ const ManageMember: React.FC = () => {
               <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE'})}>Available</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE'})}>Unavailable</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         );
@@ -263,9 +263,11 @@ const ManageMember: React.FC = () => {
               <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE'})}>Immediate</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT'})}>Support</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE'})}>Unavailable</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>Immediate</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>Support</Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
+              <Dropdown.Divider />
+              <Dropdown.Item>Cover vehicle&hellip;</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         );
