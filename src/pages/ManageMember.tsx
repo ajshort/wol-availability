@@ -1,11 +1,10 @@
 import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
-import RadioButtonGroup from '../components/RadioButtonGroup';
 import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
 import {
   Availability,
-  AvailabilityWithoutInterval,
+  AvailabilityInterval,
   StormAvailable,
   RescueAvailable,
 } from '../model/availability';
@@ -19,8 +18,6 @@ import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Form from 'react-bootstrap/Form';
-import { FormControlProps } from 'react-bootstrap/FormControl';
 import Spinner from 'react-bootstrap/Spinner';
 import { FaBolt, FaExclamationTriangle, FaPlus, FaCheckSquare } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
@@ -100,7 +97,7 @@ const RescueMemberBadges: React.FC<RescueMemberBadgesProps> = ({ storm, rescue }
 
 interface AvailabilityRowProps {
   interval: Interval;
-  availabilities: Availability[];
+  availabilities: AvailabilityInterval[];
   rescueMember?: boolean;
 }
 
@@ -165,9 +162,7 @@ const ManageMember: React.FC = () => {
   }
 
   const [selections, setSelections] = useState<Interval[]>([]);
-
-  // TODO the setter should merge together adjacent equivalent availabilities.
-  const [availabilities, setAvailabilities] = useState<Availability[]>([]);
+  const [availabilities, setAvailabilities] = useState<AvailabilityInterval[]>([]);
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
@@ -179,15 +174,30 @@ const ManageMember: React.FC = () => {
     }
   };
 
-  const handleSet = (availability: AvailabilityWithoutInterval) => {
+  const handleSet = (availability: Availability) => {
     let updated = [...availabilities];
 
-    // TODO update existing availabilities.
     for (const selection of selections) {
-      // Update any fully engulfed existing availabilities.
+      // Update any engulfed entries.
       updated
         .filter(({ interval }) => selection.engulfs(interval))
-        .forEach(entry => entry = { interval: entry.interval, ...availability });
+        .forEach(value => value = { ...value, ...availability });
+
+      // Split any entries which engulf.
+
+      // Update an existing availability which overlaps the start of the selection.
+      // const start = updated.find(({ interval }) => selection.contains(interval.end));
+
+      // if (start) {
+      //   start.interval = start.interval.set({ end: selection.start });
+      // }
+
+      // // Do the same for abutting end.
+      // const end = updated.find(({ interval }) => selection.contains(interval.start));
+
+      // if (end) {
+      //   end.interval = end.interval.set({ start: selection.end });
+      // }
     }
 
     // Create availabilities as required.
@@ -197,60 +207,10 @@ const ManageMember: React.FC = () => {
       updated.push({ interval, ...availability });
     }
 
+    // TODO merge adjacent equivalent availabilities.
+
     setAvailabilities(updated);
   };
-
-  // // Handlers to set the entirety of a week to some field.
-  // const handleSet = (set: { storm?: StormAvailable, rescue?: RescueAvailable }) => {
-  //   const updated = availabilities.map(availability => ({ ...availability, ...set }));
-  //   const missing = Interval.xor([week, ...updated.map(a => a.interval)]);
-  //   const added = missing.map(interval => ({ interval, ...set }));
-
-  //   // TODO this shouldn't apply to existing intervals outside the week. It may need to split ones
-  //   // which cross week boundaries.
-
-  //   setAvailabilities([...updated, ...added]);
-  //   setSelections([]);
-  // };
-
-  // // Sets the availability for the currently selected intervals.
-  // const handleSubmit = (data: AvailabilityWithoutInterval) => {
-  //   let updated = availabilities;
-
-  //   for (const selection of selections) {
-  //     // Filter any fully overlapped values.
-  //     updated = updated.filter(({ interval }) => !selection.engulfs(interval));
-
-  //     // If an existing range fully engulfs this, update the engulfer to abut this, and then
-  //     // copy it after.
-  //     const engulfing = updated.find(({ interval }) => interval.engulfs(selection));
-
-  //     if (engulfing) {
-  //       updated.push({ ...engulfing, interval: engulfing.interval.set({ start: selection.end }) });
-  //       engulfing.interval = engulfing.interval.set({ end: selection.start });
-  //     }
-
-  //     // Update an existing range which overlaps the start of this range.
-  //     const start = updated.find(({ interval }) => selection.contains(interval.end));
-
-  //     if (start) {
-  //       start.interval = start.interval.set({ end: selection.start });
-  //     }
-
-  //     // Update an existing range which overlaps the end of this range.
-  //     const end = updated.find(({ interval }) => selection.contains(interval.start));
-
-  //     if (end) {
-  //       end.interval = end.interval.set({ start: selection.end });
-  //     }
-
-  //     // Then push the actual value.
-  //     updated.push({ interval: selection, ...data });
-  //   }
-
-  //   setAvailabilities(updated);
-  //   setSelections([]);
-  // }
 
   return (
     <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
