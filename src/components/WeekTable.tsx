@@ -269,13 +269,14 @@ const WeekTable: React.FC<WeekTableProps> = props => {
       return;
     }
 
-    const selected = selections?.some(selection => selection.contains(dt));
+    const selected = selections?.find(selection => selection.contains(dt));
 
-    // If it's selected already, we de-select it.
+    // If it's selected already, we de-select it (limiting it to the selected row).
     if (selected) {
-      onChangeSelections(Interval.xor([...Interval.merge([...selections || [], clicked]), clicked]));
+      const clear = rows.find(row => row.contains(dt))!.intersection(selected)!;
+      onChangeSelections(Interval.xor([...selections!, clear]));
     } else {
-      handleSelect(clicked ? [clicked] : []);
+      handleSelect([clicked]);
     }
   };
 
