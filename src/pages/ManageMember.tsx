@@ -243,8 +243,7 @@ const ManageMember: React.FC = () => {
               className='mr-2'
               disabled={selections.length === 0}
             >
-              <span className='d-md-none'><FaBolt /> Storm</span>
-              <span className='d-none d-md-inline'><FaBolt /> Storm and support</span>
+              <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE'})}>Available</Dropdown.Item>
@@ -261,7 +260,7 @@ const ManageMember: React.FC = () => {
               className='mr-2'
               disabled={selections.length === 0}
             >
-              <FaExclamationTriangle /> Rescue
+              <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE'})}>Immediate</Dropdown.Item>
@@ -271,23 +270,12 @@ const ManageMember: React.FC = () => {
           </Dropdown>
         );
 
-        const note = (
-          <Button
-            variant='info'
-            className='mr-2'
-            disabled={selections.length === 0}
-          >
-            <FaPlus /> Note
-          </Button>
-        );
-
         return (
           <Page title={member.fullName}>
             <div className='d-flex justify-content-between border-bottom p-3'>
               <div className='d-flex align-items-center'>
                 {storm}
                 {rescue}
-                {note}
               </div>
               <div className='d-flex align-items-center'>
                 <WeekBrowser value={week} onChange={handleChangeWeek} />
