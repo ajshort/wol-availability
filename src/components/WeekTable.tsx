@@ -129,7 +129,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
       // The selections with the previous selection removed.
       const removed = Interval.xor([...selections, selection]);
 
-      if (updated === null) {
+      if (updated === null || !updated.isValid) {
         onChange(removed);
       } else if (!selection.equals(updated)) {
         onChange(Interval.merge([...removed, updated]));
@@ -166,7 +166,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
               const dragged = drag && selection.interval.equals(drag.selection);
               const draw = dragged ? drag!.updated : selection.interval;
 
-              if (draw === null) {
+              if (draw === null || !draw.isValid) {
                 return null;
               }
 
