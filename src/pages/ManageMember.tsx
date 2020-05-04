@@ -11,6 +11,7 @@ import {
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 
 import gql from 'graphql-tag';
+import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { Query } from 'react-apollo';
@@ -177,39 +178,49 @@ const ManageMember: React.FC = () => {
   const handleSet = (availability: Availability) => {
     let updated = [...availabilities];
 
+    // Go through each selection and split existing availabilities at the start and end.
     for (const selection of selections) {
-      // Update any engulfed entries.
-      updated
-        .filter(({ interval }) => selection.engulfs(interval))
-        .forEach(value => value = { ...value, ...availability });
-
-      // Split any entries which engulf.
-
-      // Update an existing availability which overlaps the start of the selection.
-      // const start = updated.find(({ interval }) => selection.contains(interval.end));
-
-      // if (start) {
-      //   start.interval = start.interval.set({ end: selection.start });
-      // }
-
-      // // Do the same for abutting end.
-      // const end = updated.find(({ interval }) => selection.contains(interval.start));
-
-      // if (end) {
-      //   end.interval = end.interval.set({ start: selection.end });
-      // }
+      updated = updated.flatMap(value => (
+        value.interval
+          .splitAt(selection.start, selection.end)
+          .map(split => {
+            if (selection.engulfs(split)) {
+              return ({ ...value, ...availability, interval: split });
+            } else {
+              return ({ ...value, interval: split });
+            }
+          })
+      ));
     }
 
     // Create availabilities as required.
-    const missing = Interval.xor([...selections, ...updated.map(a => a.interval)]);
+    const existing = availabilities.map(({ interval }) => interval);
+    const missing = selections.flatMap(selection => selection.difference(...existing));
 
     for (const interval of missing) {
       updated.push({ interval, ...availability });
     }
 
-    // TODO merge adjacent equivalent availabilities.
+    // Sort availabilities.
+    updated.sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis());
 
-    setAvailabilities(updated);
+    // Merge adjacent equivalent availabilities.
+    const merged: AvailabilityInterval[] = [];
+
+    for (const value of updated) {
+      const last = _.last(merged);
+      const merge = last !== undefined &&
+                    last.interval.abutsStart(value.interval) &&
+                    _.isEqual({ ...last, interval: undefined }, { ...value, interval: undefined });
+
+      if (merge) {
+        merged[merged.length - 1].interval = last!.interval.set({ end: value.interval.end });
+      } else {
+        merged.push(value);
+      }
+    }
+
+    setAvailabilities(merged);
   };
 
   const handleToggleClick = () => {
