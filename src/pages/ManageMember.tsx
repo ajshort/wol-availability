@@ -10,6 +10,7 @@ import {
 } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 
+import clsx from 'clsx';
 import gql from 'graphql-tag';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
@@ -19,10 +20,12 @@ import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner';
+import { Typeahead } from 'react-bootstrap-typeahead';
 import { FaBolt, FaExclamationTriangle, FaCheckSquare, FaMinusSquare, FaSquare } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
-import clsx from 'clsx';
+import Form from 'react-bootstrap/Form';
 
 const GET_MEMBER_QUERY = gql`
   query ($number: Int!) {
@@ -136,6 +139,49 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilit
   </React.Fragment>
 );
 
+interface CoverVehicleModalProps {
+  onHide: () => void;
+  onSelect: (vehicle?: string) => void;
+}
+
+const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect }) => {
+  const [vehicle, setVehicle] = useState<string | undefined>();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    onSelect(vehicle);
+    onHide();
+
+    e.preventDefault();
+  };
+
+  return (
+    <Modal show onHide={onHide}>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          <Typeahead
+            allowNew
+            autoFocus
+            options={[
+              'NIC19',
+              'WOL43',
+              'WOL56',
+              'WOL57',
+            ]}
+            placeholder='Select vehicle...'
+            selected={vehicle !== undefined ? [vehicle] : []}
+            onChange={selected => setVehicle(selected.length > 0 ? selected[0] : undefined)}
+          />
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant='secondary' onClick={onHide}>Cancel</Button>
+          <Button variant='primary' type='submit'>Cover Vehicle</Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  );
+};
+
 interface Params {
   member: string;
   week?: string;
@@ -164,6 +210,7 @@ const ManageMember: React.FC = () => {
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [availabilities, setAvailabilities] = useState<AvailabilityInterval[]>([]);
+  const [selectingVehicle, setSelectingVehicle] = useState(false);
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
@@ -300,7 +347,7 @@ const ManageMember: React.FC = () => {
               <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>Support</Dropdown.Item>
               <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
               <Dropdown.Divider />
-              <Dropdown.Item>Cover vehicle&hellip;</Dropdown.Item>
+              <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         );
@@ -320,6 +367,12 @@ const ManageMember: React.FC = () => {
             <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
               {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
             </WeekTable>
+            {selectingVehicle && (
+              <CoverVehicleModal
+                onSelect={vehicle => handleSet({ vehicle })}
+                onHide={() => setSelectingVehicle(false)}
+              />
+            )}
           </Page>
         );
       }}
