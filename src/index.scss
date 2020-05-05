@@ -141,10 +141,10 @@
     text-shadow: 0 0 3px #333;
   }
   .interval-selection-from {
-    @extend .ml-2;
+    @extend .ml-1;
   }
   .interval-selection-to {
-    @extend .mr-2;
+    @extend .mr-1;
   }
   .interval-selection-dragging {
     @extend .shadow;
