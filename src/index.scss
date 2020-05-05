@@ -180,6 +180,7 @@
 .availability-block {
   display: flex;
   padding: 0.5 * $spacer;
+  overflow: hidden;
   position: absolute;
   height: 34px;
   top: 0;
@@ -188,9 +189,16 @@
     font-weight: normal;
   }
 
-  &.availability-success { background: #d4edda; }
-  &.availability-warning { background: #fff3cd; }
-  &.availability-danger { background: #f8d7da; }
+  &.availability-success {
+    background: #d4edda;
+  }
+  &.availability-warning {
+    background: #fff3cd;
+    border-right: 1px solid darken(#fff3cd, 10%);
+  }
+  &.availability-danger {
+    background: #f8d7da;
+  }
 }
 
 .QualificationsDropdownMenu .form-check {
