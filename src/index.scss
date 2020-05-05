@@ -123,22 +123,36 @@
   }
 
   .interval-selection-selection {
+    align-items: center;
     background: rgba($primary, 0.5);
     color: #fff;
     cursor: move;
     display: flex;
     bottom: 0;
     justify-content: space-between;
+    overflow: hidden;
     padding: 0.25 * $spacer;
     position: absolute;
     top: 0;
   }
   .interval-selection-from, .interval-selection-to {
-    font-size: 75%;
+    display: none;
+    font-size: 80%;
+    text-shadow: 0 0 3px #333;
+  }
+  .interval-selection-from {
+    @extend .ml-2;
+  }
+  .interval-selection-to {
+    @extend .mr-2;
   }
   .interval-selection-dragging {
     @extend .shadow;
     background: $primary;
+
+    .interval-selection-from, .interval-selection-to {
+      display: inline;
+    }
   }
 }
 
