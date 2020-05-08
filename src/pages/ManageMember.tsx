@@ -9,13 +9,12 @@ import {
   RescueAvailable,
 } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { useMemberAvailability } from '../queries/availability';
 
 import clsx from 'clsx';
-import gql from 'graphql-tag';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
-import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -26,22 +25,6 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 import { FaBolt, FaExclamationTriangle, FaCheckSquare, FaMinusSquare, FaSquare } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
-
-const GET_MEMBER_QUERY = gql`
-  query ($number: Int!) {
-    member(number: $number) {
-      fullName
-    }
-  }
-`;
-
-interface MemberData {
-  fullName: string;
-}
-
-interface GetMemberData {
-  member: MemberData | null;
-}
 
 interface RescueMemberBadgesProps {
   storm?: StormAvailable;
@@ -208,9 +191,29 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const { loading, error, data } = useMemberAvailability(number, week);
   const [selections, setSelections] = useState<Interval[]>([]);
-  const [availabilities, setAvailabilities] = useState<AvailabilityInterval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
+
+  if (loading) {
+    return (
+      <Page title='Member'>
+        <Alert variant='info' className='m-3'>
+          <Spinner size='sm' animation='border' /> Loading member&hellip;
+        </Alert>
+      </Page>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <Page title='Member'>
+        <Alert variant='danger' className='m-3'> Error loading member.</Alert>
+      </Page>
+    );
+  }
+
+  const { availabilities, member } = data;
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
@@ -220,6 +223,9 @@ const ManageMember: React.FC = () => {
     } else {
       history.push(`/member/${number}/${value.start.toISODate()}`);
     }
+  };
+
+  const setAvailabilities = (availabilities: Availability[]) => {
   };
 
   const handleSet = (availability: Availability) => {
@@ -278,105 +284,79 @@ const ManageMember: React.FC = () => {
     }
   };
 
+  const toggle = (
+    <Button variant='light' className='mr-2' onClick={handleToggleClick}>
+      {(() => {
+        if (selections.some(selection => selection.engulfs(week))) {
+          return <FaCheckSquare />;
+        } else if (selections.length > 0) {
+          return <FaMinusSquare />;
+        }
+
+        return <FaSquare />;
+      })()}
+    </Button>
+  );
+
+  const storm = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='primary'
+        id='storm-dropdown'
+        className='mr-2'
+        disabled={selections.length === 0}
+      >
+        <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
+  const rescue = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='warning'
+        id='rescue-dropdown'
+        className='mr-2'
+        disabled={selections.length === 0}
+      >
+        <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>Immediate</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>Support</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
   return (
-    <Query<GetMemberData> query={GET_MEMBER_QUERY} variables={{ number }}>
-      {({ loading, error, data }) => {
-        if (loading) {
-          return (
-            <Page title='Member'>
-              <Alert variant='info' className='m-3'>
-                <Spinner size='sm' animation='border' /> Loading member&hellip;
-              </Alert>
-            </Page>
-          );
-        }
-
-        if (error || !data || !data.member) {
-          return (
-            <Page title='Member'>
-              <Alert variant='danger' className='m-3'> Error loading member.</Alert>
-            </Page>
-          );
-        }
-
-        const { member } = data;
-
-        const toggle = (
-          <Button variant='light' className='mr-2' onClick={handleToggleClick}>
-            {(() => {
-              if (selections.some(selection => selection.engulfs(week))) {
-                return <FaCheckSquare />;
-              } else if (selections.length > 0) {
-                return <FaMinusSquare />;
-              }
-
-              return <FaSquare />;
-            })()}
-          </Button>
-        );
-
-        const storm = (
-          <Dropdown>
-            <Dropdown.Toggle
-              variant='primary'
-              id='storm-dropdown'
-              className='mr-2'
-              disabled={selections.length === 0}
-            >
-              <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        );
-
-        const rescue = (
-          <Dropdown>
-            <Dropdown.Toggle
-              variant='warning'
-              id='rescue-dropdown'
-              className='mr-2'
-              disabled={selections.length === 0}
-            >
-              <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>Immediate</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>Support</Dropdown.Item>
-              <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
-              <Dropdown.Divider />
-              <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        );
-
-        return (
-          <Page title={member.fullName}>
-            <div className='d-flex justify-content-between border-bottom p-3'>
-              <div className='d-flex align-items-center'>
-                {toggle}
-                {storm}
-                {rescue}
-              </div>
-              <div className='d-flex align-items-center'>
-                <WeekBrowser value={week} onChange={handleChangeWeek} />
-              </div>
-            </div>
-            <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-              {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
-            </WeekTable>
-            {selectingVehicle && (
-              <CoverVehicleModal
-                onSelect={vehicle => handleSet({ vehicle })}
-                onHide={() => setSelectingVehicle(false)}
-              />
-            )}
-          </Page>
-        );
-      }}
-    </Query>
+    <Page title={member.fullName}>
+      <div className='d-flex justify-content-between border-bottom p-3'>
+        <div className='d-flex align-items-center'>
+          {toggle}
+          {storm}
+          {rescue}
+        </div>
+        <div className='d-flex align-items-center'>
+          <WeekBrowser value={week} onChange={handleChangeWeek} />
+        </div>
+      </div>
+      <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
+        {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
+      </WeekTable>
+      {selectingVehicle && (
+        <CoverVehicleModal
+          onSelect={vehicle => handleSet({ vehicle })}
+          onHide={() => setSelectingVehicle(false)}
+        />
+      )}
+    </Page>
   );
 };
 
