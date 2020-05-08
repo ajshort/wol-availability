@@ -112,7 +112,7 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilit
       }
 
       return (
-        <div className={clsx(classes)} style={style}>
+        <div key={intersection.toString()} className={clsx(classes)} style={style}>
           {rescueMember && <RescueMemberBadges storm={storm} rescue={rescue} />}
           {vehicle && <Badge variant='info'>{vehicle}</Badge>}
           {note && <Badge variant='secondary'>{note}</Badge>}
@@ -348,7 +348,7 @@ const ManageMember: React.FC = () => {
         </div>
       </div>
       <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-        {row => <AvailabilityRow interval={row} availabilities={availabilities} rescueMember />}
+        {row => <AvailabilityRow key={row.toString()} interval={row} availabilities={availabilities} rescueMember />}
       </WeekTable>
       {selectingVehicle && (
         <CoverVehicleModal
