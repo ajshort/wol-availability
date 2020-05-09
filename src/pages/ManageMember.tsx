@@ -9,8 +9,13 @@ import {
   RescueAvailable,
 } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
-import { useMemberAvailability } from '../queries/availability';
+import {
+  GET_MEMBER_AVAILABILITY_QUERY,
+  GetMemberAvailabilityData,
+  GetMemberAvailabilityVars,
+} from '../queries/availability';
 
+import { useQuery } from '@apollo/react-hooks';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
@@ -191,7 +196,16 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const { loading, error, data } = useMemberAvailability(number, week);
+  const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
+    GET_MEMBER_AVAILABILITY_QUERY, {
+      variables: {
+        memberNumber: number,
+        start: week.start.toJSDate(),
+        end: week.end.toJSDate(),
+      }
+    }
+  );
+
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
 
@@ -205,7 +219,7 @@ const ManageMember: React.FC = () => {
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !data.member) {
     return (
       <Page title='Member'>
         <Alert variant='danger' className='m-3'> Error loading member.</Alert>
@@ -213,7 +227,11 @@ const ManageMember: React.FC = () => {
     );
   }
 
-  const { availabilities, member } = data;
+  const { member } = data;
+  const availabilities = member.availabilities.map(({ start, end, ...availability }) => {
+    const interval = Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end));
+    return { interval, ...availability } as AvailabilityInterval;
+  });
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
@@ -225,7 +243,7 @@ const ManageMember: React.FC = () => {
     }
   };
 
-  const setAvailabilities = (availabilities: Availability[]) => {
+  const setAvailabilities = (availabilities: AvailabilityInterval[]) => {
   };
 
   const handleSet = (availability: Availability) => {

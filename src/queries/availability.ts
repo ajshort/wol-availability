@@ -1,12 +1,15 @@
-import { AvailabilityInterval, RescueAvailable, StormAvailable } from '../model/availability';
-import { useQuery } from '@apollo/react-hooks';
+import { RescueAvailable, StormAvailable } from '../model/availability';
 import gql from 'graphql-tag';
-import { DateTime, Interval } from 'luxon';
 
-const GET_MEMBER_AVAILABILITY_QUERY = gql`
+export const GET_MEMBER_AVAILABILITY_QUERY = gql`
   query ($memberNumber: Int!, $start: DateTime!, $end: DateTime!) {
     member(number: $memberNumber) {
+      number
       fullName
+      surname
+      rank
+      qualifications
+      team
 
       availabilities(start: $start, end: $end) {
         start
@@ -20,7 +23,16 @@ const GET_MEMBER_AVAILABILITY_QUERY = gql`
   }
 `;
 
-interface MemberAvailabilityData {
+interface MemberData {
+  number: number;
+  fullName: string;
+  surname: string;
+  rank: string;
+  qualifications: string[];
+  team: string;
+}
+
+interface AvailabilityData {
   start: string;
   end: string;
   storm?: StormAvailable;
@@ -29,41 +41,36 @@ interface MemberAvailabilityData {
   note?: string;
 }
 
-interface GetMemberAvailabilityData {
-  member: {
-    fullName: string;
-    availabilities: MemberAvailabilityData[];
-  } | null;
+interface MemberWithAvailabilityData extends MemberData {
+  availabilities: AvailabilityData[];
 }
 
-interface GetMemberAvailabilityVars {
+export interface GetMemberAvailabilityData {
+  member: MemberWithAvailabilityData | null;
+}
+
+export interface GetMemberAvailabilityVars {
   memberNumber: number;
   start: Date;
   end: Date;
 }
 
-export function useMemberAvailability(memberNumber: number, interval: Interval) {
-  const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
-    GET_MEMBER_AVAILABILITY_QUERY,
-    {
-      variables: {
-        memberNumber,
-        start: interval.start.toJSDate(),
-        end: interval.end.toJSDate(),
-      },
-    },
-  );
+export const SET_MEMBER_AVAILABILITY_MUTATION = gql`
+  mutation ($availabilities: [AvailabilityInput!]!) {
+    setAvailabilities(availabilities: $availabilities)
+  }
+`;
 
-  return {
-    loading,
-    error,
-    data: (data !== undefined && data.member !== null) ? ({
-      member: {
-        fullName: data.member.fullName,
-      },
-      availabilities: data.member.availabilities.map(({ start, end, ...rest }) => (<AvailabilityInterval> {
-        interval: Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)), ...rest
-      })),
-    }) : undefined,
-  };
+interface AvailabilityInput {
+  memberNumber: number;
+  start: Date;
+  end: Date;
+  storm?: StormAvailable;
+  rescue?: RescueAvailable;
+  vehicle?: string;
+  note?: string;
+}
+
+export interface SetMemberAvailabilityVars {
+  availabilities: AvailabilityInput[];
 }
