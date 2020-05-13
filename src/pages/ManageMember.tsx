@@ -9,6 +9,7 @@ import {
   RescueAvailable,
 } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { useMutateMemberAvailability } from '../mutations/availability';
 import {
   GET_MEMBER_AVAILABILITY_QUERY,
   GetMemberAvailabilityData,
@@ -206,6 +207,8 @@ const ManageMember: React.FC = () => {
     }
   );
 
+  const [mutate] = useMutateMemberAvailability(number, week);
+
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
 
@@ -244,6 +247,25 @@ const ManageMember: React.FC = () => {
   };
 
   const setAvailabilities = (availabilities: AvailabilityInterval[]) => {
+    mutate({
+      variables: {
+        start: week.start.toJSDate(),
+        end: week.end.toJSDate(),
+        availabilities: [
+          {
+            memberNumber: number,
+            availabilities: availabilities.map(({ interval, storm, rescue, vehicle, note }) => ({
+              start: interval.start.toISO(),
+              end: interval.end.toISO(),
+              storm,
+              rescue,
+              vehicle,
+              note,
+            })),
+          }
+        ]
+      },
+    })
   };
 
   const handleSet = (availability: Availability) => {
@@ -280,9 +302,13 @@ const ManageMember: React.FC = () => {
 
     for (const value of updated) {
       const last = _.last(merged);
-      const merge = last !== undefined &&
-                    last.interval.abutsStart(value.interval) &&
-                    _.isEqual({ ...last, interval: undefined }, { ...value, interval: undefined });
+      const merge =
+        last !== undefined &&
+        last.interval.abutsStart(value.interval) &&
+        _.isEqual(
+          _.pickBy(_.pick(last, ['storm', 'rescue', 'vehicle', 'note']), _.identity),
+          _.pickBy(_.pick(value, ['storm', 'rescue', 'vehicle', 'note']), _.identity),
+        );
 
       if (merge) {
         merged[merged.length - 1].interval = last!.interval.set({ end: value.interval.end });

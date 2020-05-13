@@ -1,4 +1,4 @@
-import { RescueAvailable, StormAvailable } from '../model/availability';
+import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
 export const GET_MEMBER_AVAILABILITY_QUERY = gql`
@@ -12,6 +12,7 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
       team
 
       availabilities(start: $start, end: $end) {
+        _id
         start
         end
         storm
@@ -32,13 +33,9 @@ interface MemberData {
   team: string;
 }
 
-interface AvailabilityData {
+interface AvailabilityData extends Availability {
   start: string;
   end: string;
-  storm?: StormAvailable;
-  rescue?: RescueAvailable;
-  vehicle?: string;
-  note?: string;
 }
 
 interface MemberWithAvailabilityData extends MemberData {
@@ -56,21 +53,30 @@ export interface GetMemberAvailabilityVars {
 }
 
 export const SET_MEMBER_AVAILABILITY_MUTATION = gql`
-  mutation ($availabilities: [AvailabilityInput!]!) {
-    setAvailabilities(availabilities: $availabilities)
+  mutation ($start: DateTime!, $end: DateTime!, $availabilities: [AvailabilityInput!]!) {
+    setAvailabilities(start: $start, end: $end, availabilities: $availabilities) {
+      _id
+      start
+      end
+      storm
+      rescue
+      vehicle
+      note
+    }
   }
 `;
 
-interface AvailabilityInput {
+interface MemberAvailabilityInput {
   memberNumber: number;
-  start: Date;
-  end: Date;
-  storm?: StormAvailable;
-  rescue?: RescueAvailable;
-  vehicle?: string;
-  note?: string;
+  availabilities: AvailabilityData[]
+}
+
+export interface SetMemberAvailabilityData {
+  setAvailabilities: AvailabilityData[];
 }
 
 export interface SetMemberAvailabilityVars {
-  availabilities: AvailabilityInput[];
+  start: Date;
+  end: Date;
+  availabilities: MemberAvailabilityInput[];
 }
