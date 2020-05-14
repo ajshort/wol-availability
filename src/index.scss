@@ -1,6 +1,13 @@
 @import 'bootstrap/scss/bootstrap.scss';
 @import 'react-vis/dist/main.scss';
 
+#root {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
 #app-navbar .navbar-brand img {
   display: inline-block;
   margin-right: 3px;
@@ -12,27 +19,6 @@
   margin-bottom: $spacer;
   margin-top: $spacer;
   max-width: 400px;
-}
-
-.unit-table {
-  thead, tfoot {
-    background: #fff;
-  }
-
-  .team, .shift, .day { text-align: center; }
-  .member, .team { white-space: nowrap; width: 1%; }
-  th.day { border-bottom: none; }
-  thead th.shift { border-top: none; }
-  label { display: block; margin: 0; text-align: center; }
-  td { vertical-align: middle; }
-  th.day, .shift-night, .quals { border-right: 1px solid $table-border-color; }
-}
-
-.member-availability-form {
-  table { border-bottom: 1px solid $table-border-color; }
-  thead th { text-align: center; }
-  label { display: block; margin: 0; text-align: center; }
-  td { vertical-align: middle; }
 }
 
 .week-table {
@@ -199,6 +185,47 @@
   &.availability-danger {
     background: #f8d7da;
   }
+}
+
+.unit-table {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.unit-table-header {
+  font-weight: bold;
+}
+.unit-table-body {
+  flex-grow: 1;
+}
+.unit-table-row {
+  border-bottom: 1px solid $table-border-color;
+  display: flex;
+  flex-direction: row;
+  height: 32px;
+}
+.unit-table-cell {
+  align-items: center;
+  display: flex;
+  padding: 0 0.5 * $spacer;
+  height: 32px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.unit-table-name {
+  width: 180px;
+  img {
+    margin-left: 0.25 * $spacer;
+  }
+}
+.unit-table-team {
+  justify-content: center;
+  width: 80px;
+}
+.unit-table-quals {
+  width: 300px;
 }
 
 .QualificationsDropdownMenu .form-check {

@@ -1,9 +1,9 @@
 import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
-export const GET_MEMBER_AVAILABILITY_QUERY = gql`
-  query ($memberNumber: Int!, $start: DateTime!, $end: DateTime!) {
-    member(number: $memberNumber) {
+export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
+  query ($start: DateTime!, $end: DateTime!) {
+    members {
       number
       fullName
       surname
@@ -38,9 +38,41 @@ interface AvailabilityData extends Availability {
   end: string;
 }
 
-interface MemberWithAvailabilityData extends MemberData {
+export interface MemberWithAvailabilityData extends MemberData {
   availabilities: AvailabilityData[];
 }
+
+export interface GetMembersAvailabilitiesData {
+  members: MemberWithAvailabilityData[];
+}
+
+export interface GetMembersAvailabilitiesVars {
+  start: Date;
+  end: Date;
+}
+
+export const GET_MEMBER_AVAILABILITY_QUERY = gql`
+  query ($memberNumber: Int!, $start: DateTime!, $end: DateTime!) {
+    member(number: $memberNumber) {
+      number
+      fullName
+      surname
+      rank
+      qualifications
+      team
+
+      availabilities(start: $start, end: $end) {
+        _id
+        start
+        end
+        storm
+        rescue
+        vehicle
+        note
+      }
+    }
+  }
+`;
 
 export interface GetMemberAvailabilityData {
   member: MemberWithAvailabilityData | null;

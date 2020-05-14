@@ -11,7 +11,7 @@ import Logout from './pages/Logout';
 import ManageMember from './pages/ManageMember';
 import NotFound from './pages/NotFound';
 import Stats from './pages/Stats';
-import Unit from './pages/Unit';
+import Storm from './pages/Storm';
 
 const App = () => (
   <AuthProvider>
@@ -20,7 +20,7 @@ const App = () => (
         <Switch>
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member/:member/:week?' component={ManageMember} />
-          <ProtectedRoute path='/unit/storm/:week?' component={Unit} />
+          <ProtectedRoute path='/unit/storm/:week?' component={Storm} />
           <ProtectedRoute path='/unit/do/:week?' component={DutyOfficer} />
           <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
