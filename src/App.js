@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Logout from './pages/Logout';
 import ManageMember from './pages/ManageMember';
 import NotFound from './pages/NotFound';
+import { FloodRescue, VerticalRescue } from './pages/Rescue';
 import Stats from './pages/Stats';
 import Storm from './pages/Storm';
 
@@ -21,6 +22,8 @@ const App = () => (
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member/:member/:week?' component={ManageMember} />
           <ProtectedRoute path='/unit/storm/:week?' component={Storm} />
+          <ProtectedRoute path='/unit/fr/:week?' component={FloodRescue} />
+          <ProtectedRoute path='/unit/vr/:week?' component={VerticalRescue} />
           <ProtectedRoute path='/unit/do/:week?' component={DutyOfficer} />
           <ProtectedRoute path='/stats/:week?' component={Stats} />
           <Route path='/login' component={Login} />
