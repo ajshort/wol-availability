@@ -12,9 +12,10 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
+  featuredQualifications: string[];
 }
 
-const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style }) => {
+const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style, featuredQualifications }) => {
   const member = data[index];
 
   return (
@@ -25,14 +26,16 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style }) => {
       <div className='unit-table-cell unit-table-team'>
         <TeamBadge team={member.team} />
       </div>
-      <div className='unit-table-cell unit-table-quals'>
-        {
-          FEATURED
-            .filter(qual => member.qualifications.includes(qual))
-            .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
-            .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
-        }
-      </div>
+      {featuredQualifications.length > 0 && (
+        <div className='unit-table-cell unit-table-quals'>
+          {
+            featuredQualifications
+              .filter(qual => member.qualifications.includes(qual))
+              .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
+              .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
+          }
+        </div>
+      )}
     </div>
   );
 }
@@ -40,10 +43,11 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style }) => {
 export interface UnitTableProps {
   interval: Interval;
   members: MemberWithAvailabilityData[];
+  featuredQualifications?: string[];
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
 }
 
-const UnitTable: React.FC<UnitTableProps> = ({ interval, members, sort }) => {
+const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualifications, sort }) => {
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
   );
@@ -56,12 +60,19 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, sort }) => {
     .map(i => interval.start.startOf('day').plus({ days: i }))
     .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
 
+  // Are we showing qualifications?
+  if (featuredQualifications === undefined) {
+    featuredQualifications = FEATURED;
+  }
+
   return (
     <div className='unit-table'>
       <div className='unit-table-header unit-table-row'>
         <div className='unit-table-cell unit-table-name'>Name</div>
         <div className='unit-table-cell unit-table-team'>Team</div>
-        <div className='unit-table-cell unit-table-quals'>Qualifications</div>
+        {featuredQualifications.length > 0 && (
+          <div className='unit-table-cell unit-table-quals'>Qualifications</div>
+        )}
         {days.map(({ start }) => (
           <div key={start.toString()} className='unit-table-cell unit-table-day'>
             {start.toLocaleString(DateTime.DATE_SHORT)}
@@ -78,7 +89,9 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, sort }) => {
               itemCount={sorted.length}
               itemSize={32}
             >
-              {UnitTableRow}
+              {props => (
+                <UnitTableRow featuredQualifications={featuredQualifications || []} {...props} />
+              )}
             </FixedSizeList>
           )}
         </AutoSizer>
@@ -86,7 +99,9 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, sort }) => {
       <div className='unit-table-footer unit-table-row'>
         <div className='unit-table-cell unit-table-name'>{sorted.length}</div>
         <div className='unit-table-cell unit-table-team'></div>
-        <div className='unit-table-cell unit-table-quals'></div>
+        {featuredQualifications.length > 0 && (
+          <div className='unit-table-cell unit-table-quals'>Qualifications</div>
+        )}
       </div>
     </div>
   );

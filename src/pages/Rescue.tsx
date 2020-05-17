@@ -88,7 +88,14 @@ const Rescue: React.FC<RescueProps> = props => {
           );
         }
 
-        return <UnitTable interval={week} members={data.members} sort={sort} />;
+        return (
+          <UnitTable
+            interval={week}
+            members={data.members}
+            featuredQualifications={qualifications.length > 1 ? qualifications : []}
+            sort={sort}
+          />
+        );
       })()}
     </Page>
   );
