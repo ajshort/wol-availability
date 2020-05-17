@@ -100,7 +100,7 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
         <div className='unit-table-cell unit-table-name'>{sorted.length}</div>
         <div className='unit-table-cell unit-table-team'></div>
         {featuredQualifications.length > 0 && (
-          <div className='unit-table-cell unit-table-quals'>Qualifications</div>
+          <div className='unit-table-cell unit-table-quals'></div>
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import MemberFilter from '../components/MemberFilter';
 import Page from '../components/Page';
 import UnitTable from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
@@ -71,6 +72,7 @@ const Rescue: React.FC<RescueProps> = props => {
         </Nav.Item>
       </Nav>
       <div className='border-bottom p-3'>
+        <MemberFilter />
         <WeekBrowser value={week} onChange={handleWeekChange} />
       </div>
       {(() => {

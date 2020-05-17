@@ -5,12 +5,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { FaChevronDown } from 'react-icons/fa';
 
-import QualificationsDropdown from './QualificationsDropdown';
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 const MemberFilter = (props) => {
   const popover = (
     <Popover title='Filter Members'>
-      <Form>
+      <Form className='p-2'>
         <Form.Group controlId='team-filter'>
           <Form.Label>Team</Form.Label>
           <Form.Control
@@ -20,18 +20,13 @@ const MemberFilter = (props) => {
             onChange={e => props.onTeamChanged(e.target.value)}
           >
             <option value={''}>All</option>
-            {props.teams.map(team => (
-              <option key={team}>{team}</option>
-            ))}
           </Form.Control>
         </Form.Group>
         <Form.Group controlId='qualifications-filter'>
           <Form.Label>Qualifications</Form.Label>
-          <Form.Control
-            as={QualificationsDropdown}
-            variant='info'
-            selected={props.qualifications}
-            onChange={props.onQualificationsChanged}
+          <Typeahead
+            options={[]}
+            onChange={() => {}}
           />
         </Form.Group>
         <Form.Group controlId='hide-blank-filter'>
