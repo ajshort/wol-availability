@@ -8,7 +8,7 @@ import {
   StormAvailable,
   RescueAvailable,
 } from '../model/availability';
-import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { useMutateMemberAvailability } from '../mutations/availability';
 import {
   GET_MEMBER_AVAILABILITY_QUERY,
@@ -204,17 +204,20 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const days = getDayIntervals(week);
+  const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
+
   const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
     GET_MEMBER_AVAILABILITY_QUERY, {
       variables: {
         memberNumber: number,
-        start: week.start.toJSDate(),
-        end: week.end.toJSDate(),
+        start: visible.start.toJSDate(),
+        end: visible.end.toJSDate(),
       }
     }
   );
 
-  const [mutate, { loading: mutating }] = useMutateMemberAvailability(number, week);
+  const [mutate, { loading: mutating }] = useMutateMemberAvailability(number, visible);
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
@@ -254,10 +257,23 @@ const ManageMember: React.FC = () => {
   };
 
   const setAvailabilities = (availabilities: AvailabilityInterval[]) => {
+    // We expand the visible interval to encompass the beginning and end of any set intervals.
+    let bounds = visible;
+
+    for (const { interval: { start, end } } of availabilities) {
+      if (start < bounds.start) {
+        bounds = bounds.set({ start });
+      }
+
+      if (end > bounds.end) {
+        bounds = bounds.set({ end });
+      }
+    }
+
     mutate({
       variables: {
-        start: week.start.toJSDate(),
-        end: week.end.toJSDate(),
+        start: bounds.start.toJSDate(),
+        end: bounds.end.toJSDate(),
         availabilities: [
           {
             memberNumber: number,
@@ -333,10 +349,6 @@ const ManageMember: React.FC = () => {
     setAvailabilities(merged);
   };
 
-  const handleClear = () => {
-    handleSet(undefined);
-  };
-
   const handleToggleClick = () => {
     if (selections.length === 0) {
       setSelections([week]);
@@ -371,7 +383,7 @@ const ManageMember: React.FC = () => {
         className='mr-2'
         disabled={mutating || selections.length === 0}
       >
-        <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
+        <FaBolt /> <span className='d-none d-md-inline'>Storm</span>
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
@@ -405,7 +417,7 @@ const ManageMember: React.FC = () => {
       <Dropdown.Toggle
         variant='light'
         id='more-dropdown'
-        disabled={mutating}
+        disabled={mutating || selections.length === 0}
       >
         <FaEllipsisV />
       </Dropdown.Toggle>
@@ -413,7 +425,7 @@ const ManageMember: React.FC = () => {
         <Dropdown.Item disabled>Save as my default</Dropdown.Item>
         <Dropdown.Item disabled>Set to my default</Dropdown.Item>
         <Dropdown.Divider />
-        <Dropdown.Item onClick={() => handleClear()}>Clear</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet(undefined)}>Clear</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
   );

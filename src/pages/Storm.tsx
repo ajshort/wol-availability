@@ -46,7 +46,7 @@ const ManageMember: React.FC = () => {
   };
 
   return (
-    <Page title='Storm and Support'>
+    <Page title='Storm'>
       <div className='d-flex align-items-center border-bottom p-3'>
         <WeekBrowser value={week} onChange={handleChangeWeek} />
       </div>

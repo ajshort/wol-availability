@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 
 export const TIME_ZONE = 'Australia/Sydney';
@@ -43,10 +44,10 @@ export function getWeekInterval(dt?: DateTime): Interval {
  * Gets the day intervals within an overall interval
  */
 export function getDayIntervals(interval: Interval): Interval[] {
-  return Array
-    .from(Array(interval.count('days')).keys())
-    .map(i => interval.start.plus({ days: i }))
-    .map(dt => Interval.fromDateTimes(dt.startOf('day'), dt.endOf('day')));
+  return _
+    .range(0, interval.count('days'))
+    .map(i => interval.start.startOf('day').plus({ days: i }))
+    .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
 }
 
 /**

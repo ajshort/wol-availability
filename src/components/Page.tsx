@@ -26,7 +26,7 @@ const UnitNavDropdown: React.FC = () => {
   return (
     <NavDropdown id='unit' title='Unit' className={active ? 'active' : null}>
       <LinkContainer to='/unit/storm'>
-        <NavDropdown.Item>Storm and Support</NavDropdown.Item>
+        <NavDropdown.Item>Storm</NavDropdown.Item>
       </LinkContainer>
       <LinkContainer to='/unit/vr'>
         <NavDropdown.Item>Rescue</NavDropdown.Item>
