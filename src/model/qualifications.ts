@@ -113,6 +113,9 @@ export const FLOOD_RESCUE = [
   'Swiftwater Rescue Technician (FR L3)',
 ];
 
+export const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';
+export const FLOOD_RESCUE_L3 = 'Swiftwater Rescue Technician (FR L3)';
+
 export const FEATURED = [
   'Storm and Water Damage Operation',
   'Land Search Team Member',

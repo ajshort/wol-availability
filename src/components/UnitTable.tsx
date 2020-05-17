@@ -40,12 +40,14 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style }) => {
 export interface UnitTableProps {
   interval: Interval;
   members: MemberWithAvailabilityData[];
+  sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
 }
 
-const UnitTable: React.FC<UnitTableProps> = ({ interval, members }) => {
-  const sorted = members.sort((a, b) => (
+const UnitTable: React.FC<UnitTableProps> = ({ interval, members, sort }) => {
+  const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
-  ));
+  );
+  const sorted = members.sort(sort || defaultSort);
 
   // We split the interval into days, then make each day start at 6AM and finish at 6AM of the
   // next day.
