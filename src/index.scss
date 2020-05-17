@@ -120,6 +120,7 @@
     padding: 0.25 * $spacer;
     position: absolute;
     top: 0;
+    z-index: 10;
   }
   .interval-selection-from, .interval-selection-to {
     display: none;
@@ -165,11 +166,13 @@
 
 .availability-block {
   display: flex;
+  cursor: pointer;
   padding: 0.5 * $spacer;
   overflow: hidden;
   position: absolute;
   height: 34px;
   top: 0;
+  z-index: 1;
 
   .badge {
     font-weight: normal;
@@ -231,10 +234,6 @@
 }
 .unit-table-quals {
   width: 300px;
-}
-
-.QualificationsDropdownMenu .form-check {
-  justify-content: left;
 }
 
 #more-dropdown::after {

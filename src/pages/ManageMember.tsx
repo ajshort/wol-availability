@@ -98,42 +98,67 @@ const RescueMemberBadges: React.FC<RescueMemberBadgesProps> = ({ storm, rescue }
 interface AvailabilityRowProps {
   interval: Interval;
   availabilities: AvailabilityInterval[];
+  selections: Interval[];
+  onChangeSelections: (value: Interval[]) => void;
   rescueMember?: boolean;
 }
 
-const AvailabilityRow: React.FC<AvailabilityRowProps> = ({ interval, availabilities, rescueMember }) => (
-  <React.Fragment>
-    {availabilities.filter(a => a.interval.overlaps(interval)).map(availability => {
-      const { storm, rescue, note, vehicle } = availability;
-      const intersection = availability.interval.intersection(interval)!;
+const AvailabilityRow: React.FC<AvailabilityRowProps> = props => {
+  const { interval, availabilities, selections, onChangeSelections, rescueMember } = props;
 
-      const l = getIntervalPosition(interval, intersection.start);
-      const r = 1 - getIntervalPosition(interval, intersection.end);
-      const style = { left: `${100 * l}%`, right: `${100 * r}%` };
+  const handleClick = (clicked: Interval) => {
+    const selected = selections.some(selection => selection.engulfs(clicked));
 
-      // If we're a rescue member, we require both to be green to go green and vice versa for red.
-      // Otherwise we just go yellow. For non-rescue members, just use the colour of the storm
-      // availability.
-      const classes = ['availability-block'];
+    if (selected) {
+    } else {
+    }
 
-      if ((!rescueMember || rescue === 'IMMEDIATE') && storm === 'AVAILABLE') {
-        classes.push('availability-success');
-      } else if ((!rescueMember || rescue === 'UNAVAILABLE') && storm === 'UNAVAILABLE') {
-        classes.push('availability-danger');
-      } else {
-        classes.push('availability-warning');
-      }
+    if (selected) {
+      onChangeSelections(Interval.xor([...selections, clicked]));
+    } else {
+      onChangeSelections(Interval.merge([...selections, clicked]));
+    }
+  };
 
-      return (
-        <div key={intersection.toString()} className={clsx(classes)} style={style}>
-          {rescueMember && <RescueMemberBadges storm={storm} rescue={rescue} />}
-          {vehicle && <Badge variant='info'>{vehicle}</Badge>}
-          {note && <Badge variant='secondary'>{note}</Badge>}
-        </div>
-      );
-    })}
-  </React.Fragment>
-);
+  return (
+    <React.Fragment>
+      {availabilities.filter(a => a.interval.overlaps(interval)).map(availability => {
+        const { storm, rescue, note, vehicle } = availability;
+        const intersection = availability.interval.intersection(interval)!;
+
+        const l = getIntervalPosition(interval, intersection.start);
+        const r = 1 - getIntervalPosition(interval, intersection.end);
+        const style = { left: `${100 * l}%`, right: `${100 * r}%` };
+
+        // If we're a rescue member, we require both to be green to go green and vice versa for red.
+        // Otherwise we just go yellow. For non-rescue members, just use the colour of the storm
+        // availability.
+        const classes = ['availability-block'];
+
+        if ((!rescueMember || rescue === 'IMMEDIATE') && storm === 'AVAILABLE') {
+          classes.push('availability-success');
+        } else if ((!rescueMember || rescue === 'UNAVAILABLE') && storm === 'UNAVAILABLE') {
+          classes.push('availability-danger');
+        } else {
+          classes.push('availability-warning');
+        }
+
+        return (
+          <div
+            key={intersection.toString()}
+            className={clsx(classes)}
+            style={style}
+            onClick={() => handleClick(intersection)}
+          >
+            {rescueMember && <RescueMemberBadges storm={storm} rescue={rescue} />}
+            {vehicle && <Badge variant='info'>{vehicle}</Badge>}
+            {note && <Badge variant='secondary'>{note}</Badge>}
+          </div>
+        );
+      })}
+    </React.Fragment>
+  );
+};
 
 interface CoverVehicleModalProps {
   onHide: () => void;
@@ -444,7 +469,16 @@ const ManageMember: React.FC = () => {
         </div>
       </div>
       <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-        {row => <AvailabilityRow key={row.toString()} interval={row} availabilities={availabilities} rescueMember />}
+        {row => (
+          <AvailabilityRow
+            key={row.toString()}
+            interval={row}
+            availabilities={availabilities}
+            selections={selections}
+            onChangeSelections={setSelections}
+            rescueMember
+          />
+        )}
       </WeekTable>
       {selectingVehicle && (
         <CoverVehicleModal
