@@ -28,7 +28,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner';
 import { Typeahead } from 'react-bootstrap-typeahead';
-import { FaBolt, FaExclamationTriangle, FaCheckSquare, FaMinusSquare, FaSquare } from 'react-icons/fa';
+import {
+  FaBolt,
+  FaEllipsisV,
+  FaExclamationTriangle,
+  FaCheckSquare,
+  FaMinusSquare,
+  FaSquare,
+} from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 
@@ -268,7 +275,7 @@ const ManageMember: React.FC = () => {
     })
   };
 
-  const handleSet = (availability: Availability) => {
+  const handleSet = (availability?: Availability) => {
     let updated = [...availabilities];
 
     // Go through each selection and split existing availabilities at the start and end.
@@ -286,12 +293,18 @@ const ManageMember: React.FC = () => {
       ));
     }
 
-    // Create availabilities as required.
-    const existing = availabilities.map(({ interval }) => interval);
-    const missing = selections.flatMap(selection => selection.difference(...existing));
+    // Create availabilities as required, or delete them if selected.
+    if (availability !== undefined) {
+      const existing = availabilities.map(({ interval }) => interval);
+      const missing = selections.flatMap(selection => selection.difference(...existing));
 
-    for (const interval of missing) {
-      updated.push({ interval, ...availability });
+      for (const interval of missing) {
+        updated.push({ interval, ...availability });
+      }
+    } else {
+      updated = updated.filter(({ interval }) => selections.some(selection => (
+        !selection.engulfs(interval)
+      )));
     }
 
     // Sort availabilities.
@@ -318,6 +331,10 @@ const ManageMember: React.FC = () => {
     }
 
     setAvailabilities(merged);
+  };
+
+  const handleClear = () => {
+    handleSet(undefined);
   };
 
   const handleToggleClick = () => {
@@ -383,6 +400,24 @@ const ManageMember: React.FC = () => {
     </Dropdown>
   );
 
+  const more = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='light'
+        id='more-dropdown'
+        disabled={mutating}
+      >
+        <FaEllipsisV />
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item disabled>Save as my default</Dropdown.Item>
+        <Dropdown.Item disabled>Set to my default</Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => handleClear()}>Clear</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+
   return (
     <Page title={member.fullName}>
       <div className='d-flex justify-content-between border-bottom p-3'>
@@ -390,6 +425,7 @@ const ManageMember: React.FC = () => {
           {toggle}
           {storm}
           {rescue}
+          {more}
         </div>
         <div className='d-flex align-items-center'>
           <WeekBrowser value={week} onChange={handleChangeWeek} />

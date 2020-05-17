@@ -237,6 +237,10 @@
   justify-content: left;
 }
 
+#more-dropdown::after {
+  display: none;
+}
+
 .team-badge-delta { background: #81d4fa; }
 .team-badge-oscar { background: #aa66cc; color: #fff; }
 .team-badge-romeo { background: #00c851; color: #fff; }
