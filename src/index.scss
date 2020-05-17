@@ -198,6 +198,11 @@
 .unit-table-body {
   flex-grow: 1;
 }
+.unit-table-footer {
+  border-bottom: none;
+  border-top: 1px solid $table-border-color;
+  font-weight: bold;
+}
 .unit-table-row {
   border-bottom: 1px solid $table-border-color;
   display: flex;

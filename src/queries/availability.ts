@@ -2,8 +2,8 @@ import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
 export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
-  query ($start: DateTime!, $end: DateTime!) {
-    members {
+  query ($filter: MemberFilter, $start: DateTime!, $end: DateTime!) {
+    members(filter: $filter) {
       number
       fullName
       surname
@@ -46,7 +46,13 @@ export interface GetMembersAvailabilitiesData {
   members: MemberWithAvailabilityData[];
 }
 
+interface MemberFilter {
+  team?: string;
+  qualificationsAny?: string[];
+}
+
 export interface GetMembersAvailabilitiesVars {
+  filter?: MemberFilter;
   start: Date;
   end: Date;
 }
