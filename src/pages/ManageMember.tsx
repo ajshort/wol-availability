@@ -207,7 +207,7 @@ const ManageMember: React.FC = () => {
     }
   );
 
-  const [mutate] = useMutateMemberAvailability(number, week);
+  const [mutate, { loading: mutating }] = useMutateMemberAvailability(number, week);
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
@@ -331,6 +331,10 @@ const ManageMember: React.FC = () => {
   const toggle = (
     <Button variant='light' className='mr-2' onClick={handleToggleClick}>
       {(() => {
+        if (mutating) {
+          return <Spinner animation='border' size='sm' />;
+        }
+
         if (selections.some(selection => selection.engulfs(week))) {
           return <FaCheckSquare />;
         } else if (selections.length > 0) {
@@ -348,7 +352,7 @@ const ManageMember: React.FC = () => {
         variant='primary'
         id='storm-dropdown'
         className='mr-2'
-        disabled={selections.length === 0}
+        disabled={mutating || selections.length === 0}
       >
         <FaBolt /> <span className='d-none d-md-inline'>Storm and support</span>
       </Dropdown.Toggle>
@@ -365,7 +369,7 @@ const ManageMember: React.FC = () => {
         variant='warning'
         id='rescue-dropdown'
         className='mr-2'
-        disabled={selections.length === 0}
+        disabled={mutating || selections.length === 0}
       >
         <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
       </Dropdown.Toggle>
