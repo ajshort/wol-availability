@@ -1,6 +1,7 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
+import { getDayIntervals } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -12,11 +13,13 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
+  week: Interval;
   featuredQualifications: string[];
 }
 
-const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style, featuredQualifications }) => {
+const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, featuredQualifications }) => {
   const member = data[index];
+  const days = getDayIntervals(week);
 
   return (
     <div className='unit-table-row' style={style}>
@@ -36,6 +39,12 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, index, style, feature
           }
         </div>
       )}
+      <div className='unit-table-days'>
+        {days.map(({ start }) => (
+          <div key={start.toString()} className='unit-table-cell unit-table-day'>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -73,11 +82,13 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
         {featuredQualifications.length > 0 && (
           <div className='unit-table-cell unit-table-quals'>Qualifications</div>
         )}
-        {days.map(({ start }) => (
-          <div key={start.toString()} className='unit-table-cell unit-table-day'>
-            {start.toLocaleString(DateTime.DATE_SHORT)}
-          </div>
-        ))}
+        <div className='unit-table-days'>
+          {days.map(({ start }) => (
+            <div key={start.toString()} className='unit-table-cell unit-table-day'>
+              {start.toLocaleString(DateTime.DATE_SHORT)}
+            </div>
+          ))}
+        </div>
       </div>
       <div className='unit-table-body'>
         <AutoSizer>
@@ -90,7 +101,7 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
               itemSize={32}
             >
               {props => (
-                <UnitTableRow featuredQualifications={featuredQualifications || []} {...props} />
+                <UnitTableRow week={interval} featuredQualifications={featuredQualifications || []} {...props} />
               )}
             </FixedSizeList>
           )}

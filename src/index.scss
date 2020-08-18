@@ -221,6 +221,18 @@
   overflow: hidden;
   white-space: nowrap;
 }
+.unit-table-days {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+
+  .unit-table-day {
+    border-left: 1px solid $table-border-color;
+    width: 12.5%;
+    min-width: 100px;
+    justify-content: center;
+  }
+}
 
 .unit-table-name {
   width: 180px;

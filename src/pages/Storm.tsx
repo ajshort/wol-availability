@@ -1,3 +1,4 @@
+import { filterAcceptsMember, MemberFilter, MemberFilterButton} from '../components/MemberFilter';
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
@@ -9,7 +10,7 @@ import {
 } from '../queries/availability';
 
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
@@ -31,6 +32,8 @@ const ManageMember: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
+
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
@@ -47,8 +50,13 @@ const ManageMember: React.FC = () => {
 
   return (
     <Page title='Storm'>
-      <div className='d-flex align-items-center border-bottom p-3'>
-        <WeekBrowser value={week} onChange={handleChangeWeek} />
+      <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
+        <div>
+          <MemberFilterButton id='storm-member-filter' value={filter} onChange={setFilter} />
+        </div>
+        <div>
+          <WeekBrowser value={week} onChange={handleChangeWeek} />
+        </div>
       </div>
       {(() => {
         if (loading) {
@@ -65,7 +73,12 @@ const ManageMember: React.FC = () => {
           );
         }
 
-        return <UnitTable interval={week} members={data.members} />;
+        return (
+          <UnitTable
+            interval={week}
+            members={data.members.filter(member => filterAcceptsMember(filter, member))}
+          />
+        );
       })()}
     </Page>
   );

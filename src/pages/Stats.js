@@ -25,7 +25,7 @@ import _ from 'lodash';
 
 import Page from '../components/Page';
 import { SHIFTS, WEEK_START_DAY } from '../config';
-import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../teams';
+import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { getMemberShiftAvailability, getWeekEnd, getWeekStart } from '../utils';
 
 const TEAM_COLOURS = {
