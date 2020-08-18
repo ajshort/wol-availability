@@ -95,7 +95,7 @@ const ManageMember: React.FC = () => {
                     })}
                     style={{
                       left: `${left * 100}%`,
-                      right: `${right * 100}%`,
+                      right: `${(1 - right) * 100}%`,
                     }}
                   />
                 );
