@@ -7,7 +7,8 @@ import { MemberWithAvailabilityData } from '../queries/availability';
 
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
+import React, { useState } from 'react';
+import ScrollbarSize, { ScrollbarSizeChangeHandlerParams } from 'react-scrollbar-size';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
@@ -74,9 +75,17 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
     featuredQualifications = FEATURED;
   }
 
+  // We need to track the scrollbar size for sticky headers etc.
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  const handleScrollbarSizeChange = ({ width }: ScrollbarSizeChangeHandlerParams) => {
+    setScrollbarWidth(width);
+  };
+
   return (
     <div className='unit-table'>
-      <div className='unit-table-header unit-table-row'>
+      <ScrollbarSize onChange={handleScrollbarSizeChange} />
+      <div className='unit-table-header unit-table-row' style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>Name</div>
         <div className='unit-table-cell unit-table-team'>Team</div>
         {featuredQualifications.length > 0 && (
@@ -107,7 +116,7 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
           )}
         </AutoSizer>
       </div>
-      <div className='unit-table-footer unit-table-row'>
+      <div className='unit-table-footer unit-table-row' style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>{sorted.length}</div>
         <div className='unit-table-cell unit-table-team'></div>
         {featuredQualifications.length > 0 && (

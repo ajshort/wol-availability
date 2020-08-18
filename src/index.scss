@@ -210,6 +210,8 @@
   border-bottom: 1px solid $table-border-color;
   display: flex;
   flex-direction: row;
+}
+.unit-table-body .unit-table-row {
   height: 32px;
 }
 .unit-table-cell {
