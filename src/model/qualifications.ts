@@ -136,16 +136,15 @@ export const SUPPRESSED_BY: { [key: string]: string } = {
 };
 
 export const ABBREVIATIONS: { [key: string]: string } = {
-  'Bush Fire Awareness': 'BFA',
   'Chainsaw Operator (Cross-Cut & Limb)': 'CS',
   'Chainsaw Operator (Tree Felling)': 'CS2',
-  'Flood Rescue Boat Operator (FR L2)': 'L2',
+  'Flood Rescue Boat Operator (FR L2)': 'OW',
   'IMT Member': 'IMT',
   'Incident Controller': 'IC',
   'Key holder': '🔑',
   'Land Search Team Member': 'LS',
   'Storm and Water Damage Operation': 'SWD',
-  'Swiftwater Rescue Awareness (FR L1)': 'L1',
-  'Swiftwater Rescue Technician (FR L3)': 'L3',
+  'Swiftwater Rescue Awareness (FR L1)': 'LB',
+  'Swiftwater Rescue Technician (FR L3)': 'IW',
   'Vertical Rescue (PUASAR004B/PUASAR032A)': 'VR',
 };
