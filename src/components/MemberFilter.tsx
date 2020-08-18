@@ -93,6 +93,16 @@ export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvai
     }
   }
 
+  if (filter.hideBlankAndUnavailable) {
+    if (member.availabilities.length === 0) {
+      return false;
+    }
+
+    if (!member.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
+      return false;
+    }
+  }
+
   if (filter.hideFlexibleAndSupport) {
     const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
     const filteredTo = filter.team === member.team;
