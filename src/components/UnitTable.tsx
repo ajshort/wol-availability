@@ -5,6 +5,7 @@ import { getDayIntervals } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
+import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
@@ -51,13 +52,14 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, f
 }
 
 export interface UnitTableProps {
+  className?: string;
   interval: Interval;
   members: MemberWithAvailabilityData[];
   featuredQualifications?: string[];
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
 }
 
-const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualifications, sort }) => {
+const UnitTable: React.FC<UnitTableProps> = ({ className, interval, members, featuredQualifications, sort }) => {
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
   );
@@ -83,7 +85,7 @@ const UnitTable: React.FC<UnitTableProps> = ({ interval, members, featuredQualif
   };
 
   return (
-    <div className='unit-table'>
+    <div className={clsx(className, 'unit-table')}>
       <ScrollbarSize onChange={handleScrollbarSizeChange} />
       <div className='unit-table-header unit-table-row' style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>Name</div>

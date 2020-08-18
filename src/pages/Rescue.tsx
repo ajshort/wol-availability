@@ -90,6 +90,7 @@ const Rescue: React.FC<RescueProps> = props => {
 
         return (
           <UnitTable
+            className='unit-table-rescue'
             interval={week}
             members={data.members}
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
