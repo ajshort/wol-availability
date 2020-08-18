@@ -17,7 +17,7 @@ import Page from '../components/Page';
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
-import { FEATURED, SUPPRESSED_BY } from '../qualifications';
+import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { formatMobile } from '../utils';
 
 const SHIFT_TEAMS_QUERY = gql`

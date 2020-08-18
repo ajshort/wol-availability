@@ -1,3 +1,4 @@
+import { ALL } from '../model/qualifications';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -42,8 +43,10 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
         <Form.Group controlId='qualifications-filter'>
           <Form.Label>Qualifications</Form.Label>
           <Typeahead
-            options={[]}
-            onChange={() => {}}
+            multiple
+            options={ALL}
+            selected={value.qualifications}
+            onChange={qualifications => onChange({ ...value, qualifications })}
           />
         </Form.Group>
         <Form.Group controlId='hide-blank-filter'>
@@ -51,7 +54,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             type='checkbox'
             label='Hide blank and unavailable?'
             checked={value.hideBlankAndUnavailable}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => (
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
               { ...value, hideBlankAndUnavailable: e.target.checked}
             )}
           />
@@ -61,7 +64,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             type='checkbox'
             label='Hide blank flexible and support?'
             checked={value.hideFlexibleAndSupport}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => (
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
               { ...value, hideFlexibleAndSupport: e.target.checked}
             )}
           />
@@ -82,6 +85,14 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
 };
 
 export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvailabilityData) {
+  if (filter.qualifications && filter.qualifications.length > 0) {
+    for (const qual of filter.qualifications) {
+      if (!member.qualifications.includes(qual)) {
+        return false;
+      }
+    }
+  }
+
   if (filter.hideFlexibleAndSupport) {
     const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
     const filteredTo = filter.team === member.team;

@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';
 
-import { ABBREVIATIONS } from '../qualifications';
+import { ABBREVIATIONS } from '../model/qualifications';
 
 const QualificationBadge = ({ qualification, className }) => {
   const classes = ['qual-badge', className];
