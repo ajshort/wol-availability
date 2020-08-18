@@ -2,13 +2,14 @@ import { filterAcceptsMember, MemberFilter, MemberFilterButton} from '../compone
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
-import { getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getWeekInterval, getIntervalPosition, TIME_ZONE } from '../model/dates';
 import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
   GetMembersAvailabilitiesData,
   GetMembersAvailabilitiesVars,
 } from '../queries/availability';
 
+import clsx from 'clsx';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from 'react-apollo';
@@ -77,6 +78,29 @@ const ManageMember: React.FC = () => {
           <UnitTable
             interval={week}
             members={data.members.filter(member => filterAcceptsMember(filter, member))}
+            renderMember={(interval, member) => (
+              member.availabilities.map(availability => {
+                if (availability.storm === undefined) {
+                  return null;
+                }
+
+                const left = getIntervalPosition(interval, DateTime.fromISO(availability.start));
+                const right = getIntervalPosition(interval, DateTime.fromISO(availability.end));
+
+                return (
+                  <div
+                    className={clsx('unit-table-availability-block', {
+                      'availability-success': availability.storm === 'AVAILABLE',
+                      'availability-danger': availability.storm === 'UNAVAILABLE',
+                    })}
+                    style={{
+                      left: `${left * 100}%`,
+                      right: `${right * 100}%`,
+                    }}
+                  />
+                );
+              })
+            )}
           />
         );
       })()}

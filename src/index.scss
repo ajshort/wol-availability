@@ -164,6 +164,17 @@
   border-right: 1px solid darken(#b8daff, 20);
 }
 
+.availability-success {
+  background: #d4edda;
+}
+.availability-warning {
+  background: #fff3cd;
+  border-right: 1px solid darken(#fff3cd, 10%);
+}
+.availability-danger {
+  background: #f8d7da;
+}
+
 .availability-block {
   display: flex;
   cursor: pointer;
@@ -176,17 +187,6 @@
 
   .badge {
     font-weight: normal;
-  }
-
-  &.availability-success {
-    background: #d4edda;
-  }
-  &.availability-warning {
-    background: #fff3cd;
-    border-right: 1px solid darken(#fff3cd, 10%);
-  }
-  &.availability-danger {
-    background: #f8d7da;
   }
 }
 
@@ -227,6 +227,7 @@
   display: flex;
   flex-direction: row;
   flex-grow: 1;
+  position: relative;
 
   .unit-table-day {
     border-left: 1px solid $table-border-color;
@@ -251,6 +252,12 @@
 }
 .unit-table-rescue .unit-table-quals {
   width: 140px;
+}
+
+.unit-table-availability-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
 }
 
 #more-dropdown::after {

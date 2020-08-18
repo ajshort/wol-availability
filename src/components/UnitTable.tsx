@@ -8,7 +8,7 @@ import { MemberWithAvailabilityData } from '../queries/availability';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import ScrollbarSize, { ScrollbarSizeChangeHandlerParams } from 'react-scrollbar-size';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -17,11 +17,13 @@ interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
   week: Interval;
   featuredQualifications: string[];
+  renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
 }
 
-const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, featuredQualifications }) => {
+const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, featuredQualifications, renderMember }) => {
   const member = data[index];
   const days = getDayIntervals(week);
+  const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
   return (
     <div className='unit-table-row' style={style}>
@@ -42,9 +44,9 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, f
         </div>
       )}
       <div className='unit-table-days'>
+        {renderMember ? renderMember(interval, member) : null}
         {days.map(({ start }) => (
-          <div key={start.toString()} className='unit-table-cell unit-table-day'>
-          </div>
+          <div key={start.toString()} className='unit-table-cell unit-table-day' />
         ))}
       </div>
     </div>
@@ -56,10 +58,13 @@ export interface UnitTableProps {
   interval: Interval;
   members: MemberWithAvailabilityData[];
   featuredQualifications?: string[];
+  renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
 }
 
-const UnitTable: React.FC<UnitTableProps> = ({ className, interval, members, featuredQualifications, sort }) => {
+const UnitTable: React.FC<UnitTableProps> = props => {
+  const { className, interval, members, sort, renderMember } = props;
+
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
   );
@@ -73,11 +78,9 @@ const UnitTable: React.FC<UnitTableProps> = ({ className, interval, members, fea
     .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
 
   // Are we showing qualifications?
-  if (featuredQualifications === undefined) {
-    featuredQualifications = FEATURED;
-  }
+  const featuredQualifications = props.featuredQualifications || FEATURED;
 
-  // We need to track the scrollbar size for sticky headers etc.
+  // We need to track the scrollbar to offset the header and footer.
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const handleScrollbarSizeChange = ({ width }: ScrollbarSizeChangeHandlerParams) => {
@@ -112,7 +115,12 @@ const UnitTable: React.FC<UnitTableProps> = ({ className, interval, members, fea
               itemSize={32}
             >
               {props => (
-                <UnitTableRow week={interval} featuredQualifications={featuredQualifications || []} {...props} />
+                <UnitTableRow
+                  week={interval}
+                  featuredQualifications={featuredQualifications || []}
+                  renderMember={renderMember}
+                  {...props}
+                />
               )}
             </FixedSizeList>
           )}
