@@ -169,7 +169,6 @@
 }
 .availability-warning {
   background: #fff3cd;
-  border-right: 1px solid darken(#fff3cd, 10%);
 }
 .availability-danger {
   background: #f8d7da;
@@ -187,6 +186,10 @@
 
   .badge {
     font-weight: normal;
+  }
+
+  &.availability-warning {
+    border-right: 1px solid darken(#fff3cd, 10%);
   }
 }
 
@@ -255,9 +258,16 @@
 }
 
 .unit-table-availability-block {
+  align-items: center;
+  display: flex;
+  padding: 0.5 * $spacer;
   position: absolute;
   top: 0;
   bottom: 0;
+
+  .badge {
+    font-weight: normal;
+  }
 }
 
 #more-dropdown::after {

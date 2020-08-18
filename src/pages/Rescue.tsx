@@ -1,7 +1,7 @@
 import Page from '../components/Page';
 import UnitTable from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
-import { getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   FLOOD_RESCUE,
   FLOOD_RESCUE_L2,
@@ -15,10 +15,12 @@ import {
   MemberWithAvailabilityData,
 } from '../queries/availability';
 
+import clsx from 'clsx';
 import { DateTime, Interval } from 'luxon';
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';
@@ -95,6 +97,34 @@ const Rescue: React.FC<RescueProps> = props => {
             members={data.members}
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
             sort={sort}
+            renderMember={(interval, member) => (
+              member.availabilities.map(availability => {
+                if (availability.rescue === undefined) {
+                  return null;
+                }
+
+                const left = getIntervalPosition(interval, DateTime.fromISO(availability.start));
+                const right = getIntervalPosition(interval, DateTime.fromISO(availability.end));
+
+                return (
+                  <div
+                    className={clsx('unit-table-availability-block', {
+                      'availability-success': availability.rescue === 'IMMEDIATE',
+                      'availability-warning': availability.rescue === 'SUPPORT',
+                      'availability-danger': availability.rescue === 'UNAVAILABLE',
+                    })}
+                    style={{
+                      left: `${left * 100}%`,
+                      right: `${(1 - right) * 100}%`,
+                    }}
+                  >
+                    {availability.vehicle && (
+                      <Badge variant='info'>{availability.vehicle}</Badge>
+                    )}
+                  </div>
+                );
+              })
+            )}
           />
         );
       })()}
