@@ -205,7 +205,7 @@
   flex-grow: 1;
 }
 .unit-table-footer {
-  border-bottom: none;
+  border-bottom: none !important;
   border-top: 1px solid $table-border-color;
   font-weight: bold;
 }

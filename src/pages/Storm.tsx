@@ -74,10 +74,12 @@ const ManageMember: React.FC = () => {
           );
         }
 
+        const members = data.members.filter(member => filterAcceptsMember(filter, member));
+
         return (
           <UnitTable
             interval={week}
-            members={data.members.filter(member => filterAcceptsMember(filter, member))}
+            members={members}
             renderMember={(interval, member) => (
               member.availabilities.map(availability => {
                 if (availability.storm === undefined) {
@@ -102,6 +104,12 @@ const ManageMember: React.FC = () => {
                 );
               })
             )}
+            footers={[
+              {
+                title: members.length.toString(),
+                included: availability => availability.storm === 'AVAILABLE',
+              },
+            ]}
           />
         );
       })()}

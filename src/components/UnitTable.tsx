@@ -1,7 +1,7 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
-import { calculateMinimumAvailabilities } from '../model/availability';
+import { Availability, calculateMinimumAvailabilities } from '../model/availability';
 import { getDayIntervals } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
@@ -57,6 +57,12 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, days, index, style, f
   );
 }
 
+export interface UnitTableFooter {
+  title?: string;
+  included: (availability: Availability) => boolean;
+  highlightLessThan?: number;
+}
+
 export interface UnitTableProps {
   className?: string;
   interval: Interval;
@@ -64,10 +70,11 @@ export interface UnitTableProps {
   featuredQualifications?: string[];
   renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
+  footers?: UnitTableFooter[];
 }
 
 const UnitTable: React.FC<UnitTableProps> = props => {
-  const { className, interval, members, sort, renderMember } = props;
+  const { className, interval, members, sort, renderMember, footers } = props;
 
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
@@ -87,13 +94,6 @@ const UnitTable: React.FC<UnitTableProps> = props => {
   const handleScrollbarSizeChange = ({ width }: ScrollbarSizeChangeHandlerParams) => {
     setScrollbarWidth(width);
   };
-
-  // We figure out the minimum number of members available at any one time for each block.
-  const counts = days.map(day => calculateMinimumAvailabilities(
-    day.divideEqually(4),
-    members,
-    availability => availability.storm === 'AVAILABLE'
-  ));
 
   return (
     <div className={clsx(className, 'unit-table')}>
@@ -134,22 +134,38 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           )}
         </AutoSizer>
       </div>
-      <div className='unit-table-footer unit-table-row' style={{ paddingRight: scrollbarWidth }}>
-        <div className='unit-table-cell unit-table-name'>{sorted.length}</div>
-        <div className='unit-table-cell unit-table-team'></div>
-        {featuredQualifications.length > 0 && (
-          <div className='unit-table-cell unit-table-quals'></div>
-        )}
-        <div className='unit-table-days'>
-          {_.zip(days, counts).map(([day, counts]) => (
-            <div key={day!.start.toString()} className='unit-table-day'>
-              {counts!.map((count, i) => (
-                <div key={i} className='unit-table-day-block'>{count}</div>
+      {footers && footers.map(({ title, included, highlightLessThan }) => {
+        // We figure out the minimum number of members available at any one time for each block.
+        const counts = days.map(day => calculateMinimumAvailabilities(
+          day.divideEqually(4), members, included
+        ));
+
+        return (
+          <div className='unit-table-footer unit-table-row' style={{ paddingRight: scrollbarWidth }}>
+            <div className='unit-table-cell unit-table-name'>{title}</div>
+            <div className='unit-table-cell unit-table-team'></div>
+            {featuredQualifications.length > 0 && (
+              <div className='unit-table-cell unit-table-quals'></div>
+            )}
+            <div className='unit-table-days'>
+              {_.zip(days, counts).map(([day, counts]) => (
+                <div key={day!.start.toString()} className='unit-table-day'>
+                  {counts!.map((count, i) => (
+                    <div
+                      key={i}
+                      className={clsx('unit-table-day-block',{
+                        'text-danger': highlightLessThan !== undefined && count < highlightLessThan,
+                      })}
+                    >
+                      {count}
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        )
+      })}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import Page from '../components/Page';
-import UnitTable from '../components/UnitTable';
+import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
@@ -24,12 +24,13 @@ import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 interface RescueProps {
   title: string;
   qualifications: string[];
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
+  footers?: UnitTableFooter[];
 }
 
 interface Params {
@@ -37,7 +38,9 @@ interface Params {
 }
 
 const Rescue: React.FC<RescueProps> = props => {
-  const { title, qualifications, sort } = props;
+  const { title, qualifications, sort, footers } = props;
+
+  const history = useHistory();
   const params = useParams<Params>();
 
   let week: Interval;
@@ -59,7 +62,8 @@ const Rescue: React.FC<RescueProps> = props => {
     },
   );
 
-  const handleWeekChange = () => {
+  const handleWeekChange = (value: Interval) => {
+    // history.push(`/unit/storm/${value.start.toISODate()}`);
   };
 
   return (
@@ -125,6 +129,7 @@ const Rescue: React.FC<RescueProps> = props => {
                 );
               })
             )}
+            footers={footers}
           />
         );
       })()}
@@ -150,10 +155,39 @@ export const FloodRescue: React.FC = () => {
       sort={(a, b) => (
         level(b) - level(a) || a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
       )}
+      footers={[
+        {
+          title: 'In-water',
+          included: availability => availability.rescue === 'IMMEDIATE',
+          highlightLessThan: 3,
+        },
+        {
+          title: 'On-water',
+          included: availability => availability.rescue === 'SUPPORT',
+        },
+        {
+          title: 'On-land',
+          included: availability => availability.rescue === 'SUPPORT',
+        },
+      ]}
     />
   );
 };
 
 export const VerticalRescue: React.FC = () => (
-  <Rescue title='Vertical Rescue' qualifications={VERTICAL_RESCUE} />
+  <Rescue
+    title='Vertical Rescue'
+    qualifications={VERTICAL_RESCUE}
+    footers={[
+      {
+        title: 'Immediate',
+        included: availability => availability.rescue === 'IMMEDIATE',
+        highlightLessThan: 3,
+      },
+      {
+        title: 'Support',
+        included: availability => availability.rescue === 'SUPPORT',
+      },
+    ]}
+  />
 );
