@@ -4,17 +4,27 @@ import RankImage from '../components/RankImage';
 import { MemberData } from '../queries/members';
 import TeamBadge from '../components/TeamBadge';
 import { StormAvailable, RescueAvailable } from '../model/availability';
-import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
+import {
+  FEATURED,
+  FLOOD_RESCUE,
+  FLOOD_RESCUE_L1,
+  FLOOD_RESCUE_L2,
+  FLOOD_RESCUE_L3,
+  SUPPRESSED_BY,
+  VERTICAL_RESCUE,
+} from '../model/qualifications';
 import { formatMobile } from '../utils';
 
 import gql from 'graphql-tag';
-import React from 'react';
+import React, { useState } from 'react';
 import { Query } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
@@ -120,7 +130,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
   return (
     <Card>
       <Card.Header className='d-flex justify-content-between align-items-center'>
-        Available Members
+        Storm
         <LinkContainer to='/member/me'>
           <Button variant='primary' size='sm'>
             My availability
@@ -159,6 +169,83 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
       )}
     </Card>
   );
+};
+
+interface RescueCardProps {
+  availabilties: AvailableData[];
+}
+
+const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
+  const [key, setKey] = useState('vr');
+
+  const vertical = availabilties.filter(({ member: { qualifications } }) => qualifications.some(
+    qual => VERTICAL_RESCUE.indexOf(qual) !== -1
+  ));
+
+  const flood = availabilties.filter(({ member: { qualifications } }) => qualifications.some(
+    qual => FLOOD_RESCUE.indexOf(qual) !== -1
+  ));
+
+  const vr = { immediate: 0, support: 0 };
+  const fr = { l1: 0, l2: 0, l3: 0 };
+
+  for (const { member: { qualifications }, rescue } of availabilties) {
+    if (qualifications.some(qual => VERTICAL_RESCUE.indexOf(qual) !== -1)) {
+      if (rescue === 'IMMEDIATE') {
+        vr.immediate++;
+      } else if (rescue === 'SUPPORT') {
+        vr.support++;
+      }
+    }
+
+    if (rescue !== 'IMMEDIATE') {
+      continue;
+    }
+
+    let counted = false;
+
+    if (qualifications.includes(FLOOD_RESCUE_L3)) {
+      fr.l3++;
+      counted = true;
+    }
+    if (qualifications.includes(FLOOD_RESCUE_L2)) {
+      fr.l2++;
+      counted = true;
+    }
+    if (!counted && qualifications.includes(FLOOD_RESCUE_L1)) {
+      fr.l1++;
+    }
+  }
+
+  const featured = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
+
+  return (
+    <Card>
+      <Card.Header>
+        <Nav variant='tabs' activeKey={key} onSelect={setKey}>
+          <Nav.Item>
+            <Nav.Link eventKey='vr'>
+              Vertical Rescue{' '}
+              <Badge variant='success'>{vr.immediate}</Badge>{' '}
+              <Badge variant='warning'>{vr.support}</Badge>
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="fr">
+              Flood Rescue{' '}
+              <Badge className='qual-badge-iw'>{fr.l3}</Badge>{' '}
+              <Badge className='qual-badge-ow'>{fr.l2}</Badge>{' '}
+              <Badge className='qual-badge-lb'>{fr.l1}</Badge>
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+      </Card.Header>
+      {key === 'vr' && (
+        <ListGroup variant='flush'>
+        </ListGroup>
+      )}
+    </Card>
+  );
 }
 
 const Home: React.FC = () => (
@@ -186,6 +273,9 @@ const Home: React.FC = () => (
                   <StormCard
                     members={data.availableAt.filter(({ storm }) => storm === 'AVAILABLE').map(val => val.member)}
                   />
+                </Col>
+                <Col md={6}>
+                  <RescueCard availabilties={data.availableAt} />
                 </Col>
               </Row>
             </React.Fragment>
