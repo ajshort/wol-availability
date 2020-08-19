@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Analytics from './components/Analytics';
 import { AuthProvider } from './components/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ChooseMember from './pages/ChooseMember';
 import DutyOfficer from './pages/DutyOfficer';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -21,6 +22,7 @@ const App = () => (
         <Switch>
           <ProtectedRoute path='/' exact component={Home} />
           <ProtectedRoute path='/member/:member/:week?' component={ManageMember} />
+          <ProtectedRoute path='/member' component={ChooseMember} />
           <ProtectedRoute path='/unit/storm/:week?' component={Storm} />
           <ProtectedRoute path='/unit/fr/:week?' component={FloodRescue} />
           <ProtectedRoute path='/unit/vr/:week?' component={VerticalRescue} />

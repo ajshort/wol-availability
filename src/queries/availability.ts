@@ -1,3 +1,4 @@
+import { MemberFilter } from './members';
 import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
@@ -44,11 +45,6 @@ export interface MemberWithAvailabilityData extends MemberData {
 
 export interface GetMembersAvailabilitiesData {
   members: MemberWithAvailabilityData[];
-}
-
-interface MemberFilter {
-  team?: string;
-  qualificationsAny?: string[];
 }
 
 export interface GetMembersAvailabilitiesVars {
