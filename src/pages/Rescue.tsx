@@ -28,6 +28,7 @@ import { useHistory, useParams } from 'react-router-dom';
 
 interface RescueProps {
   title: string;
+  baseUrl: string;
   qualifications: string[];
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
   footers?: UnitTableFooter[];
@@ -38,7 +39,7 @@ interface Params {
 }
 
 const Rescue: React.FC<RescueProps> = props => {
-  const { title, qualifications, sort, footers } = props;
+  const { title, baseUrl, qualifications, sort, footers } = props;
 
   const history = useHistory();
   const params = useParams<Params>();
@@ -63,7 +64,7 @@ const Rescue: React.FC<RescueProps> = props => {
   );
 
   const handleWeekChange = (value: Interval) => {
-    // history.push(`/unit/storm/${value.start.toISODate()}`);
+    history.push(`${baseUrl}/${value.start.toISODate()}`);
   };
 
   return (
@@ -151,6 +152,7 @@ export const FloodRescue: React.FC = () => {
   return (
     <Rescue
       title='Flood Rescue'
+      baseUrl='/unit/fr'
       qualifications={FLOOD_RESCUE}
       sort={(a, b) => (
         level(b) - level(a) || a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
@@ -177,6 +179,7 @@ export const FloodRescue: React.FC = () => {
 export const VerticalRescue: React.FC = () => (
   <Rescue
     title='Vertical Rescue'
+    baseUrl='/unit/vr'
     qualifications={VERTICAL_RESCUE}
     footers={[
       {
