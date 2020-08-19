@@ -183,6 +183,7 @@ const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect 
             allowNew
             autoFocus
             options={[
+              'DPT56',
               'NIC19',
               'WOL43',
               'WOL56',
