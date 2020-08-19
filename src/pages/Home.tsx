@@ -129,7 +129,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
   ));
 
   return (
-    <Card>
+    <Card className='mb-3'>
       <Card.Header className='d-flex justify-content-between align-items-center'>
         Storm
         <LinkContainer to='/member/me'>
@@ -274,19 +274,21 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
   }
 
   return (
-    <Card>
+    <Card className='mb-3'>
       <Card.Header>
         <Nav variant='tabs' activeKey={key} onSelect={setKey}>
           <Nav.Item>
             <Nav.Link eventKey='vr'>
-              Vertical Rescue{' '}
+              <span className='d-none d-md-inline'>Vertical Rescue</span>{' '}
+              <span className='d-md-none'>VR</span>{' '}
               <Badge variant='success'>{vr.immediate}</Badge>{' '}
               <Badge variant='warning'>{vr.support}</Badge>
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="fr">
-              Flood Rescue{' '}
+              <span className='d-none d-md-inline'>Flood Rescue</span>{' '}
+              <span className='d-md-none'>FR</span>{' '}
               <Badge className='qual-badge-iw'>{fr.l3}</Badge>{' '}
               <Badge className='qual-badge-ow'>{fr.l2}</Badge>{' '}
               <Badge className='qual-badge-lb'>{fr.l1}</Badge>
