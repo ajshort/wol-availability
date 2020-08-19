@@ -1,6 +1,7 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
+import { calculateMinimumAvailabilities } from '../model/availability';
 import { getDayIntervals } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
@@ -15,14 +16,13 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
-  week: Interval;
+  days: Interval[];
   featuredQualifications: string[];
   renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
 }
 
-const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, featuredQualifications, renderMember }) => {
+const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, days, index, style, featuredQualifications, renderMember }) => {
   const member = data[index];
-  const days = getDayIntervals(week);
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
   return (
@@ -44,10 +44,14 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, week, index, style, f
         </div>
       )}
       <div className='unit-table-days'>
-        {renderMember ? renderMember(interval, member) : null}
         {days.map(({ start }) => (
-          <div key={start.toString()} className='unit-table-cell unit-table-day' />
+          <div key={start.toString()} className='unit-table-day'>
+            {_.range(4).map(i => (
+              <div key={i} className='unit-table-day-block' />
+            ))}
+          </div>
         ))}
+        {renderMember ? renderMember(interval, member) : null}
       </div>
     </div>
   );
@@ -72,10 +76,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
 
   // We split the interval into days, then make each day start at 6AM and finish at 6AM of the
   // next day.
-  const days = _
-    .range(0, interval.count('days'))
-    .map(i => interval.start.startOf('day').plus({ days: i }))
-    .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
+  const days = getDayIntervals(interval);
 
   // Are we showing qualifications?
   const featuredQualifications = props.featuredQualifications || FEATURED;
@@ -86,6 +87,13 @@ const UnitTable: React.FC<UnitTableProps> = props => {
   const handleScrollbarSizeChange = ({ width }: ScrollbarSizeChangeHandlerParams) => {
     setScrollbarWidth(width);
   };
+
+  // We figure out the minimum number of members available at any one time for each block.
+  const counts = days.map(day => calculateMinimumAvailabilities(
+    day.divideEqually(4),
+    members,
+    availability => availability.storm === 'AVAILABLE'
+  ));
 
   return (
     <div className={clsx(className, 'unit-table')}>
@@ -116,7 +124,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
             >
               {props => (
                 <UnitTableRow
-                  week={interval}
+                  days={days}
                   featuredQualifications={featuredQualifications || []}
                   renderMember={renderMember}
                   {...props}
@@ -132,6 +140,15 @@ const UnitTable: React.FC<UnitTableProps> = props => {
         {featuredQualifications.length > 0 && (
           <div className='unit-table-cell unit-table-quals'></div>
         )}
+        <div className='unit-table-days'>
+          {_.zip(days, counts).map(([day, counts]) => (
+            <div key={day!.start.toString()} className='unit-table-day'>
+              {counts!.map((count, i) => (
+                <div key={i} className='unit-table-day-block'>{count}</div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

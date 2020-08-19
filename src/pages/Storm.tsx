@@ -89,6 +89,7 @@ const ManageMember: React.FC = () => {
 
                 return (
                   <div
+                    key={availability.start.toString()}
                     className={clsx('unit-table-availability-block', {
                       'availability-success': availability.storm === 'AVAILABLE',
                       'availability-danger': availability.storm === 'UNAVAILABLE',
