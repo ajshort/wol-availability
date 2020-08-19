@@ -2,12 +2,7 @@ import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
-import {
-  FLOOD_RESCUE,
-  FLOOD_RESCUE_L2,
-  FLOOD_RESCUE_L3,
-  VERTICAL_RESCUE,
-} from '../model/qualifications';
+import { compareFloodRescue, FLOOD_RESCUE, VERTICAL_RESCUE } from '../model/qualifications';
 import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
   GetMembersAvailabilitiesData,
@@ -139,23 +134,15 @@ const Rescue: React.FC<RescueProps> = props => {
 };
 
 export const FloodRescue: React.FC = () => {
-  const level = ({ qualifications }: MemberWithAvailabilityData) => {
-    if (qualifications.includes(FLOOD_RESCUE_L3)) {
-      return 3;
-    } else if (qualifications.includes(FLOOD_RESCUE_L2)) {
-      return 2;
-    } else {
-      return 1;
-    }
-  };
-
   return (
     <Rescue
       title='Flood Rescue'
       baseUrl='/unit/fr'
       qualifications={FLOOD_RESCUE}
       sort={(a, b) => (
-        level(b) - level(a) || a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
+        compareFloodRescue(a.qualifications, b.qualifications) ||
+        a.team.localeCompare(b.team) ||
+        a.surname.localeCompare(b.surname)
       )}
       footers={[
         {

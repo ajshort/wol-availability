@@ -5,6 +5,7 @@ import { MemberData } from '../queries/members';
 import TeamBadge from '../components/TeamBadge';
 import { StormAvailable, RescueAvailable } from '../model/availability';
 import {
+  compareFloodRescue,
   FEATURED,
   FLOOD_RESCUE,
   FLOOD_RESCUE_L1,
@@ -29,7 +30,7 @@ import Row from 'react-bootstrap/Row';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
-import { FaMobileAlt } from 'react-icons/fa';
+import { FaCircle, FaMobileAlt } from 'react-icons/fa';
 
 interface ShiftTeamsData {
   day: string;
@@ -171,6 +172,37 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
   );
 };
 
+interface RescueCardListItemProps {
+  availability: AvailableData;
+}
+
+const FEATURED_RESCUE = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
+
+const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ availability: { member, rescue } }) => (
+  <ListGroup.Item>
+    <div className='d-flex align-items-center justify-content-between'>
+      <div>
+        {rescue === 'IMMEDIATE' && <FaCircle className='text-success mr-2' />}
+        {rescue === 'SUPPORT' && <FaCircle className='text-warning mr-2' />}
+        {member.fullName}
+        <a className='ml-1' href={`tel:${member.mobile}`}>
+          <small>
+            <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
+          </small>
+        </a>
+      </div>
+      <div className='text-right'>
+        {
+          FEATURED_RESCUE
+            .filter(qual => member.qualifications.includes(qual))
+            .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
+            .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
+        }
+      </div>
+    </div>
+  </ListGroup.Item>
+);
+
 interface RescueCardProps {
   availabilties: AvailableData[];
 }
@@ -178,17 +210,41 @@ interface RescueCardProps {
 const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
   const [key, setKey] = useState('vr');
 
-  const vertical = availabilties.filter(({ member: { qualifications } }) => qualifications.some(
-    qual => VERTICAL_RESCUE.indexOf(qual) !== -1
-  ));
+  // Create ordered list of VR and VR operators.
+  const compareRescue = ({ rescue: a }: AvailableData, { rescue: b }: AvailableData) => {
+    if (a === 'IMMEDIATE' && b !== 'IMMEDIATE') {
+      return -1;
+    }
+    if (b === 'IMMEDIATE' && a != 'IMMEDIATE') {
+      return 1;
+    }
+    return 0;
+  };
 
-  const flood = availabilties.filter(({ member: { qualifications } }) => qualifications.some(
-    qual => FLOOD_RESCUE.indexOf(qual) !== -1
-  ));
+  const vertical = availabilties
+    .filter(({ member: { qualifications } }) => qualifications.some(
+      qual => VERTICAL_RESCUE.indexOf(qual) !== -1
+    ))
+    .sort((a, b) => (
+      compareRescue(a, b) ||
+      a.member.team.localeCompare(b.member.team) ||
+      a.member.surname.localeCompare(b.member.surname)
+    ));
+
+  const flood = availabilties
+    .filter(({ member: { qualifications } }) => qualifications.some(
+      qual => FLOOD_RESCUE.indexOf(qual) !== -1
+    ))
+    .sort((a, b) => (
+      compareRescue(a, b) ||
+      compareFloodRescue(a.member.qualifications, b.member.qualifications) ||
+      a.member.surname.localeCompare(b.member.surname)
+    ));
 
   const vr = { immediate: 0, support: 0 };
   const fr = { l1: 0, l2: 0, l3: 0 };
 
+  // Create totals for the badges up the top.
   for (const { member: { qualifications }, rescue } of availabilties) {
     if (qualifications.some(qual => VERTICAL_RESCUE.indexOf(qual) !== -1)) {
       if (rescue === 'IMMEDIATE') {
@@ -217,8 +273,6 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     }
   }
 
-  const featured = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
-
   return (
     <Card>
       <Card.Header>
@@ -242,6 +296,16 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
       </Card.Header>
       {key === 'vr' && (
         <ListGroup variant='flush'>
+          {vertical.map(availability => (
+            <RescueCardListItem key={availability.member.number} availability={availability} />
+          ))}
+        </ListGroup>
+      )}
+      {key === 'fr' && (
+        <ListGroup variant='flush'>
+          {flood.map(availability => (
+            <RescueCardListItem key={availability.member.number} availability={availability} />
+          ))}
         </ListGroup>
       )}
     </Card>

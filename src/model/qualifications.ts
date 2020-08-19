@@ -149,3 +149,17 @@ export const ABBREVIATIONS: { [key: string]: string } = {
   'Swiftwater Rescue Technician (FR L3)': 'IW',
   'Vertical Rescue (PUASAR004B/PUASAR032A)': 'VR',
 };
+
+export function compareFloodRescue(qualificationsA: string[], qualificationsB: string[]) {
+  const level = (qualifications: string[]) => {
+    if (qualifications.includes(FLOOD_RESCUE_L3)) {
+      return 3;
+    } else if (qualifications.includes(FLOOD_RESCUE_L2)) {
+      return 2;
+    } else {
+      return 1;
+    }
+  };
+
+  return level(qualificationsB) - level(qualificationsA);
+}
