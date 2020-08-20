@@ -39,12 +39,13 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             onChange={e => onChange({ ...value, team: e.target.value })}
           >
             <option value={''}>All</option>
-            {teams && teams.map(team => <option>{team}</option>)}
+            {teams && teams.map(team => <option key={team}>{team}</option>)}
           </Form.Control>
         </Form.Group>
         <Form.Group controlId='qualifications-filter'>
           <Form.Label>Qualifications</Form.Label>
           <Typeahead
+            id={`${id}-typeahead`}
             multiple
             options={ALL}
             selected={value.qualifications}

@@ -10,7 +10,7 @@ import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { ReactNode, useState } from 'react';
-import ScrollbarSize, { ScrollbarSizeChangeHandlerParams } from 'react-scrollbar-size';
+import Measure from 'react-measure';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
@@ -106,18 +106,13 @@ const UnitTable: React.FC<UnitTableProps> = props => {
   // We need to track the scrollbar to offset the header and footer.
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
-  const handleScrollbarSizeChange = ({ width }: ScrollbarSizeChangeHandlerParams) => {
-    setScrollbarWidth(width);
-  };
-
   return (
     <div className={clsx(className, 'unit-table')}>
-      <ScrollbarSize onChange={handleScrollbarSizeChange} />
       <div className='unit-table-header unit-table-row' style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>Name</div>
         <div className='unit-table-cell unit-table-team'>Team</div>
         {featuredQualifications.length > 0 && (
-          <div className='unit-table-cell unit-table-quals d-none d-xl-block'>Qualifications</div>
+          <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>Qualifications</div>
         )}
         <div className='unit-table-days'>
           {days.map(({ start }) => (
@@ -127,29 +122,36 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           ))}
         </div>
       </div>
-      <div className='unit-table-body'>
-        <AutoSizer>
-          {({ width, height }) => (
-            <FixedSizeList
-              width={width}
-              height={height}
-              itemData={sorted}
-              itemCount={sorted.length}
-              itemSize={32}
-            >
-              {props => (
-                <UnitTableRow
-                  days={days}
-                  week={interval}
-                  featuredQualifications={featuredQualifications || []}
-                  renderMember={renderMember}
-                  {...props}
-                />
+      <Measure client offset onResize={rect => (
+        setScrollbarWidth((rect.offset?.width || 0) - (rect.client?.width || 0))
+      )}>
+        {({ measureRef }) => (
+          <div className='unit-table-body'>
+            <AutoSizer>
+              {({ width, height }) => (
+                <FixedSizeList
+                  width={width}
+                  height={height}
+                  itemData={sorted}
+                  itemCount={sorted.length}
+                  itemSize={32}
+                  outerRef={measureRef}
+                >
+                  {props => (
+                    <UnitTableRow
+                      days={days}
+                      week={interval}
+                      featuredQualifications={featuredQualifications || []}
+                      renderMember={renderMember}
+                      {...props}
+                    />
+                  )}
+                </FixedSizeList>
               )}
-            </FixedSizeList>
-          )}
-        </AutoSizer>
-      </div>
+            </AutoSizer>
+          </div>
+        )}
+      </Measure>
       {footers && footers.map(({ title, included, highlightLessThan }, i) => {
         // We figure out the minimum number of members available at any one time for each block.
         const counts = days.map(day => calculateMinimumAvailabilities(
@@ -165,7 +167,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
             <div className='unit-table-cell unit-table-name'>{title}</div>
             <div className='unit-table-cell unit-table-team'></div>
             {featuredQualifications.length > 0 && (
-              <div className='unit-table-cell unit-table-quals d-none d-xl-block'></div>
+              <div className='unit-table-cell unit-table-quals d-none d-xl-flex'></div>
             )}
             <div className='unit-table-days'>
               {_.zip(days, counts).map(([day, counts]) => (
