@@ -9,6 +9,7 @@ import {
   RescueAvailable,
 } from '../model/availability';
 import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { VERTICAL_RESCUE, FLOOD_RESCUE } from '../model/qualifications';
 import { useMutateMemberAvailability } from '../mutations/availability';
 import {
   GET_MEMBER_AVAILABILITY_QUERY,
@@ -267,10 +268,15 @@ const ManageMember: React.FC = () => {
   }
 
   const { member } = data;
+
   const availabilities = member.availabilities.map(({ start, end, ...availability }) => {
     const interval = Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end));
     return { interval, ...availability } as AvailabilityInterval;
   });
+
+  // Figure out if the member should be shown storm only mode, or rescue mode.
+  const rescueQuals = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
+  const rescueMember = member.qualifications.some(qual => rescueQuals.includes(qual));
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
@@ -296,7 +302,7 @@ const ManageMember: React.FC = () => {
       }
     }
 
-    mutate({
+    const promise = mutate({
       variables: {
         start: bounds.start.toJSDate(),
         end: bounds.end.toJSDate(),
@@ -314,7 +320,12 @@ const ManageMember: React.FC = () => {
           }
         ]
       },
-    })
+    });
+
+    // If they are a storm only member, there's no need to select again so clear their selection.
+    if (!rescueMember) {
+      promise.then(() => setSelections([]));
+    }
   };
 
   const handleSet = (availability?: Availability) => {
@@ -461,8 +472,31 @@ const ManageMember: React.FC = () => {
       <div className='d-flex justify-content-between border-bottom p-3'>
         <div className='d-flex align-items-center'>
           {toggle}
-          {storm}
-          {rescue}
+          {rescueMember ? (
+            <React.Fragment>
+              {storm}
+              {rescue}
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <Button
+                variant='success'
+                className='mr-2'
+                onClick={() => handleSet({ storm: 'AVAILABLE' })}
+                disabled={mutating || selections.length === 0}
+              >
+                Available
+              </Button>
+              <Button
+                variant='danger'
+                className='mr-2'
+                onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
+                disabled={mutating || selections.length === 0}
+              >
+                Unavailable
+              </Button>
+            </React.Fragment>
+          )}
           {more}
         </div>
         <div className='d-flex align-items-center'>
@@ -477,7 +511,7 @@ const ManageMember: React.FC = () => {
             availabilities={availabilities}
             selections={selections}
             onChangeSelections={setSelections}
-            rescueMember
+            rescueMember={rescueMember}
           />
         )}
       </WeekTable>
