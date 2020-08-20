@@ -81,7 +81,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
 
     const round = (dt: DateTime) => {
       return dt.set({
-        minute: Math.round(dt.minute / 15) * 15,
+        minute: Math.round(dt.minute / 30) * 30,
         second: 0,
         millisecond: 0,
       });
@@ -125,7 +125,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
       // Did we modify or remove the interval?
       const selections = this.props.selections!;
       const { selection, updated } = this.state.drag;
-      
+
       // The selections with the previous selection removed.
       const removed = Interval.xor([...selections, selection]);
 
