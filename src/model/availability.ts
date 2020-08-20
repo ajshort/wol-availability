@@ -1,5 +1,6 @@
 import { DateTime, Interval } from 'luxon';
 import { MemberWithAvailabilityData } from '../queries/availability';
+import { MemberData } from '../queries/members';
 
 export enum Shift {
   DAY = 'DAY',
@@ -20,18 +21,19 @@ export interface AvailabilityInterval extends Availability {
   interval: Interval;
 }
 
+export type AvailabilityIncludedFn = (member: MemberData, availability: Availability) => boolean;
+
 /**
  * For each interval in @a intervals, calculates the minimum number of members which satisfy
  * the @a included callback at any particular time within the interval.
  */
 export function calculateMinimumAvailabilities(
-  intervals: Interval[],
-  members: MemberWithAvailabilityData[],
-  included: (availability: Availability) => boolean
+  intervals: Interval[], members: MemberWithAvailabilityData[], included: AvailabilityIncludedFn
 ) {
   // Get all intervals for which a member is available.
-  const availables = members.flatMap(({ availabilities }) => availabilities.filter(included).map(
-    ({ start, end }) => Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)))
+  const availables = members.flatMap(member => member.availabilities
+    .filter(availability => included(member, availability))
+    .map(({ start, end }) => Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)))
   );
 
   // Counts how many availables there are at @a dt.

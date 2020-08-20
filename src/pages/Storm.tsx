@@ -107,7 +107,7 @@ const ManageMember: React.FC = () => {
             footers={[
               {
                 title: members.length.toString(),
-                included: availability => availability.storm === 'AVAILABLE',
+                included: (_, { storm }) => storm === 'AVAILABLE',
               },
             ]}
           />

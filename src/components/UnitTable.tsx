@@ -1,7 +1,7 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
-import { Availability, calculateMinimumAvailabilities } from '../model/availability';
+import { Availability, AvailabilityIncludedFn, calculateMinimumAvailabilities } from '../model/availability';
 import { getDayIntervals } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
@@ -59,7 +59,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, days, index, style, f
 
 export interface UnitTableFooter {
   title?: string;
-  included: (availability: Availability) => boolean;
+  included: AvailabilityIncludedFn;
   highlightLessThan?: number;
 }
 

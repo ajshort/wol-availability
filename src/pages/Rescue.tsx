@@ -2,7 +2,14 @@ import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
-import { compareFloodRescue, FLOOD_RESCUE, VERTICAL_RESCUE } from '../model/qualifications';
+import {
+  compareFloodRescue,
+  FLOOD_RESCUE,
+  FLOOD_RESCUE_L1,
+  FLOOD_RESCUE_L2,
+  FLOOD_RESCUE_L3,
+  VERTICAL_RESCUE,
+} from '../model/qualifications';
 import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
   GetMembersAvailabilitiesData,
@@ -147,16 +154,22 @@ export const FloodRescue: React.FC = () => {
       footers={[
         {
           title: 'In-water',
-          included: availability => availability.rescue === 'IMMEDIATE',
+          included: ({ qualifications }, { rescue }) => (
+            rescue === 'IMMEDIATE' && qualifications.includes(FLOOD_RESCUE_L3)
+          ),
           highlightLessThan: 3,
         },
         {
           title: 'On-water',
-          included: availability => availability.rescue === 'SUPPORT',
+          included: ({ qualifications }, { rescue }) => (
+            rescue === 'IMMEDIATE' && qualifications.includes(FLOOD_RESCUE_L2)
+          ),
         },
         {
           title: 'On-land',
-          included: availability => availability.rescue === 'SUPPORT',
+          included: ({ qualifications }, { rescue }) => (
+            rescue === 'IMMEDIATE' && qualifications.includes(FLOOD_RESCUE_L1) && !qualifications.includes(FLOOD_RESCUE_L3)
+          )
         },
       ]}
     />
@@ -171,12 +184,12 @@ export const VerticalRescue: React.FC = () => (
     footers={[
       {
         title: 'Immediate',
-        included: availability => availability.rescue === 'IMMEDIATE',
+        included: (_, { rescue }) => rescue === 'IMMEDIATE',
         highlightLessThan: 3,
       },
       {
         title: 'Support',
-        included: availability => availability.rescue === 'SUPPORT',
+        included: (_, { rescue }) => rescue === 'SUPPORT',
       },
     ]}
   />
