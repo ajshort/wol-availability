@@ -37,7 +37,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
         <TeamBadge team={member.team} />
       </div>
       {featuredQualifications.length > 0 && (
-        <div className='unit-table-cell unit-table-quals'>
+        <div className='unit-table-cell unit-table-quals d-none d-xl-block'>
           {
             featuredQualifications
               .filter(qual => member.qualifications.includes(qual))
@@ -117,7 +117,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
         <div className='unit-table-cell unit-table-name'>Name</div>
         <div className='unit-table-cell unit-table-team'>Team</div>
         {featuredQualifications.length > 0 && (
-          <div className='unit-table-cell unit-table-quals'>Qualifications</div>
+          <div className='unit-table-cell unit-table-quals d-none d-xl-block'>Qualifications</div>
         )}
         <div className='unit-table-days'>
           {days.map(({ start }) => (
@@ -150,18 +150,22 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           )}
         </AutoSizer>
       </div>
-      {footers && footers.map(({ title, included, highlightLessThan }) => {
+      {footers && footers.map(({ title, included, highlightLessThan }, i) => {
         // We figure out the minimum number of members available at any one time for each block.
         const counts = days.map(day => calculateMinimumAvailabilities(
           day.divideEqually(4), members, included
         ));
 
         return (
-          <div className='unit-table-footer unit-table-row' style={{ paddingRight: scrollbarWidth }}>
+          <div
+            key={i}
+            className='unit-table-footer unit-table-row'
+            style={{ paddingRight: scrollbarWidth }}
+          >
             <div className='unit-table-cell unit-table-name'>{title}</div>
             <div className='unit-table-cell unit-table-team'></div>
             {featuredQualifications.length > 0 && (
-              <div className='unit-table-cell unit-table-quals'></div>
+              <div className='unit-table-cell unit-table-quals d-none d-xl-block'></div>
             )}
             <div className='unit-table-days'>
               {_.zip(days, counts).map(([day, counts]) => (

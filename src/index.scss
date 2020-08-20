@@ -260,6 +260,7 @@
 }
 
 .unit-table-name {
+  min-width: 180px;
   width: 180px;
   img {
     margin-left: 0.25 * $spacer;
@@ -267,9 +268,11 @@
 }
 .unit-table-team {
   justify-content: center;
+  min-width: 80px;
   width: 80px;
 }
 .unit-table-quals {
+  min-width: 300px;
   width: 300px;
 }
 .unit-table-rescue .unit-table-quals {

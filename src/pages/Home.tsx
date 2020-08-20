@@ -215,7 +215,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     if (a === 'IMMEDIATE' && b !== 'IMMEDIATE') {
       return -1;
     }
-    if (b === 'IMMEDIATE' && a != 'IMMEDIATE') {
+    if (b === 'IMMEDIATE' && a !== 'IMMEDIATE') {
       return 1;
     }
     return 0;
