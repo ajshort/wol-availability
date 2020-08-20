@@ -37,7 +37,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
         <TeamBadge team={member.team} />
       </div>
       {featuredQualifications.length > 0 && (
-        <div className='unit-table-cell unit-table-quals d-none d-xl-block'>
+        <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>
           {
             featuredQualifications
               .filter(qual => member.qualifications.includes(qual))

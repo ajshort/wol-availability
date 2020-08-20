@@ -10,6 +10,7 @@ import {
 } from '../queries/availability';
 
 import clsx from 'clsx';
+import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from 'react-apollo';
@@ -49,11 +50,13 @@ const ManageMember: React.FC = () => {
     history.push(`/unit/storm/${value.start.toISODate()}`);
   };
 
+  const teams = data ? _.uniq(data.members.map(member => member.team)).sort() : undefined;
+
   return (
     <Page title='Storm'>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
         <div>
-          <MemberFilterButton id='storm-member-filter' value={filter} onChange={setFilter} />
+          <MemberFilterButton id='storm-member-filter' teams={teams} value={filter} onChange={setFilter} />
         </div>
         <div>
           <WeekBrowser value={week} onChange={handleChangeWeek} />

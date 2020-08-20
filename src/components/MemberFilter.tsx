@@ -19,12 +19,13 @@ export interface MemberFilter {
 
 interface MemberFilterButtonProps {
   id: string;
+  teams?: string[];
   value: MemberFilter;
   onChange: (filter: MemberFilter) => void;
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
-  const { id, value, onChange } = props;
+  const { id, teams, value, onChange } = props;
 
   const popover = (
     <Popover id={id} title='Filter Members'>
@@ -38,6 +39,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             onChange={e => onChange({ ...value, team: e.target.value })}
           >
             <option value={''}>All</option>
+            {teams && teams.map(team => <option>{team}</option>)}
           </Form.Control>
         </Form.Group>
         <Form.Group controlId='qualifications-filter'>
@@ -85,6 +87,10 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
 };
 
 export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvailabilityData) {
+  if (filter.team && member.team !== filter.team) {
+    return false;
+  }
+
   if (filter.qualifications && filter.qualifications.length > 0) {
     for (const qual of filter.qualifications) {
       if (!member.qualifications.includes(qual)) {
