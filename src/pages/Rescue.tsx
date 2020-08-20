@@ -115,6 +115,7 @@ const Rescue: React.FC<RescueProps> = props => {
 
                 return (
                   <div
+                    key={availability.start.toString()}
                     className={clsx('unit-table-availability-block', {
                       'availability-success': availability.rescue === 'IMMEDIATE',
                       'availability-warning': availability.rescue === 'SUPPORT',
