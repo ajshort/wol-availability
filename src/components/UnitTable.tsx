@@ -1,8 +1,8 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
-import { Availability, AvailabilityIncludedFn, calculateMinimumAvailabilities } from '../model/availability';
-import { getDayIntervals } from '../model/dates';
+import { AvailabilityIncludedFn, calculateMinimumAvailabilities } from '../model/availability';
+import { getDayIntervals, getIntervalPosition } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -16,12 +16,15 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
+  week: Interval;
   days: Interval[];
   featuredQualifications: string[];
   renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
 }
 
-const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, days, index, style, featuredQualifications, renderMember }) => {
+const UnitTableRow: React.FC<UnitTableRowProps> = props => {
+  const { data, week, days, index, style, featuredQualifications, renderMember } = props;
+
   const member = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
@@ -52,6 +55,18 @@ const UnitTableRow: React.FC<UnitTableRowProps> = ({ data, days, index, style, f
           </div>
         ))}
         {renderMember ? renderMember(interval, member) : null}
+        {(week.start > interval.start) && (
+          <div
+            className='unit-table-bound'
+            style={{ left: 0, width: (100 * getIntervalPosition(interval, week.start)) + '%' }}
+          />
+        )}
+        {(week.end < interval.end) && (
+          <div
+            className='unit-table-bound'
+            style={{ right: 0, width: (100 * (1 - getIntervalPosition(interval, week.end))) + '%' }}
+          />
+        )}
       </div>
     </div>
   );
@@ -125,6 +140,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
               {props => (
                 <UnitTableRow
                   days={days}
+                  week={interval}
                   featuredQualifications={featuredQualifications || []}
                   renderMember={renderMember}
                   {...props}

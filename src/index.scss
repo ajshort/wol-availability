@@ -251,6 +251,13 @@
     }
   }
 }
+.unit-table-bound {
+  background: lighten($table-border-color, 9%);
+  bottom: 0;
+  position: absolute;
+  top: 0;
+  z-index: -1;
+}
 
 .unit-table-name {
   width: 180px;
