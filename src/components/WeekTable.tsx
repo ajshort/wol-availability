@@ -3,8 +3,8 @@ import { getIntervalPosition } from '../model/dates';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
-import Measure, { BoundingRect } from 'react-measure';
+import React, { useState } from 'react';
+import Measure, { BoundingRect, ContentRect } from 'react-measure';
 
 interface IntervalSelectionProps {
   interval: Interval;
@@ -221,9 +221,13 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     .map(i => interval.start.startOf('day').plus({ days: i }))
     .map(dt => Interval.fromDateTimes(dt.set({ hour: 6 }), dt.plus({ days: 1 }).set({ hour: 6 })));
 
-  // Display each day as 4 columns. This used to switch dynamically.
-  const columns = 4;
+  // Display each day as either 4 or 8 columns depending on width.
+  const [columns, setColumns] = useState(4);
   const times = rows[0].divideEqually(columns);
+
+  const handleResize = (rect: ContentRect) => {
+    setColumns(rect.bounds && rect.bounds.width >= 992 ? 8 : 4);
+  };
 
   const handleSelect = (selected: Interval[]) => {
     if (!onChangeSelections) {
@@ -286,7 +290,7 @@ const WeekTable: React.FC<WeekTableProps> = props => {
   });
 
   return (
-    <Measure bounds>
+    <Measure bounds onResize={handleResize}>
       {({ measureRef }) => (
         <div className={className} ref={measureRef}>
           <div className='week-table-head'>
