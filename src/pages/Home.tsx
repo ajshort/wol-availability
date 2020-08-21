@@ -341,7 +341,9 @@ const Home: React.FC = () => (
                   />
                 </Col>
                 <Col md={6}>
-                  <RescueCard availabilties={data.availableAt} />
+                  <RescueCard availabilties={data.availableAt.filter(({ rescue }) => (
+                    rescue === 'IMMEDIATE' || rescue === 'SUPPORT'
+                  ))} />
                 </Col>
               </Row>
             </React.Fragment>
