@@ -62,6 +62,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
               <NavLink to='/' exact>Home</NavLink>
               <NavLink to='/member'>Member</NavLink>
               <UnitNavDropdown />
+              <NavLink to='/stats'>Statistics</NavLink>
             </Nav>
             <Nav className='ml-auto'>
               <NavDropdown

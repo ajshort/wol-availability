@@ -31,11 +31,13 @@ import Spinner from 'react-bootstrap/Spinner';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import {
   FaBolt,
+  FaCheck,
+  FaCheckSquare,
   FaEllipsisV,
   FaExclamationTriangle,
-  FaCheckSquare,
   FaMinusSquare,
   FaSquare,
+  FaTimes,
 } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
@@ -181,6 +183,7 @@ const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect 
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Typeahead
+            id='cover-vehicle-typeahead'
             allowNew
             autoFocus
             options={[
@@ -485,7 +488,7 @@ const ManageMember: React.FC = () => {
                 onClick={() => handleSet({ storm: 'AVAILABLE' })}
                 disabled={mutating || selections.length === 0}
               >
-                Available
+                <FaCheck /> <span className='d-none d-md-inline'>Available</span>
               </Button>
               <Button
                 variant='danger'
@@ -493,7 +496,7 @@ const ManageMember: React.FC = () => {
                 onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
                 disabled={mutating || selections.length === 0}
               >
-                Unavailable
+                <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
               </Button>
             </React.Fragment>
           )}

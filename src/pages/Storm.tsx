@@ -1,4 +1,4 @@
-import { filterAcceptsMember, MemberFilter, MemberFilterButton} from '../components/MemberFilter';
+import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
