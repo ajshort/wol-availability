@@ -19,7 +19,7 @@ class RadioButtonGroup<T> extends React.Component<RadioButtonGroupProps<T>> {
           const handleClick = () => onChange(value === mine ? undefined : mine);
 
           return (
-            <Button variant={style as ButtonProps['variant']} onClick={handleClick}>
+            <Button key={label} variant={style as ButtonProps['variant']} onClick={handleClick}>
               {label}
             </Button>
           );
