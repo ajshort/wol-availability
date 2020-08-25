@@ -12,9 +12,8 @@ import { useQuery } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
-import { AreaChart, Charts, ChartContainer, ChartRow, YAxis } from 'react-timeseries-charts';
+import { BarChart, Charts, ChartContainer, ChartRow, styler, YAxis } from 'react-timeseries-charts';
 import AutoSizer from 'react-virtualized-auto-sizer';
-
 
 const Stats = () => {
   const [interval, setInterval] = useState(getWeekInterval());
@@ -102,7 +101,7 @@ const Stats = () => {
 
         const points = _
           .zip(buckets, counts)
-          .map(([bucket, count]) => [Index.getIndexString('1h', bucket.start.toJSDate()), count]);
+          .map(([bucket, count]) => [Index.getIndexString('30m', bucket.start.toJSDate()), count]);
 
         const range = new TimeRange(interval.start.toJSDate(), interval.end.toJSDate());
         const series = new TimeSeries({
@@ -124,9 +123,10 @@ const Stats = () => {
                     type='linear'
                   />
                   <Charts>
-                    <AreaChart
+                    <BarChart
                       axis='y'
                       series={series}
+                      columns={['available']}
                     />
                   </Charts>
                 </ChartRow>
