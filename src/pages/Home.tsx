@@ -298,16 +298,24 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
       </Card.Header>
       {key === 'vr' && (
         <ListGroup variant='flush'>
-          {vertical.map(availability => (
-            <RescueCardListItem key={availability.member.number} availability={availability} />
-          ))}
+          {vertical.length > 0 ? (
+            vertical.map(availability => (
+              <RescueCardListItem key={availability.member.number} availability={availability} />
+            ))
+          ) : (
+            <Card.Body>There are no members available.</Card.Body>
+          )}
         </ListGroup>
       )}
       {key === 'fr' && (
         <ListGroup variant='flush'>
-          {flood.map(availability => (
-            <RescueCardListItem key={availability.member.number} availability={availability} />
-          ))}
+          {flood.length > 0 ? (
+            flood.map(availability => (
+              <RescueCardListItem key={availability.member.number} availability={availability} />
+            ))
+          ) : (
+            <Card.Body>There are no members available.</Card.Body>
+          )}
         </ListGroup>
       )}
     </Card>
