@@ -100,12 +100,17 @@ const Stats = () => {
           })
         );
 
+        // We copy the final value across to get the end to line up.
+        counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
+
         return (
           <AutoSizer className='my-2'>
             {({ width }) => (
-              <AreaChart width={width} height={400} data={counts}>
+              <AreaChart width={width} height={500} data={counts}>
                 <XAxis
                   dataKey='time'
+                  type='number'
+                  domain={[interval.start.toMillis(), interval.end.toMillis()]}
                   tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString(DateTime.DATE_SHORT)}
                 />
                 <YAxis />
