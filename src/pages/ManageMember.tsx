@@ -39,8 +39,9 @@ import {
   FaSquare,
   FaTimes,
 } from 'react-icons/fa';
-import { useHistory, useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
+import { useHistory, useParams } from 'react-router-dom';
+import ReactSwipe from 'react-swipe';
 
 interface RescueMemberBadgesProps {
   storm?: StormAvailable;
@@ -502,22 +503,24 @@ const ManageMember: React.FC = () => {
           )}
           {more}
         </div>
-        <div className='d-flex align-items-center'>
+        <div className='d-none d-md-flex align-items-center'>
           <WeekBrowser value={week} onChange={handleChangeWeek} />
         </div>
       </div>
-      <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-        {row => (
-          <AvailabilityRow
-            key={row.toString()}
-            interval={row}
-            availabilities={availabilities}
-            selections={selections}
-            onChangeSelections={setSelections}
-            rescueMember={rescueMember}
-          />
-        )}
-      </WeekTable>
+      <ReactSwipe>
+        <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
+          {row => (
+            <AvailabilityRow
+              key={row.toString()}
+              interval={row}
+              availabilities={availabilities}
+              selections={selections}
+              onChangeSelections={setSelections}
+              rescueMember={rescueMember}
+            />
+          )}
+        </WeekTable>
+      </ReactSwipe>
       {selectingVehicle && (
         <CoverVehicleModal
           onSelect={vehicle => handleSet({ vehicle })}

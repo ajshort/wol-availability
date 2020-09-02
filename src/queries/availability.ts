@@ -114,3 +114,24 @@ export interface SetMemberAvailabilityVars {
   end: Date;
   availabilities: MemberAvailabilityInput[];
 }
+
+export const GET_STATISTICS_QUERY = gql`
+  query ($start: DateTime!, $end: DateTime!) {
+    statistics(start: $start, end: $end) {
+      counts {
+        start
+        end
+        storm
+      }
+    }
+  }
+`;
+
+export interface GetStatisticsData {
+  statistics: { counts: Array<{ start: string; end: string; storm: number; }> };
+}
+
+export interface GetStatisticsVars {
+  start: Date;
+  end: Date;
+}
