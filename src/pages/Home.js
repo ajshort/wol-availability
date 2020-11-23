@@ -16,6 +16,7 @@ import { FaMobileAlt } from 'react-icons/fa';
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
 import TeamBadge from '../components/TeamBadge';
+import { getShift } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../qualifications';
 import { formatMobile, getDocumentTitle } from '../utils';
 
@@ -30,6 +31,7 @@ const SHIFT_TEAMS_QUERY = gql`
       shift
       member {
         fullName
+        mobile
       }
     }
   }
@@ -51,19 +53,21 @@ const ShiftTeamsAlert = () => (
           }
 
           const { day, night } = data.shiftTeams;
-
-          const dayDO = data.dutyOfficersAt.find(val => val.shift === 'DAY')?.member;
-          const nightDO = data.dutyOfficersAt.find(val => val.shift === 'NIGHT')?.member;
+          const shift = getShift();
+          const duty = data.dutyOfficersAt.find(x => x.shift === shift)?.member;
 
           return (
             <>
               <p>
-                <span role="img" aria-label="Day">🌞</span>{' '}
-                Day shift is <strong>{day}</strong>, duty officer <strong>{dayDO ? dayDO.fullName : 'unknown'}</strong>.
+                Duty officer is <strong>{duty.fullName}</strong>
+                <a className='ml-1' href={`tel:${duty.mobile}`}>
+                  <small>
+                    <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
+                  </small>
+                </a>
               </p>
               <p className='mb-0'>
-                <span role="img" aria-label="Night">🌃</span>{' '}
-                Night shift is <strong>{night}</strong>, duty officer <strong>{nightDO ? nightDO.fullName : 'unknown'}</strong>.
+                Day shift is <strong>{day}</strong>, night shift is <strong>{night}</strong>.
               </p>
             </>
           );
