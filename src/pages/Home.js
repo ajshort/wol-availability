@@ -22,7 +22,7 @@ import { formatMobile, getDocumentTitle } from '../utils';
 
 const SHIFT_TEAMS_QUERY = gql`
   {
-    shiftTeams {
+    shiftTeams(unit: "WOL") {
       day
       night
     }

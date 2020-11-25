@@ -117,7 +117,7 @@ const WeekPage = ({ match }) => {
 
 const MEMBERS_QUERY = gql`
   {
-    members {
+    members(filter: { unit: "WOL" }) {
       _id
       number
       fullName
@@ -125,7 +125,7 @@ const MEMBERS_QUERY = gql`
       team
     }
 
-    teams
+    teams(unit: "WOL")
   }
 `;
 

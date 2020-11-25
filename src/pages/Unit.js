@@ -19,7 +19,7 @@ import { getDocumentTitle, getMemberShiftAvailability, getWeekStart, getWeekEnd 
 
 const MEMBERS_QUERY = gql`
   query ($from: Date!, $to: Date!) {
-    members {
+    members(filter: { unit: "WOL" }) {
       _id
       number
       fullName

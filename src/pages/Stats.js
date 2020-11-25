@@ -171,7 +171,7 @@ const EnteredGraph = ({ data }) => {
 
 const MEMBER_AVAILABILITY_QUERY = gql`
   query ($from: Date!, $to: Date!) {
-    members {
+    members(filter: { unit: "WOL" }) {
       team
       availabilities(from: $from, to: $to) {
         date
