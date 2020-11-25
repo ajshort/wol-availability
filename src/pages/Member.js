@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import _ from 'lodash';
 import moment from 'moment';
 import React, { useContext, useEffect, useState } from 'react';
 import { Query } from 'react-apollo';
@@ -124,8 +125,6 @@ const MEMBERS_QUERY = gql`
       surname
       team
     }
-
-    teams(unit: "WOL")
   }
 `;
 
@@ -181,6 +180,8 @@ const MemberPage = withRouter(({ history }) => {
               return;
             }
 
+            const teams = _.uniq(data.members.map(({ team }) => team)).sort();
+
             const members = data.members
               .filter(member => !team || team === member.team)
               .sort((a, b) => a.surname.localeCompare(b.surname));
@@ -192,7 +193,7 @@ const MemberPage = withRouter(({ history }) => {
                     <Form.Label>What team are you in?</Form.Label>
                     <Form.Control as='select' value={team} onChange={e => setTeam(e.target.value)}>
                       <option></option>
-                      {data.teams.sort().map(team => (
+                      {teams.map(team => (
                         <option key={team}>{team}</option>
                       ))}
                     </Form.Control>
