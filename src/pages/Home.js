@@ -59,12 +59,12 @@ const ShiftTeamsAlert = () => (
           return (
             <>
               <p>
-                Duty officer is <strong>{duty.fullName}</strong>
-                <a className='ml-1' href={`tel:${duty.mobile}`}>
+                Duty officer is <strong>{duty ? duty.fullName : 'unknown'}</strong>
+                {duty && (<a className='ml-1' href={`tel:${duty.mobile}`}>
                   <small>
                     <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
                   </small>
-                </a>
+                </a>)}
               </p>
               <p className='mb-0'>
                 Day shift is <strong>{day}</strong>, night shift is <strong>{night}</strong>.
