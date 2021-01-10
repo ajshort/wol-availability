@@ -62,7 +62,7 @@ interface QueryData {
 
 const QUERY = gql`
   {
-    shiftTeams {
+    shiftTeams(unit: "WOL") {
       day
       night
     }
