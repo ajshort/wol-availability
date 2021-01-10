@@ -1,33 +1,9 @@
 import TeamBadge from './TeamBadge';
+import { GET_MEMBERS_QUERY, GetMembersData, GetMembersVars } from '../queries/members';
 
-import gql from 'graphql-tag';
 import React from 'react';
 import { Query } from 'react-apollo';
 import { Typeahead, Highlighter } from 'react-bootstrap-typeahead';
-
-const GET_MEMBERS_QUERY = gql`
-  {
-    members(filter: { unit: "WOL" }) {
-      _id
-      fullName
-      number
-      surname
-      team
-    }
-  }
-`;
-
-interface MemberData {
-  _id: string;
-  fullName: string;
-  number: number;
-  surname: string;
-  team: string;
-}
-
-interface GetMembersData {
-  members: MemberData[];
-}
 
 interface MemberSelectorProps {
   id: string;
@@ -43,7 +19,7 @@ interface Model {
 
 const MemberSelector: React.FC<MemberSelectorProps> = ({ id, onChange, allowNone }) => {
   return (
-    <Query<GetMembersData> query={GET_MEMBERS_QUERY}>
+    <Query<GetMembersData, GetMembersVars> query={GET_MEMBERS_QUERY}>
       {({ loading, error, data }) => {
         let placeholder: string;
         let disabled = false;
