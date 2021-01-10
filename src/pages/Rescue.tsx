@@ -1,3 +1,4 @@
+import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
@@ -18,8 +19,9 @@ import {
 } from '../queries/availability';
 
 import clsx from 'clsx';
+import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
@@ -46,6 +48,8 @@ const Rescue: React.FC<RescueProps> = props => {
   const history = useHistory();
   const params = useParams<Params>();
 
+  const [filter, setFilter] = useState<MemberFilter>({});
+
   let week: Interval;
 
   if (params.week === undefined) {
@@ -65,9 +69,11 @@ const Rescue: React.FC<RescueProps> = props => {
     },
   );
 
-  const handleWeekChange = (value: Interval) => {
+  const handleChangeWeek = (value: Interval) => {
     history.push(`${baseUrl}/${value.start.toISODate()}`);
   };
+
+  const teams = data ? _.uniq(data.members.map(member => member.team)).sort() : undefined;
 
   return (
     <Page title={title}>
@@ -79,8 +85,13 @@ const Rescue: React.FC<RescueProps> = props => {
         <LinkContainer to='/unit/fr'><Nav.Link>Flood Rescue</Nav.Link></LinkContainer>
         </Nav.Item>
       </Nav>
-      <div className='border-bottom p-3'>
-        <WeekBrowser value={week} onChange={handleWeekChange} />
+      <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
+        <div>
+          <MemberFilterButton id='storm-member-filter' teams={teams} value={filter} onChange={setFilter} />
+        </div>
+        <div>
+          <WeekBrowser value={week} onChange={handleChangeWeek} />
+        </div>
       </div>
       {(() => {
         if (loading) {
@@ -97,11 +108,13 @@ const Rescue: React.FC<RescueProps> = props => {
           );
         }
 
+        const members = data.members.filter(member => filterAcceptsMember(filter, member));
+
         return (
           <UnitTable
             className='unit-table-rescue'
             interval={week}
-            members={data.members}
+            members={members}
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
             sort={sort}
             renderMember={(interval, member) => (
