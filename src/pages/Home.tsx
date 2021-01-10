@@ -4,6 +4,7 @@ import RankImage from '../components/RankImage';
 import { MemberData } from '../queries/members';
 import TeamBadge from '../components/TeamBadge';
 import { StormAvailable, RescueAvailable } from '../model/availability';
+import { getShift } from '../model/dates';
 import {
   compareFloodRescue,
   FEATURED,
@@ -39,7 +40,7 @@ interface ShiftTeamsData {
 
 interface DutyOfficersData {
   shift: string;
-  member: { fullName: string; };
+  member: { fullName: string; mobile: string; };
 }
 
 interface ExtendedMemberData extends MemberData {
@@ -70,6 +71,7 @@ const QUERY = gql`
       shift
       member {
         fullName
+        mobile
       }
     }
 
@@ -99,19 +101,21 @@ const ShiftTeamsAlert: React.FC<ShiftTeamsAlertProps> = ({ shiftTeams, dutyOffic
   <Alert variant='info' className='mb-3'>
     {(() => {
       const { day, night } = shiftTeams;
-
-      const dayDO = dutyOfficers.find(v => v.shift === 'DAY')?.member;
-      const nightDO = dutyOfficers.find(v => v.shift === 'NIGHT')?.member;
+      const shift = getShift();
+      const duty = dutyOfficers.find(x => x.shift === shift)?.member;
 
       return (
         <>
           <p>
-            <span role='img' aria-label='Day'>🌞</span>{' '}
-            Day shift is <strong>{day}</strong>, duty officer <strong>{dayDO ? dayDO.fullName : 'unknown'}</strong>.
+            Duty officer is <strong>{duty ? duty.fullName : 'unknown'}</strong>
+            {duty && (<a className='ml-1' href={`tel:${duty.mobile}`}>
+              <small>
+                <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
+              </small>
+            </a>)}
           </p>
           <p className='mb-0'>
-            <span role='img' aria-label='Night'>🌃</span>{' '}
-            Night shift is <strong>{night}</strong>, duty officer <strong>{nightDO ? nightDO.fullName : 'unknown'}</strong>.
+            Day shift is <strong>{day}</strong>, night shift is <strong>{night}</strong>.
           </p>
         </>
       );
