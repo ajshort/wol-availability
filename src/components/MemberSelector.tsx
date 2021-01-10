@@ -7,7 +7,7 @@ import { Typeahead, Highlighter } from 'react-bootstrap-typeahead';
 
 const GET_MEMBERS_QUERY = gql`
   {
-    members {
+    members(filter: { unit: "WOL" }) {
       _id
       fullName
       number

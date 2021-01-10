@@ -21,6 +21,14 @@ export function getNow(): DateTime {
   return DateTime.local().setZone(TIME_ZONE);
 }
 
+export function getShift(dt?: DateTime) {
+  if (dt === undefined) {
+    dt = getNow();
+  }
+
+  return dt.hour < 6 || dt.hour >= 18 ? 'NIGHT' : 'DAY';
+}
+
 /**
  * Gets the shift week interval which contains @a dt. If
  */
