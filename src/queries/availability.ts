@@ -11,6 +11,8 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
       rank
       qualifications
       team
+      callsign
+      driverClassification
 
       availabilities(start: $start, end: $end) {
         _id
@@ -32,6 +34,8 @@ interface MemberData {
   rank: string;
   qualifications: string[];
   team: string;
+  callsign?: string;
+  driverClassification?: string;
 }
 
 interface AvailabilityData extends Availability {
