@@ -1,3 +1,4 @@
+import { useAuth } from '../components/AuthContext';
 import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
@@ -25,6 +26,8 @@ interface Params {
 const ManageMember: React.FC = () => {
   const params = useParams<Params>();
   const history = useHistory();
+  const auth = useAuth();
+  const me = auth.member!;
 
   let week: Interval;
 
@@ -40,6 +43,7 @@ const ManageMember: React.FC = () => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
+        filter: { unit: me.unit },
         start: week.start.toJSDate(),
         end: week.end.toJSDate(),
       },

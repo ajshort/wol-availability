@@ -18,8 +18,7 @@ import { useHistory } from 'react-router-dom';
 const ChooseMember: React.FC = () => {
   const auth = useAuth();
   const history = useHistory();
-
-  const me: any = auth.member;
+  const me = auth.member!;
 
   const currentWeek = getWeekInterval();
   const weeks = [];
@@ -59,7 +58,10 @@ const ChooseMember: React.FC = () => {
               ))}
             </Form.Control>
           </Form.Group>
-          <Query<GetMembersData, GetMembersVars> query={GET_MEMBERS_QUERY}>
+          <Query<GetMembersData, GetMembersVars>
+            query={GET_MEMBERS_QUERY}
+            variables={{ filter: { unit: me.unit } }}
+          >
             {({ loading, error, data }) => {
               if (loading) {
                 return <p><Spinner as='span' animation='border' size='sm' /> Loading&hellip;</p>;
