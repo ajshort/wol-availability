@@ -1,6 +1,5 @@
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
-import TeamBadge from '../components/TeamBadge';
 import { AvailabilityIncludedFn, calculateMinimumAvailabilities } from '../model/availability';
 import { getDayIntervals, getIntervalPosition } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
@@ -14,16 +13,24 @@ import Measure from 'react-measure';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
+interface InfoColumnProps {
+  key: string;
+  heading: string;
+  className: string;
+  render: (member: MemberWithAvailabilityData) => ReactNode;
+}
+
 interface UnitTableRowProps extends ListChildComponentProps {
   data: MemberWithAvailabilityData[];
   week: Interval;
   days: Interval[];
   featuredQualifications: string[];
+  infoColumns?: InfoColumnProps[];
   renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
 }
 
 const UnitTableRow: React.FC<UnitTableRowProps> = props => {
-  const { data, week, days, index, style, featuredQualifications, renderMember } = props;
+  const { data, week, days, index, style, featuredQualifications, infoColumns, renderMember } = props;
 
   const member = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
@@ -33,9 +40,11 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
       <div className='unit-table-cell unit-table-name'>
         <a title={member.number.toString()}>{member.fullName}</a> <RankImage rank={member.rank} width={8} height={16} />
       </div>
-      <div className='unit-table-cell unit-table-team'>
-        <TeamBadge team={member.team} />
-      </div>
+      {infoColumns && infoColumns.map(column => (
+        <div key={column.key} className={clsx('unit-table-cell', column.className)}>
+          {column.render(member)}
+        </div>
+      ))}
       {featuredQualifications.length > 0 && (
         <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>
           {
@@ -83,13 +92,14 @@ export interface UnitTableProps {
   interval: Interval;
   members: MemberWithAvailabilityData[];
   featuredQualifications?: string[];
+  infoColumns?: InfoColumnProps[];
   renderMember?: (interval: Interval, member: MemberWithAvailabilityData) => ReactNode;
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
   footers?: UnitTableFooter[];
 }
 
 const UnitTable: React.FC<UnitTableProps> = props => {
-  const { className, interval, members, sort, renderMember, footers } = props;
+  const { className, interval, members, sort, renderMember, footers, infoColumns } = props;
 
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
     a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
@@ -110,7 +120,11 @@ const UnitTable: React.FC<UnitTableProps> = props => {
     <div className={clsx(className, 'unit-table')}>
       <div className='unit-table-header unit-table-row' style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>Name</div>
-        <div className='unit-table-cell unit-table-team'>Team</div>
+        {infoColumns && infoColumns.map(column => (
+          <div key={column.key} className={clsx('unit-table-cell', column.className)}>
+            {column.heading}
+          </div>
+        ))}
         {featuredQualifications.length > 0 && (
           <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>Qualifications</div>
         )}
@@ -142,6 +156,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
                       days={days}
                       week={interval}
                       featuredQualifications={featuredQualifications || []}
+                      infoColumns={infoColumns}
                       renderMember={renderMember}
                       {...props}
                     />

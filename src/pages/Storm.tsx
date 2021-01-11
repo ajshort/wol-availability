@@ -1,6 +1,7 @@
 import { useAuth } from '../components/AuthContext';
 import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
+import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
 import { getWeekInterval, getIntervalPosition, TIME_ZONE } from '../model/dates';
@@ -87,6 +88,16 @@ const ManageMember: React.FC = () => {
           <UnitTable
             interval={week}
             members={members}
+            infoColumns={[
+              {
+                key: 'team',
+                className: 'unit-table-team',
+                heading: 'Team',
+                render: (member) => (
+                  <TeamBadge team={member.team} />
+                )
+              }
+            ]}
             renderMember={(interval, member) => (
               member.availabilities.map(availability => {
                 if (availability.storm === undefined) {
