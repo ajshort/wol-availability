@@ -67,7 +67,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
             <Nav className='ml-auto'>
               <NavDropdown
                 id='nav-dropdown-user'
-                title={<><FaUser /> {member ? (member as any).fullName : ''}</>}
+                title={<><FaUser /> {`${member.fullName} (${member.unit})`}</>}
               >
                 <LinkContainer to='/member/me'>
                   <NavDropdown.Item>My availability</NavDropdown.Item>
