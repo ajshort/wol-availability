@@ -117,6 +117,25 @@ const Rescue: React.FC<RescueProps> = props => {
             members={members}
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
             sort={sort}
+            infoColumns={[
+              {
+                key: 'dov',
+                className: 'unit-table-dov',
+                heading: 'DOV',
+                render: (member) => {
+                  switch (member.driverLevel) {
+                  case 3:
+                    return <Badge variant='primary'>L3</Badge>;
+                  case 2:
+                    return <Badge variant='secondary'>L2</Badge>;
+                  case 1:
+                    return <Badge>L1</Badge>;
+                  default:
+                    return null;
+                  }
+                },
+              }
+            ]}
             renderMember={(interval, member) => (
               member.availabilities.map(availability => {
                 if (availability.rescue === undefined) {
