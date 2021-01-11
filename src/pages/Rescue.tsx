@@ -180,9 +180,7 @@ export const FloodRescue: React.FC = () => {
       baseUrl='/unit/fr'
       qualifications={FLOOD_RESCUE}
       sort={(a, b) => (
-        compareFloodRescue(a.qualifications, b.qualifications) ||
-        a.team.localeCompare(b.team) ||
-        a.surname.localeCompare(b.surname)
+        compareFloodRescue(a.qualifications, b.qualifications) || a.surname.localeCompare(b.surname)
       )}
       footers={[
         {
@@ -214,6 +212,9 @@ export const VerticalRescue: React.FC = () => (
     title='Vertical Rescue'
     baseUrl='/unit/vr'
     qualifications={VERTICAL_RESCUE}
+    sort={(a, b) => (
+      a.surname.localeCompare(b.surname)
+    )}
     footers={[
       {
         title: 'Immediate',
