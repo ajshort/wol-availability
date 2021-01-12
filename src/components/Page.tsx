@@ -58,7 +58,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
             <Brand text={shortTitle || title} />
           </LinkContainer>
           <Navbar.Toggle />
-          <Navbar.Collapse>
+          <Navbar.Collapse timeout={0}>
             <Nav>
               <NavLink to='/' exact>Home</NavLink>
               <NavLink to='/member'>Member</NavLink>
