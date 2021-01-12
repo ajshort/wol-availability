@@ -93,8 +93,6 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
         end: !element.classList.contains('interval-selection-drag-start'),
       },
     });
-
-    e.preventDefault();
   }
 
   handleTouchMove(e: TouchEvent) {
@@ -116,8 +114,6 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     }
 
     this.handleMove(touch.clientX);
-
-    e.preventDefault();
   }
 
   handleMouseMove(e: MouseEvent) {
