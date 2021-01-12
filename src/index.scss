@@ -212,7 +212,6 @@
   font-weight: bold;
 }
 .unit-table-row {
-  border-bottom: 1px solid $table-border-color;
   display: flex;
   flex-direction: row;
 }
@@ -221,6 +220,7 @@
 }
 .unit-table-cell {
   align-items: center;
+  border-bottom: 1px solid $table-border-color;
   display: flex;
   padding: 0 0.5 * $spacer;
   height: 32px;
@@ -235,6 +235,7 @@
   position: relative;
 
   .unit-table-day {
+    border-bottom: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
     display: flex;
     flex-direction: row;
