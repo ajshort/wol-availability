@@ -38,9 +38,9 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
   const member = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
-  const editable = me?.permission === 'EDIT_UNIT' ||
-                   me?.permission === 'EDIT_TEAM' && me?.team === member.team ||
-                   me?.number === member.number;
+  const editable = (me?.permission === 'EDIT_UNIT') ||
+                   (me?.permission === 'EDIT_TEAM' && me?.team === member.team) ||
+                   (me?.number === member.number);
 
   return (
     <div className='unit-table-row' style={style}>
