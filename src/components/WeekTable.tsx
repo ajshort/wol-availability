@@ -17,6 +17,7 @@ interface IntervalSelectionState {
   bounds?: BoundingRect;
 
   drag?: {
+    touch?: number;
     origin: { x: number; y: number; };
     selection: Interval;
     bounds: Interval;
@@ -35,15 +36,21 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
 
   componentDidUpdate(_: IntervalSelectionProps, prev: IntervalSelectionState) {
     if (!prev.drag && this.state.drag) {
+      document.addEventListener('touchmove', this.handleTouchMove.bind(this));
+      document.addEventListener('touchend', this.handleTouchEnd.bind(this));
       document.addEventListener('mousemove', this.handleMouseMove.bind(this));
       document.addEventListener('mouseup', this.handleMouseUp.bind(this));
     } else if (prev.drag && !this.state.drag) {
+      document.removeEventListener('touchmove', this.handleTouchMove.bind(this));
+      document.removeEventListener('touchend', this.handleTouchEnd.bind(this));
       document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
       document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
     }
   }
 
   componentWillUnmount() {
+    document.removeEventListener('touchmove', this.handleTouchMove.bind(this));
+    document.removeEventListener('touchend', this.handleTouchEnd.bind(this));
     document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
     document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
   }
@@ -70,13 +77,60 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     e.preventDefault();
   }
 
+  handleTouchStart(e: React.TouchEvent<HTMLDivElement>, selection: Interval, bounds: Interval) {
+    const element = e.target as HTMLDivElement;
+    const touch = e.touches[0];
+
+    this.setState({
+      ...this.state,
+      drag: {
+        touch: touch.identifier,
+        origin: { x: touch.clientX, y: touch.clientY },
+        selection,
+        bounds,
+        updated: selection,
+        start: !element.classList.contains('interval-selection-drag-end'),
+        end: !element.classList.contains('interval-selection-drag-start'),
+      },
+    });
+
+    e.preventDefault();
+  }
+
+  handleTouchMove(e: TouchEvent) {
+    if (this.state.drag === undefined) {
+      return;
+    }
+
+    let touch: Touch | null = null;
+
+    for (let i = 0; i < e.touches.length; ++i) {
+      if (e.touches[i].identifier === this.state.drag?.touch) {
+        touch = e.touches[i];
+        break;
+      }
+    }
+
+    if (!touch) {
+      return;
+    }
+
+    this.handleMove(touch.clientX);
+
+    e.preventDefault();
+  }
+
   handleMouseMove(e: MouseEvent) {
     if (this.state.drag === undefined) {
       return;
     }
 
-    const { drag } = this.state;
-    const dx = e.clientX - drag.origin.x;
+    this.handleMove(e.clientX);
+  }
+
+  handleMove(clientX: number) {
+    const drag = this.state.drag!;
+    const dx = clientX - drag.origin.x;
     const ms = (dx / this.state.bounds!.width) * this.props.interval.length('milliseconds');
 
     const round = (dt: DateTime) => {
@@ -111,10 +165,10 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
       onClick(interval.start.plus({ milliseconds }));
     }
 
-    this.handleMouseUp(e);
+    this.handleMouseUp();
   }
 
-  handleMouseUp(e: MouseEvent | React.MouseEvent<HTMLDivElement>) {
+  handleMouseUp() {
     if (!this.state.drag) {
       return;
     }
@@ -137,6 +191,10 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     }
 
     this.setState({ ...this.state, drag: undefined });
+  }
+
+  handleTouchEnd(e: TouchEvent) {
+    this.handleMouseUp();
   }
 
   render() {
@@ -185,6 +243,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
                   className={className}
                   style={style}
                   onMouseDown={(e) => this.handleMouseDown(e, selection.interval, selection.bounds)}
+                  onTouchStart={(e) => this.handleTouchStart(e, selection.interval, selection.bounds)}
                 >
                   <div className='interval-selection-drag-start' />
                   <span className='interval-selection-from'>
