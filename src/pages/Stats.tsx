@@ -56,8 +56,6 @@ const Stats = () => {
         <RadioButtonGroup<Type>
           options={[
             { value: Type.STORM, label: 'Storm', variant: 'info' },
-            { value: Type.VR, label: 'VR', variant: 'info' },
-            { value: Type.FR, label: 'FR', variant: 'info' },
           ]}
           value={type}
           onChange={handleChangeType}
