@@ -15,7 +15,6 @@ import {
   SUPPRESSED_BY,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
-import { formatMobile } from '../utils';
 
 import gql from 'graphql-tag';
 import React, { useState } from 'react';
@@ -91,6 +90,20 @@ const QUERY = gql`
     }
   }
 `;
+
+function formatMobile(mobile?: string) {
+  if (!mobile) {
+    return '';
+  }
+
+  const nums = mobile.replace(/\s/g, '');
+
+  if (!/[0-9]{10}/.test(nums)) {
+    return mobile;
+  }
+
+  return [nums.substring(0, 4), nums.substring(4, 7), nums.substring(7, 10)].join(' ');
+}
 
 interface ShiftTeamsAlertProps {
   shiftTeams: ShiftTeamsData;

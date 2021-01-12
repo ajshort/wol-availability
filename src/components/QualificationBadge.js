@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';
 
@@ -17,7 +17,7 @@ const QualificationBadge = ({ qualification, className }) => {
   }
 
   return (
-    <Badge className={classnames(classes)}>
+    <Badge className={clsx(classes)}>
       <abbr title={qualification}>{text}</abbr>
     </Badge>
   );
