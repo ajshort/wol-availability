@@ -40,6 +40,12 @@ export function useMutateMemberAvailability(memberNumber: number, interval: Inte
           },
         },
       });
+
+      for (const fieldName of ['availableAt', 'members', 'statistics']) {
+        cache.evict({ id: 'ROOT_QUERY', fieldName });
+      }
+
+      cache.gc();
     }
   });
 };
