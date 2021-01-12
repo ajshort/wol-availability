@@ -2,6 +2,7 @@ import logo from '../assets/logo.svg';
 import { AuthConsumer } from './AuthContext';
 
 import React, { useEffect } from 'react';
+import Div100vh from 'react-div-100vh';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
@@ -94,10 +95,10 @@ const Page: React.FC<PageProps> = ({ title, shortTitle, children }) => {
   });
 
   return (
-    <React.Fragment>
+    <Div100vh id='container'>
       <Header title={title} shortTitle={shortTitle} />
       {children}
-    </React.Fragment>
+    </Div100vh>
   );
 }
 

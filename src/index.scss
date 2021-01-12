@@ -1,10 +1,8 @@
 @import 'bootstrap/scss/bootstrap.scss';
 
-#root {
+#container {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100vh;
 }
 
 #app-navbar .navbar-brand img {
@@ -197,6 +195,9 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+}
+.unit-table-header, .unit-table-footer {
+  overflow-x: hidden;
 }
 .unit-table-header {
   font-weight: bold;
