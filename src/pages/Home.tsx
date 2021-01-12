@@ -347,44 +347,51 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
   );
 }
 
-const Home: React.FC = () => (
-  <Page>
-    <Container fluid className='my-3'>
-      <Query<QueryData> query={QUERY}>
-        {({ loading, error, data }) => {
-          if (loading) {
+const Home: React.FC = () => {
+  const auth = useAuth();
+  const unit = auth.member!.unit;
+
+  return (
+    <Page>
+      <Container fluid className='my-3'>
+        <Query<QueryData> query={QUERY}>
+          {({ loading, error, data }) => {
+            if (loading) {
+              return (
+                <Alert variant='info'>
+                  <Spinner size='sm' animation='border' /> Loading currently available members&hellip;
+                </Alert>
+              );
+            }
+
+            if (error || !data) {
+              return <Alert variant='danger'>Error loading currently available members.</Alert>;
+            }
+
             return (
-              <Alert variant='info'>
-                <Spinner size='sm' animation='border' /> Loading currently available members&hellip;
-              </Alert>
+              <React.Fragment>
+                {unit === 'WOL' && (
+                  <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} />
+                )}
+                <Row>
+                  <Col md={6}>
+                    <StormCard
+                      members={data.availableAt.filter(({ storm }) => storm === 'AVAILABLE').map(val => val.member)}
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <RescueCard availabilties={data.availableAt.filter(({ rescue }) => (
+                      rescue === 'IMMEDIATE' || rescue === 'SUPPORT'
+                    ))} />
+                  </Col>
+                </Row>
+              </React.Fragment>
             );
-          }
-
-          if (error || !data) {
-            return <Alert variant='danger'>Error loading currently available members.</Alert>;
-          }
-
-          return (
-            <React.Fragment>
-              <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} />
-              <Row>
-                <Col md={6}>
-                  <StormCard
-                    members={data.availableAt.filter(({ storm }) => storm === 'AVAILABLE').map(val => val.member)}
-                  />
-                </Col>
-                <Col md={6}>
-                  <RescueCard availabilties={data.availableAt.filter(({ rescue }) => (
-                    rescue === 'IMMEDIATE' || rescue === 'SUPPORT'
-                  ))} />
-                </Col>
-              </Row>
-            </React.Fragment>
-          );
-        }}
-      </Query>
-    </Container>
-  </Page>
-);
+          }}
+        </Query>
+      </Container>
+    </Page>
+  );
+}
 
 export default Home;
