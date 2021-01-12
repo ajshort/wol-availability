@@ -9,6 +9,7 @@ import {
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
+  MANUAL_DRIVER,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
 import {
@@ -128,21 +129,24 @@ const Rescue: React.FC<RescueProps> = props => {
                 key: 'dov',
                 className: 'unit-table-dov d-none d-xl-flex',
                 heading: 'DOV',
-                render: (member) => {
-                  if (typeof member.driverLevel !== 'number') {
+                render: ({ driverLevel, qualifications }) => {
+                  if (typeof driverLevel !== 'number') {
                     return null;
                   }
 
-                  let variant: BadgeProps['variant'] = undefined;
-                  if (member.driverLevel === 3) {
-                    variant = 'primary';
-                  } else if (member.driverLevel === 2) {
-                    variant = 'secondary';
+                  let classNames: string[] = [];
+
+                  if (driverLevel === 3) {
+                    classNames.push('dov-badge-3');
+                  } else if (driverLevel === 2) {
+                    classNames.push('dov-badge-2');
                   }
 
-                  let text = 'L' + member.driverLevel.toString();
+                  if (!qualifications.includes(MANUAL_DRIVER)) {
+                    classNames.push('dov-badge-auto-only');
+                  }
 
-                  return <Badge variant={variant} title={title}>{text}</Badge>
+                  return <Badge className={clsx(classNames)}>{`L${driverLevel}`}</Badge>
                 },
               }
             ]}
