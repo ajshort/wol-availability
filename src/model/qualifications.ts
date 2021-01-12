@@ -131,6 +131,8 @@ export const FEATURED = [
   'Key holder',
 ];
 
+export const MANUAL_DRIVER = 'Manual Driver';
+
 export const SUPPRESSED_BY: { [key: string]: string } = {
   'Chainsaw Operator (Cross-Cut & Limb)': 'Chainsaw Operator (Tree Felling)',
   'Swiftwater Rescue Awareness (FR L1)': 'Swiftwater Rescue Technician (FR L3)',

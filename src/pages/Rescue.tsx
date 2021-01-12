@@ -5,6 +5,7 @@ import WeekBrowser from '../components/WeekBrowser';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   compareFloodRescue,
+  MANUAL_DRIVER,
   FLOOD_RESCUE,
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
@@ -24,7 +25,7 @@ import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from 'react-apollo';
 import Alert from 'react-bootstrap/Alert';
-import Badge from 'react-bootstrap/Badge';
+import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';
@@ -119,20 +120,30 @@ const Rescue: React.FC<RescueProps> = props => {
             sort={sort}
             infoColumns={[
               {
+                key: 'callsign',
+                className: 'unit-table-callsign',
+                heading: 'Callsign',
+                render: (member) => member.callsign,
+              },
+              {
                 key: 'dov',
                 className: 'unit-table-dov',
                 heading: 'DOV',
                 render: (member) => {
-                  switch (member.driverLevel) {
-                  case 3:
-                    return <Badge variant='primary'>L3</Badge>;
-                  case 2:
-                    return <Badge variant='secondary'>L2</Badge>;
-                  case 1:
-                    return <Badge>L1</Badge>;
-                  default:
+                  if (typeof member.driverLevel !== 'number') {
                     return null;
                   }
+
+                  let variant: BadgeProps['variant'] = undefined;
+                  if (member.driverLevel === 3) {
+                    variant = 'primary';
+                  } else if (member.driverLevel === 2) {
+                    variant = 'secondary';
+                  }
+
+                  let text = 'L' + member.driverLevel.toString();
+
+                  return <Badge variant={variant} title={title}>{text}</Badge>
                 },
               }
             ]}

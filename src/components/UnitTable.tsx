@@ -180,7 +180,9 @@ const UnitTable: React.FC<UnitTableProps> = props => {
             style={{ paddingRight: scrollbarWidth }}
           >
             <div className='unit-table-cell unit-table-name'>{title}</div>
-            <div className='unit-table-cell unit-table-team'></div>
+            {infoColumns && infoColumns.map((column) => (
+              <div key={column.key} className={clsx('unit-table-cell', column.className)} />
+            ))}
             {featuredQualifications.length > 0 && (
               <div className='unit-table-cell unit-table-quals d-none d-xl-flex'></div>
             )}
