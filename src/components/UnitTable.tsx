@@ -1,5 +1,6 @@
-import QualificationBadge from '../components/QualificationBadge';
-import RankImage from '../components/RankImage';
+import { useAuth } from './AuthContext'
+import QualificationBadge from './QualificationBadge';
+import RankImage from './RankImage';
 import { AvailabilityIncludedFn, calculateMinimumAvailabilities } from '../model/availability';
 import { getDayIntervals, getIntervalPosition } from '../model/dates';
 import { FEATURED, SUPPRESSED_BY } from '../model/qualifications';
@@ -10,6 +11,7 @@ import _ from 'lodash';
 import { Interval } from 'luxon';
 import React, { ReactNode, useRef, useState } from 'react';
 import Measure from 'react-measure';
+import { Link } from 'react-router-dom';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
@@ -31,14 +33,24 @@ interface UnitTableRowProps extends ListChildComponentProps {
 
 const UnitTableRow: React.FC<UnitTableRowProps> = props => {
   const { data, week, days, index, style, featuredQualifications, infoColumns, renderMember } = props;
+  const { member: me } = useAuth();
 
   const member = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
+  const editable = me?.permission === 'EDIT_UNIT' ||
+                   me?.permission === 'EDIT_TEAM' && me?.team === member.team ||
+                   me?.number === member.number;
+
   return (
     <div className='unit-table-row' style={style}>
       <div title={member.number.toString()} className='unit-table-cell unit-table-name'>
-        {member.fullName} <RankImage rank={member.rank} width={8} height={16} />
+        {editable ? (
+          <Link to={`/member/${member.number}`}>{member.fullName}</Link>
+        ) : (
+          <>{member.fullName}</>
+        )}
+        <RankImage rank={member.rank} width={8} height={16} />
       </div>
       {infoColumns && infoColumns.map(column => (
         <div key={column.key} className={clsx('unit-table-cell', column.className)}>

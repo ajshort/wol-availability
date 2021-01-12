@@ -9,7 +9,7 @@ import { ApolloProvider, Query } from 'react-apollo';
 interface LoggedInMember {
   number: number;
   fullName: string;
-  permission: string;
+  permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';
   team: string;
   unit: string;
 }
