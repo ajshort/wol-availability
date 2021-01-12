@@ -121,13 +121,13 @@ const Rescue: React.FC<RescueProps> = props => {
             infoColumns={[
               {
                 key: 'callsign',
-                className: 'unit-table-callsign',
+                className: 'unit-table-callsign d-none d-xl-flex',
                 heading: 'Callsign',
                 render: (member) => member.callsign,
               },
               {
                 key: 'dov',
-                className: 'unit-table-dov',
+                className: 'unit-table-dov d-none d-xl-flex',
                 heading: 'DOV',
                 render: (member) => {
                   if (typeof member.driverLevel !== 'number') {
