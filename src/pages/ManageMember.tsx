@@ -463,9 +463,9 @@ const ManageMember: React.FC = () => {
         <FaEllipsisV />
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        <Dropdown.Item disabled>Save as my default</Dropdown.Item>
+        {/* <Dropdown.Item disabled>Save as my default</Dropdown.Item>
         <Dropdown.Item disabled>Set to my default</Dropdown.Item>
-        <Dropdown.Divider />
+        <Dropdown.Divider /> */}
         <Dropdown.Item onClick={() => handleSet(undefined)}>Clear</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
