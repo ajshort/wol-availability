@@ -7,8 +7,8 @@ import { MemberWithAvailabilityData } from '../queries/availability';
 
 import clsx from 'clsx';
 import _ from 'lodash';
-import { DateTime, Interval } from 'luxon';
-import React, { ReactNode, useState } from 'react';
+import { Interval } from 'luxon';
+import React, { ReactNode, useRef, useState } from 'react';
 import Measure from 'react-measure';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -113,12 +113,25 @@ const UnitTable: React.FC<UnitTableProps> = props => {
   // Are we showing qualifications?
   const featuredQualifications = props.featuredQualifications || FEATURED;
 
-  // We need to track the scrollbar to offset the header and footer.
+  // We need to track the scrollbar to offset the header and footer. We also track the horizontal
+  // scroll and offset the header and footer.
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  const header = useRef<HTMLDivElement>(null);
+  const footer = useRef<HTMLDivElement>(null);
+
+  const setScrollLeft = (left: number) => {
+    if (header.current) {
+      header.current.scrollLeft = left;
+    }
+    if (footer.current) {
+      footer.current.scrollLeft = left;
+    }
+  }
 
   return (
     <div className={clsx(className, 'unit-table')}>
-      <div className='unit-table-header unit-table-row' style={{ paddingRight: scrollbarWidth }}>
+      <div className='unit-table-header unit-table-row' ref={header} style={{ paddingRight: scrollbarWidth }}>
         <div className='unit-table-cell unit-table-name'>Name</div>
         {infoColumns && infoColumns.map(column => (
           <div key={column.key} className={clsx('unit-table-cell', column.className)}>
@@ -140,7 +153,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
         setScrollbarWidth((rect.offset?.width || 0) - (rect.client?.width || 0))
       )}>
         {({ measureRef }) => (
-          <div className='unit-table-body'>
+          <div className='unit-table-body' onScroll={e => setScrollLeft((e.target as HTMLElement).scrollLeft)}>
             <AutoSizer>
               {({ width, height }) => (
                 <FixedSizeList
@@ -167,44 +180,48 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           </div>
         )}
       </Measure>
-      {footers && footers.map(({ title, included, highlightLessThan }, i) => {
-        // We figure out the minimum number of members available at any one time for each block.
-        const counts = days.map(day => calculateMinimumAvailabilities(
-          day.divideEqually(4), members, included
-        ));
+      {footers && (
+        <div className='unit-table-footers' ref={footer}>
+          {footers.map(({ title, included, highlightLessThan }, i) => {
+            // We figure out the minimum number of members available at any one time for each block.
+            const counts = days.map(day => calculateMinimumAvailabilities(
+              day.divideEqually(4), members, included
+            ));
 
-        return (
-          <div
-            key={i}
-            className='unit-table-footer unit-table-row'
-            style={{ paddingRight: scrollbarWidth }}
-          >
-            <div className='unit-table-cell unit-table-name'>{title}</div>
-            {infoColumns && infoColumns.map((column) => (
-              <div key={column.key} className={clsx('unit-table-cell', column.className)} />
-            ))}
-            {featuredQualifications.length > 0 && (
-              <div className='unit-table-cell unit-table-quals d-none d-xl-flex'></div>
-            )}
-            <div className='unit-table-days'>
-              {_.zip(days, counts).map(([day, counts]) => (
-                <div key={day!.start.toString()} className='unit-table-day'>
-                  {counts!.map((count, i) => (
-                    <div
-                      key={i}
-                      className={clsx('unit-table-day-block',{
-                        'text-danger': highlightLessThan !== undefined && count < highlightLessThan,
-                      })}
-                    >
-                      {count}
+            return (
+              <div
+                key={i}
+                className='unit-table-footer unit-table-row'
+                style={{ paddingRight: scrollbarWidth }}
+              >
+                <div className='unit-table-cell unit-table-name'>{title}</div>
+                {infoColumns && infoColumns.map((column) => (
+                  <div key={column.key} className={clsx('unit-table-cell', column.className)} />
+                ))}
+                {featuredQualifications.length > 0 && (
+                  <div className='unit-table-cell unit-table-quals d-none d-xl-flex'></div>
+                )}
+                <div className='unit-table-days'>
+                  {_.zip(days, counts).map(([day, counts]) => (
+                    <div key={day!.start.toString()} className='unit-table-day'>
+                      {counts!.map((count, i) => (
+                        <div
+                          key={i}
+                          className={clsx('unit-table-day-block',{
+                            'text-danger': highlightLessThan !== undefined && count < highlightLessThan,
+                          })}
+                        >
+                          {count}
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )
-      })}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   );
 };
