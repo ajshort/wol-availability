@@ -1,10 +1,8 @@
-import { ApolloClient, ApolloError } from 'apollo-client';
-import { createHttpLink } from 'apollo-link-http';
-import { setContext } from 'apollo-link-context';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient, ApolloError, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
+import { Query } from '@apollo/client/react/components';
+import { setContext } from '@apollo/client/link/context';
 import gql from 'graphql-tag';
 import React, { useContext, useState } from 'react';
-import { ApolloProvider, Query } from 'react-apollo';
 
 interface LoggedInMember {
   number: number;

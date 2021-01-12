@@ -14,6 +14,7 @@ import {
   SetDutyOfficerVars
 } from '../queries/do';
 
+import { Mutation, Query } from '@apollo/client/react/components';
 import clsx from 'clsx';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
@@ -27,7 +28,6 @@ import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import { FaLock, FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
-import { Mutation, Query } from 'react-apollo';
 
 interface EditModalProps {
   week: Interval;

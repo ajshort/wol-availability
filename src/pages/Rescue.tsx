@@ -22,7 +22,7 @@ import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';

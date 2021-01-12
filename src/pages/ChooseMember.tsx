@@ -6,7 +6,7 @@ import { GET_MEMBERS_QUERY, GetMembersData, GetMembersVars } from '../queries/me
 import _ from 'lodash';
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import { Query } from 'react-apollo';
+import { Query } from '@apollo/client/react/components';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';

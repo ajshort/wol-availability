@@ -17,7 +17,7 @@ import {
   GetMemberAvailabilityVars,
 } from '../queries/availability';
 
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/client';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';

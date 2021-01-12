@@ -2,7 +2,7 @@ import TeamBadge from './TeamBadge';
 import { GET_MEMBERS_QUERY, GetMembersData, GetMembersVars } from '../queries/members';
 
 import React from 'react';
-import { Query } from 'react-apollo';
+import { Query } from '@apollo/client/react/components';
 import { Typeahead, Highlighter } from 'react-bootstrap-typeahead';
 
 interface MemberSelectorProps {

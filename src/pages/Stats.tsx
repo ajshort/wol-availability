@@ -5,7 +5,7 @@ import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../q
 
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';

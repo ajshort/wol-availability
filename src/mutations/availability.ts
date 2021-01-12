@@ -6,7 +6,7 @@ import {
   SetMemberAvailabilityData,
   SetMemberAvailabilityVars,
 } from '../queries/availability';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/client';
 import { Interval } from 'luxon';
 
 export function useMutateMemberAvailability(memberNumber: number, interval: Interval) {
