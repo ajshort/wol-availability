@@ -1,3 +1,4 @@
+import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
@@ -43,6 +44,7 @@ interface DutyOfficersData {
 }
 
 interface ExtendedMemberData extends MemberData {
+  unit: string;
   mobile?: string;
 }
 
@@ -82,6 +84,7 @@ const QUERY = gql`
         rank
         qualifications
         team
+        unit
         mobile
       }
 
@@ -141,9 +144,14 @@ interface StormCardProps {
 }
 
 const StormCard: React.FC<StormCardProps> = ({ members }) => {
-  members.sort((a, b) => (
-    a.surname.localeCompare(b.surname)
-  ));
+  const auth = useAuth();
+  const unit = auth.member!.unit;
+
+  members = members
+    .filter(member => member.unit === unit)
+    .sort((a, b) => (
+      a.surname.localeCompare(b.surname)
+    ));
 
   return (
     <Card className='mb-3'>
