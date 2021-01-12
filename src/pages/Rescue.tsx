@@ -5,7 +5,6 @@ import WeekBrowser from '../components/WeekBrowser';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   compareFloodRescue,
-  MANUAL_DRIVER,
   FLOOD_RESCUE,
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,

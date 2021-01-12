@@ -37,8 +37,8 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
 
   return (
     <div className='unit-table-row' style={style}>
-      <div className='unit-table-cell unit-table-name'>
-        <a title={member.number.toString()}>{member.fullName}</a> <RankImage rank={member.rank} width={8} height={16} />
+      <div title={member.number.toString()} className='unit-table-cell unit-table-name'>
+        {member.fullName} <RankImage rank={member.rank} width={8} height={16} />
       </div>
       {infoColumns && infoColumns.map(column => (
         <div key={column.key} className={clsx('unit-table-cell', column.className)}>
