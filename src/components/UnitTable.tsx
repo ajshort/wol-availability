@@ -131,7 +131,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
         <div className='unit-table-days'>
           {days.map(({ start }) => (
             <div key={start.toString()} className='unit-table-cell unit-table-day'>
-              {start.toLocaleString(DateTime.DATE_SHORT)}
+              {start.toLocaleString({ weekday: 'short', day: '2-digit'})}
             </div>
           ))}
         </div>
