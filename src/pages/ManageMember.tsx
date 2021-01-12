@@ -36,7 +36,7 @@ import {
   FaEllipsisV,
   FaExclamationTriangle,
   FaMinusSquare,
-  FaSquare,
+  FaRegSquare,
   FaTimes,
 } from 'react-icons/fa';
 import Form from 'react-bootstrap/Form';
@@ -406,7 +406,7 @@ const ManageMember: React.FC = () => {
           return <FaMinusSquare />;
         }
 
-        return <FaSquare />;
+        return <FaRegSquare />;
       })()}
     </Button>
   );
