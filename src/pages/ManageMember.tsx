@@ -419,7 +419,7 @@ const ManageMember: React.FC = () => {
         className='mr-2'
         disabled={mutating || selections.length === 0}
       >
-        <FaBolt /> <span className='d-none d-md-inline'>Storm</span>
+        <FaBolt /> Storm
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
@@ -436,7 +436,7 @@ const ManageMember: React.FC = () => {
         className='mr-2'
         disabled={mutating || selections.length === 0}
       >
-        <FaExclamationTriangle /> <span className='d-none d-md-inline'>Rescue</span>
+        <FaExclamationTriangle /> Rescue
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>Immediate</Dropdown.Item>
