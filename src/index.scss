@@ -249,6 +249,7 @@
     display: flex;
     border-right: 1px solid lighten($table-border-color, 6%);
     flex-grow: 1;
+    width: 25%;
     &:last-child {
       border-right: none;
     }
