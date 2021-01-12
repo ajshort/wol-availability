@@ -193,7 +193,7 @@ class IntervalSelection extends React.Component<IntervalSelectionProps, Interval
     this.setState({ ...this.state, drag: undefined });
   }
 
-  handleTouchEnd(e: TouchEvent) {
+  handleTouchEnd() {
     this.handleMouseUp();
   }
 

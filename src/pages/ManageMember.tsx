@@ -41,7 +41,6 @@ import {
 } from 'react-icons/fa';
 import Form from 'react-bootstrap/Form';
 import { useHistory, useParams } from 'react-router-dom';
-import ReactSwipe from 'react-swipe';
 
 interface RescueMemberBadgesProps {
   storm?: StormAvailable;
@@ -112,10 +111,6 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = props => {
 
   const handleClick = (clicked: Interval) => {
     const selected = selections.some(selection => selection.engulfs(clicked));
-
-    if (selected) {
-    } else {
-    }
 
     if (selected) {
       onChangeSelections(Interval.xor([...selections, clicked]));
@@ -507,20 +502,18 @@ const ManageMember: React.FC = () => {
           <WeekBrowser value={week} onChange={handleChangeWeek} />
         </div>
       </div>
-      <ReactSwipe>
-        <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-          {row => (
-            <AvailabilityRow
-              key={row.toString()}
-              interval={row}
-              availabilities={availabilities}
-              selections={selections}
-              onChangeSelections={setSelections}
-              rescueMember={rescueMember}
-            />
-          )}
-        </WeekTable>
-      </ReactSwipe>
+      <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
+        {row => (
+          <AvailabilityRow
+            key={row.toString()}
+            interval={row}
+            availabilities={availabilities}
+            selections={selections}
+            onChangeSelections={setSelections}
+            rescueMember={rescueMember}
+          />
+        )}
+      </WeekTable>
       {selectingVehicle && (
         <CoverVehicleModal
           onSelect={vehicle => handleSet({ vehicle })}

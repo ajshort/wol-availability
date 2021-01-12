@@ -32,7 +32,6 @@
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.3",
-    "react-swipe": "^6.0.4",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.5",
     "recharts": "^1.8.5",
@@ -72,7 +71,6 @@
     "@types/react-dom": "^16.9.7",
     "@types/react-measure": "^2.0.6",
     "@types/react-router-bootstrap": "^0.24.5",
-    "@types/react-swipe": "^6.0.0",
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.2",
     "@types/recharts": "^1.8.14"
