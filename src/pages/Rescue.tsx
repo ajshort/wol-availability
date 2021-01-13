@@ -194,7 +194,8 @@ export const FloodRescue: React.FC = () => {
       baseUrl='/unit/fr'
       qualifications={FLOOD_RESCUE}
       sort={(a, b) => (
-        compareFloodRescue(a.qualifications, b.qualifications) || a.surname.localeCompare(b.surname)
+        compareFloodRescue(a.qualifications, b.qualifications) ||
+        a.surname.localeCompare(b.surname)
       )}
       footers={[
         {
@@ -221,13 +222,45 @@ export const FloodRescue: React.FC = () => {
   );
 };
 
+function compareCallsigns(a?: string, b?: string) {
+  if (!a && !b) {
+    return 0;
+  }
+  if (!b) {
+    return -1;
+  }
+  if (!a) {
+    return 1;
+  }
+
+  const extract = (callsign: string) => {
+    const match = callsign.match(/([A-Z]+)([0-9]+)/);
+
+    if (!match) {
+      return undefined;
+    }
+
+    return { unit: match[1], number: parseInt(match[2], 10) };
+  }
+
+  // Split the callsign and sort by unit and number.
+  const ea = extract(a);
+  const eb = extract(b);
+
+  if (!ea || !eb) {
+    return 0;
+  }
+
+  return ea.unit.localeCompare(eb.unit) || ea.number - eb.number;
+}
+
 export const VerticalRescue: React.FC = () => (
   <Rescue
     title='Vertical Rescue'
     baseUrl='/unit/vr'
     qualifications={VERTICAL_RESCUE}
     sort={(a, b) => (
-      a.surname.localeCompare(b.surname)
+      compareCallsigns(a.callsign, b.callsign) || a.surname.localeCompare(b.surname)
     )}
     footers={[
       {
