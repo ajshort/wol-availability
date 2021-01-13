@@ -25,7 +25,7 @@ import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
-import Badge, { BadgeProps } from 'react-bootstrap/Badge';
+import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';

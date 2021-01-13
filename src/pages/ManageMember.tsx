@@ -10,14 +10,18 @@ import {
 } from '../model/availability';
 import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { VERTICAL_RESCUE, FLOOD_RESCUE } from '../model/qualifications';
-import { useMutateMemberAvailability } from '../mutations/availability';
+import {
+  SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION,
+  SetMemberDefaultAvailabilityVars,
+  useMutateMemberAvailability,
+} from '../mutations/availability';
 import {
   GET_MEMBER_AVAILABILITY_QUERY,
   GetMemberAvailabilityData,
   GetMemberAvailabilityVars,
 } from '../queries/availability';
 
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import clsx from 'clsx';
 import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
@@ -243,7 +247,12 @@ const ManageMember: React.FC = () => {
     }
   );
 
-  const [mutate, { loading: mutating }] = useMutateMemberAvailability(number, visible);
+  const [mutateAvailability, { loading: mutatingAvailability }] = useMutateMemberAvailability(number, visible);
+  const [mutateDefault, { loading: mutatingDefault }] = useMutation<boolean, SetMemberDefaultAvailabilityVars>(
+    SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION
+  );
+
+  const mutating = mutatingAvailability || mutatingDefault;
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
@@ -301,7 +310,7 @@ const ManageMember: React.FC = () => {
       }
     }
 
-    const promise = mutate({
+    const promise = mutateAvailability({
       variables: {
         start: bounds.start.toJSDate(),
         end: bounds.end.toJSDate(),
@@ -326,6 +335,26 @@ const ManageMember: React.FC = () => {
       promise.then(() => setSelections([]));
     }
   };
+
+  const setDefaultAvailability = (availabilities: AvailabilityInterval[]) => {
+    mutateDefault({
+      variables: {
+        memberNumber: number,
+        start: week.start.toJSDate(),
+        availabilities: availabilities
+          .map(({ interval, ...rest }) => ({ ...rest, interval: interval.intersection(week) }))
+          .filter(({ interval }) => interval !== null && !interval.isEmpty())
+          .map(({ interval, storm, rescue, vehicle, note }) => ({
+            start: interval!.start.toISO(),
+            end: interval!.end.toISO(),
+            storm,
+            rescue,
+            vehicle,
+            note,
+          })),
+      },
+    });
+  }
 
   const handleSet = (availability?: Availability) => {
     let updated = [...availabilities];
@@ -453,15 +482,15 @@ const ManageMember: React.FC = () => {
       <Dropdown.Toggle
         variant='light'
         id='more-dropdown'
-        disabled={mutating || selections.length === 0}
+        disabled={mutating}
       >
         <FaEllipsisV />
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        {/* <Dropdown.Item disabled>Save as my default</Dropdown.Item>
-        <Dropdown.Item disabled>Set to my default</Dropdown.Item>
-        <Dropdown.Divider /> */}
-        <Dropdown.Item onClick={() => handleSet(undefined)}>Clear</Dropdown.Item>
+        <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
+        <Dropdown.Item>Set to my default</Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => handleSet(undefined)} disabled={selections.length === 0}>Clear</Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
   );

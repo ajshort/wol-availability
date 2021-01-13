@@ -38,7 +38,7 @@ interface MemberData {
   driverLevel?: number;
 }
 
-interface AvailabilityData extends Availability {
+export interface AvailabilityData extends Availability {
   start: string;
   end: string;
 }
@@ -88,35 +88,6 @@ export interface GetMemberAvailabilityVars {
   memberNumber: number;
   start: Date;
   end: Date;
-}
-
-export const SET_MEMBER_AVAILABILITY_MUTATION = gql`
-  mutation ($start: DateTime!, $end: DateTime!, $availabilities: [AvailabilityInput!]!) {
-    setAvailabilities(start: $start, end: $end, availabilities: $availabilities) {
-      _id
-      start
-      end
-      storm
-      rescue
-      vehicle
-      note
-    }
-  }
-`;
-
-interface MemberAvailabilityInput {
-  memberNumber: number;
-  availabilities: AvailabilityData[]
-}
-
-export interface SetMemberAvailabilityData {
-  setAvailabilities: AvailabilityData[];
-}
-
-export interface SetMemberAvailabilityVars {
-  start: Date;
-  end: Date;
-  availabilities: MemberAvailabilityInput[];
 }
 
 export const GET_STATISTICS_QUERY = gql`
