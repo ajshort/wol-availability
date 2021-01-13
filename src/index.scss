@@ -321,6 +321,12 @@
 .qual-badge-imt { background: #00695c; color: #fff; }
 .qual-badge-🔑 { background: #eee; }
 
+.dov-badge-2 { background: #2196f3; color: #fff; }
+.dov-badge-3 { background: #0d47a1; color: #fff; }
+
+.dov-badge-2.dov-badge-auto-only { background: #ffc107; color: #212529; }
+.dov-badge-3.dov-badge-auto-only { background: lighten(#ffc107, 10%); color: #212529; }
+
 .react-datepicker-wrapper {
   width: 100%;
 }
