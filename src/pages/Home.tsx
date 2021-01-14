@@ -202,7 +202,7 @@ interface RescueCardListItemProps {
   availability: AvailableData;
 }
 
-const FEATURED_RESCUE = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
+const FEATURED_RESCUE = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
 
 const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ availability: { member, rescue } }) => (
   <ListGroup.Item>
@@ -248,9 +248,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
   };
 
   const vertical = availabilties
-    .filter(({ member: { qualifications } }) => qualifications.some(
-      qual => VERTICAL_RESCUE.indexOf(qual) !== -1
-    ))
+    .filter(({ member: { qualifications } }) => qualifications.includes(VERTICAL_RESCUE))
     .sort((a, b) => (
       compareRescue(a, b) ||
       a.member.team.localeCompare(b.member.team) ||
@@ -277,7 +275,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
 
   // Create totals for the badges up the top.
   for (const { member: { qualifications }, rescue } of availabilties) {
-    if (qualifications.some(qual => VERTICAL_RESCUE.indexOf(qual) !== -1)) {
+    if (qualifications.includes(VERTICAL_RESCUE)) {
       if (rescue === 'IMMEDIATE') {
         vr.immediate++;
       } else if (rescue === 'SUPPORT') {

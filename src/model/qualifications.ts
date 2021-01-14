@@ -1,6 +1,4 @@
-export const VERTICAL_RESCUE = [
-  'Vertical Rescue (PUASAR004B/PUASAR032A)',
-];
+export const VERTICAL_RESCUE = 'Vertical Rescue (PUASAR004B/PUASAR032A)';
 
 export const FLOOD_RESCUE_L1 = 'Swiftwater Rescue Awareness (FR L1)';
 export const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';

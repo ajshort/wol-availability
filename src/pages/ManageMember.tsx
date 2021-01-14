@@ -9,7 +9,7 @@ import {
   RescueAvailable,
 } from '../model/availability';
 import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
-import { VERTICAL_RESCUE, FLOOD_RESCUE } from '../model/qualifications';
+import { VERTICAL_RESCUE, FLOOD_RESCUE, PAD } from '../model/qualifications';
 import {
   SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION,
   SetMemberDefaultAvailabilityVars,
@@ -283,7 +283,7 @@ const ManageMember: React.FC = () => {
   });
 
   // Figure out if the member should be shown storm only mode, or rescue mode.
-  const rescueQuals = [...VERTICAL_RESCUE, ...FLOOD_RESCUE];
+  const rescueQuals = [VERTICAL_RESCUE, ...FLOOD_RESCUE, PAD];
   const rescueMember = member.qualifications.some(qual => rescueQuals.includes(qual));
 
   const handleChangeWeek = (value: Interval) => {

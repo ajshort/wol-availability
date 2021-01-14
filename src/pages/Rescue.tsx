@@ -289,7 +289,7 @@ export const VerticalRescue: React.FC = () => (
   <Rescue
     title='Vertical Rescue'
     baseUrl='/unit/vr'
-    qualifications={VERTICAL_RESCUE}
+    qualifications={[VERTICAL_RESCUE]}
     sort={(a, b) => (
       compareCallsigns(a.callsign, b.callsign) || a.surname.localeCompare(b.surname)
     )}
