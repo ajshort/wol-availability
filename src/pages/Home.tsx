@@ -327,7 +327,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
             <Nav.Link eventKey='pad'>
               <span className='d-none d-lg-inline'>Public Access Defib</span>{' '}
               <span className='d-lg-none'>PAD</span>{' '}
-              <Badge>{pad.length}</Badge>{' '}
+              <Badge variant='success'>{pad.length}</Badge>{' '}
             </Nav.Link>
           </Nav.Item>
         </Nav>
