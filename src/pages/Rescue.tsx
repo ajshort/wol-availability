@@ -10,6 +10,7 @@ import {
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
   MANUAL_DRIVER,
+  PAD,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
 import {
@@ -80,10 +81,28 @@ const Rescue: React.FC<RescueProps> = props => {
     <Page title={title}>
       <Nav variant='tabs' className='mt-1'>
         <Nav.Item>
-          <LinkContainer to='/unit/vr'><Nav.Link>Vertical Rescue</Nav.Link></LinkContainer>
+          <LinkContainer to='/unit/vr'>
+            <Nav.Link>
+              <span className='d-none d-lg-inline'>Vertical Rescue</span>
+              <span className='d-lg-none'>VR</span>
+            </Nav.Link>
+          </LinkContainer>
         </Nav.Item>
         <Nav.Item>
-        <LinkContainer to='/unit/fr'><Nav.Link>Flood Rescue</Nav.Link></LinkContainer>
+          <LinkContainer to='/unit/fr'>
+            <Nav.Link>
+              <span className='d-none d-lg-inline'>Flood Rescue</span>
+              <span className='d-lg-none'>FR</span>
+            </Nav.Link>
+          </LinkContainer>
+        </Nav.Item>
+        <Nav.Item>
+          <LinkContainer to='/unit/pad'>
+              <Nav.Link>
+                <span className='d-none d-lg-inline'>Public Access Defib</span>
+                <span className='d-lg-none'>PAD</span>
+              </Nav.Link>
+          </LinkContainer>
         </Nav.Item>
       </Nav>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
@@ -271,6 +290,24 @@ export const VerticalRescue: React.FC = () => (
       {
         title: 'Support',
         included: (_, { rescue }) => rescue === 'SUPPORT',
+      },
+    ]}
+  />
+);
+
+export const PublicAccessDefib: React.FC = () => (
+  <Rescue
+    title='Public Access Defib'
+    baseUrl='/unit/pad'
+    qualifications={[PAD]}
+    sort={(a, b) => (
+      a.surname.localeCompare(b.surname)
+    )}
+    footers={[
+      {
+        title: 'Immediate',
+        included: (_, { rescue }) => rescue === 'IMMEDIATE',
+        highlightLessThan: 2,
       },
     ]}
   />

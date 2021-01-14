@@ -107,15 +107,17 @@ export const VERTICAL_RESCUE = [
   'Vertical Rescue (PUASAR004B/PUASAR032A)',
 ];
 
-export const FLOOD_RESCUE = [
-  'Swiftwater Rescue Awareness (FR L1)',
-  'Flood Rescue Boat Operator (FR L2)',
-  'Swiftwater Rescue Technician (FR L3)',
-];
-
 export const FLOOD_RESCUE_L1 = 'Swiftwater Rescue Awareness (FR L1)';
 export const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';
 export const FLOOD_RESCUE_L3 = 'Swiftwater Rescue Technician (FR L3)';
+
+export const FLOOD_RESCUE = [
+  FLOOD_RESCUE_L1,
+  FLOOD_RESCUE_L2,
+  FLOOD_RESCUE_L3,
+];
+
+export const PAD = 'PAD Operator';
 
 export const FEATURED = [
   'Storm and Water Damage Operation',

@@ -13,6 +13,7 @@ import {
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
+  PAD,
   SUPPRESSED_BY,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
@@ -266,6 +267,11 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
       a.member.surname.localeCompare(b.member.surname)
     ));
 
+  const pad = availabilties
+    .filter(({ member: { qualifications } }) => qualifications.includes(PAD))
+    .filter(({ rescue }) => rescue === 'IMMEDIATE')
+    .sort((a, b) => a.member.surname.localeCompare(b.member.surname));
+
   const vr = { immediate: 0, support: 0 };
   const fr = { l1: 0, l2: 0, l3: 0 };
 
@@ -304,19 +310,26 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
         <Nav variant='tabs' activeKey={key} onSelect={setKey}>
           <Nav.Item>
             <Nav.Link eventKey='vr'>
-              <span className='d-none d-md-inline'>Vertical Rescue</span>{' '}
-              <span className='d-md-none'>VR</span>{' '}
+              <span className='d-none d-lg-inline'>Vertical Rescue</span>{' '}
+              <span className='d-lg-none'>VR</span>{' '}
               <Badge variant='success'>{vr.immediate}</Badge>{' '}
               <Badge variant='warning'>{vr.support}</Badge>
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="fr">
-              <span className='d-none d-md-inline'>Flood Rescue</span>{' '}
-              <span className='d-md-none'>FR</span>{' '}
+              <span className='d-none d-lg-inline'>Flood Rescue</span>{' '}
+              <span className='d-lg-none'>FR</span>{' '}
               <Badge className='qual-badge-iw'>{fr.l3}</Badge>{' '}
               <Badge className='qual-badge-ow'>{fr.l2}</Badge>{' '}
               <Badge className='qual-badge-lb'>{fr.l1}</Badge>
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey='pad'>
+              <span className='d-none d-lg-inline'>Public Access Defib</span>{' '}
+              <span className='d-lg-none'>PAD</span>{' '}
+              <Badge>{pad.length}</Badge>{' '}
             </Nav.Link>
           </Nav.Item>
         </Nav>
@@ -336,6 +349,17 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
         <ListGroup variant='flush'>
           {flood.length > 0 ? (
             flood.map(availability => (
+              <RescueCardListItem key={availability.member.number} availability={availability} />
+            ))
+          ) : (
+            <Card.Body>There are no members available.</Card.Body>
+          )}
+        </ListGroup>
+      )}
+      {key === 'pad' && (
+        <ListGroup variant='flush'>
+          {pad.length > 0 ? (
+            pad.map(availability => (
               <RescueCardListItem key={availability.member.number} availability={availability} />
             ))
           ) : (
