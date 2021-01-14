@@ -55,13 +55,20 @@ const ManageMember: React.FC = () => {
     history.push(`/unit/storm/${value.start.toISODate()}`);
   };
 
-  const teams = data ? _.uniq(data.members.map(member => member.team)).sort() : undefined;
+  const teams = data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
+  const quals = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
     <Page title='Storm'>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
         <div>
-          <MemberFilterButton id='storm-member-filter' teams={teams} value={filter} onChange={setFilter} />
+          <MemberFilterButton
+            id='storm-member-filter'
+            teams={teams}
+            qualifications={quals}
+            value={filter}
+            onChange={setFilter}
+          />
         </div>
         <div>
           <WeekBrowser value={week} onChange={handleChangeWeek} />

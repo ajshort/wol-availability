@@ -1,4 +1,3 @@
-import { ALL } from '../model/qualifications';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -20,12 +19,13 @@ export interface MemberFilter {
 interface MemberFilterButtonProps {
   id: string;
   teams?: string[];
+  qualifications?: string[];
   value: MemberFilter;
   onChange: (filter: MemberFilter) => void;
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
-  const { id, teams, value, onChange } = props;
+  const { id, teams, qualifications, value, onChange } = props;
 
   const popover = (
     <Popover id={id} title='Filter Members'>
@@ -42,16 +42,18 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             {teams && teams.map(team => <option key={team}>{team}</option>)}
           </Form.Control>
         </Form.Group>
-        <Form.Group controlId='qualifications-filter'>
-          <Form.Label>Qualifications</Form.Label>
-          <Typeahead
-            id={`${id}-typeahead`}
-            multiple
-            options={ALL}
-            selected={value.qualifications}
-            onChange={qualifications => onChange({ ...value, qualifications })}
-          />
-        </Form.Group>
+        {qualifications && (
+          <Form.Group controlId='qualifications-filter'>
+            <Form.Label>Qualifications</Form.Label>
+            <Typeahead
+              id={`${id}-typeahead`}
+              multiple
+              options={qualifications}
+              selected={value.qualifications}
+              onChange={qualifications => onChange({ ...value, qualifications })}
+            />
+          </Form.Group>
+        )}
         <Form.Group controlId='hide-blank-filter'>
           <Form.Check
             type='checkbox'
