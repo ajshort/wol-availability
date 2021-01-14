@@ -36,6 +36,7 @@ interface RescueProps {
   title: string;
   baseUrl: string;
   qualifications: string[];
+  immediateOnly?: boolean;
   sort?: (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => number;
   footers?: UnitTableFooter[];
 }
@@ -45,7 +46,7 @@ interface Params {
 }
 
 const Rescue: React.FC<RescueProps> = props => {
-  const { title, baseUrl, qualifications, sort, footers } = props;
+  const { title, baseUrl, immediateOnly, qualifications, sort, footers } = props;
 
   const history = useHistory();
   const params = useParams<Params>();
@@ -175,6 +176,10 @@ const Rescue: React.FC<RescueProps> = props => {
                   return null;
                 }
 
+                if (immediateOnly && availability.rescue !== 'IMMEDIATE') {
+                  return null;
+                }
+
                 const left = getIntervalPosition(interval, DateTime.fromISO(availability.start));
                 const right = getIntervalPosition(interval, DateTime.fromISO(availability.end));
 
@@ -300,12 +305,13 @@ export const PublicAccessDefib: React.FC = () => (
     title='Public Access Defib'
     baseUrl='/unit/pad'
     qualifications={[PAD]}
+    immediateOnly
     sort={(a, b) => (
       a.surname.localeCompare(b.surname)
     )}
     footers={[
       {
-        title: 'Immediate',
+        title: '',
         included: (_, { rescue }) => rescue === 'IMMEDIATE',
         highlightLessThan: 2,
       },
