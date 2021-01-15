@@ -524,7 +524,7 @@ const ManageMember: React.FC = () => {
   const rescue = (
     <Dropdown>
       <Dropdown.Toggle
-        variant='warning'
+        variant='info'
         id='rescue-dropdown'
         className='mr-2'
         disabled={mutating || selections.length === 0}
