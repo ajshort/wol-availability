@@ -32,6 +32,7 @@ import Alert from 'react-bootstrap/Alert';
 import Badge, { BadgeProps } from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner';
 import { Typeahead } from 'react-bootstrap-typeahead';
@@ -45,7 +46,6 @@ import {
   FaRegSquare,
   FaTimes,
 } from 'react-icons/fa';
-import Form from 'react-bootstrap/Form';
 import { useHistory, useParams } from 'react-router-dom';
 
 interface RescueMemberBadgesProps {
@@ -157,7 +157,7 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = props => {
           >
             {rescueMember && <RescueMemberBadges storm={storm} rescue={rescue} />}
             {vehicle && <Badge variant='info'>{vehicle}</Badge>}
-            {note && <Badge variant='secondary'>{note}</Badge>}
+            {note && <Badge variant='info'>{note}</Badge>}
           </div>
         );
       })}
@@ -204,6 +204,45 @@ const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect 
         <Modal.Footer>
           <Button variant='secondary' onClick={onHide}>Cancel</Button>
           <Button variant='primary' type='submit'>Cover Vehicle</Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  );
+};
+
+interface AddNoteModalProps {
+  onHide: () => void;
+  onSubmit: (note?: string) => void;
+}
+
+const AddNoteModal: React.FC<AddNoteModalProps> = ({ onHide, onSubmit }) => {
+  const [note, setNote] = useState<string | undefined>();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    onSubmit(note);
+    onHide();
+
+    e.preventDefault();
+  };
+
+  return (
+    <Modal show onHide={onHide}>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          <Form.Group controlId='note'>
+            <Form.Control
+              type='text'
+              required
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              autoFocus
+            />
+          </Form.Group>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant='secondary' onClick={onHide}>Cancel</Button>
+          <Button variant='primary' type='submit'>Add Note</Button>
         </Modal.Footer>
       </Form>
     </Modal>
@@ -265,6 +304,7 @@ const ManageMember: React.FC = () => {
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
+  const [addingNote, setAddingNote] = useState(false);
 
   if (loading) {
     return (
@@ -511,6 +551,13 @@ const ManageMember: React.FC = () => {
         <FaEllipsisV />
       </Dropdown.Toggle>
       <Dropdown.Menu>
+        <Dropdown.Item
+          disabled={selections.length === 0}
+          onClick={() => setAddingNote(true)}
+        >
+          Add note&hellip;
+        </Dropdown.Item>
+        <Dropdown.Divider />
         <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
         <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
         <Dropdown.Divider />
@@ -571,6 +618,12 @@ const ManageMember: React.FC = () => {
         <CoverVehicleModal
           onSelect={vehicle => handleSet({ vehicle })}
           onHide={() => setSelectingVehicle(false)}
+        />
+      )}
+      {addingNote && (
+        <AddNoteModal
+          onSubmit={note => handleSet({ note })}
+          onHide={() => setAddingNote(false)}
         />
       )}
     </Page>

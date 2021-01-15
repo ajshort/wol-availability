@@ -206,6 +206,9 @@ const Rescue: React.FC<RescueProps> = props => {
                     {availability.vehicle && (
                       <Badge variant='info'>{availability.vehicle}</Badge>
                     )}
+                    {availability.note && (
+                      <Badge variant='secondary'>{availability.note}</Badge>
+                    )}
                   </div>
                 );
               })
