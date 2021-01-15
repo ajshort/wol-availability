@@ -551,13 +551,17 @@ const ManageMember: React.FC = () => {
         <FaEllipsisV />
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        <Dropdown.Item
-          disabled={selections.length === 0}
-          onClick={() => setAddingNote(true)}
-        >
-          Add note&hellip;
-        </Dropdown.Item>
-        <Dropdown.Divider />
+        {rescueMember && (
+          <>
+            <Dropdown.Item
+              disabled={selections.length === 0}
+              onClick={() => setAddingNote(true)}
+            >
+              Add note&hellip;
+            </Dropdown.Item>
+            <Dropdown.Divider />
+          </>
+        )}
         <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
         <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
         <Dropdown.Divider />
