@@ -11,8 +11,10 @@ import {
 import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { VERTICAL_RESCUE, FLOOD_RESCUE, PAD } from '../model/qualifications';
 import {
-  SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION,
-  SetMemberDefaultAvailabilityVars,
+  SET_DEFAULT_AVAILABILITY_MUTATION,
+  SetDefaultAvailabilityVars,
+  APPLY_DEFAULT_AVAILABILITY_MUTATION,
+  ApplyDefaultAvailabilityVars,
   useMutateMemberAvailability,
 } from '../mutations/availability';
 import {
@@ -237,22 +239,29 @@ const ManageMember: React.FC = () => {
   const days = getDayIntervals(week);
   const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
+  const availabilityVars = {
+    memberNumber: number,
+    start: visible.start.toJSDate(),
+    end: visible.end.toJSDate(),
+  };
+
   const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
     GET_MEMBER_AVAILABILITY_QUERY, {
-      variables: {
-        memberNumber: number,
-        start: visible.start.toJSDate(),
-        end: visible.end.toJSDate(),
-      }
+      variables: availabilityVars,
     }
   );
 
   const [mutateAvailability, { loading: mutatingAvailability }] = useMutateMemberAvailability(number, visible);
-  const [mutateDefault, { loading: mutatingDefault }] = useMutation<boolean, SetMemberDefaultAvailabilityVars>(
-    SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION
+
+  const [mutateDefault, { loading: mutatingDefault }] = useMutation<boolean, SetDefaultAvailabilityVars>(
+    SET_DEFAULT_AVAILABILITY_MUTATION,
   );
 
-  const mutating = mutatingAvailability || mutatingDefault;
+  const [mutateToDefault, { loading: mutatingToDefault }] = useMutation<boolean, ApplyDefaultAvailabilityVars>(
+    APPLY_DEFAULT_AVAILABILITY_MUTATION,
+  );
+
+  const mutating = mutatingAvailability || mutatingDefault || mutatingToDefault;
 
   const [selections, setSelections] = useState<Interval[]>([]);
   const [selectingVehicle, setSelectingVehicle] = useState(false);
@@ -355,6 +364,21 @@ const ManageMember: React.FC = () => {
       },
     });
   }
+
+  const applyDefaultAvailability = () => {
+    mutateToDefault({
+      variables: {
+        memberNumber: number,
+        start: week.start.toJSDate(),
+      },
+      refetchQueries: [
+        {
+          query: GET_MEMBER_AVAILABILITY_QUERY,
+          variables: availabilityVars,
+        }
+      ]
+    });
+  };
 
   const handleSet = (availability?: Availability) => {
     let updated = [...availabilities];
@@ -488,7 +512,7 @@ const ManageMember: React.FC = () => {
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
-        <Dropdown.Item>Set to my default</Dropdown.Item>
+        <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
         <Dropdown.Divider />
         <Dropdown.Item onClick={() => handleSet(undefined)} disabled={selections.length === 0}>Clear</Dropdown.Item>
       </Dropdown.Menu>

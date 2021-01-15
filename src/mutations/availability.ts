@@ -79,14 +79,25 @@ export function useMutateMemberAvailability(memberNumber: number, interval: Inte
   });
 };
 
-export interface SetMemberDefaultAvailabilityVars {
+export interface SetDefaultAvailabilityVars {
   memberNumber: number;
   start: Date;
   availabilities: AvailabilityData[];
 }
 
-export const SET_MEMBER_DEFAULT_AVAILABILITY_MUTATION = gql`
+export const SET_DEFAULT_AVAILABILITY_MUTATION = gql`
   mutation ($memberNumber: Int!, $start: DateTime!, $availabilities: [MemberAvailabilityInput!]!) {
     setDefaultAvailability(memberNumber: $memberNumber, start: $start, availabilities: $availabilities)
+  }
+`;
+
+export interface ApplyDefaultAvailabilityVars {
+  memberNumber: number;
+  start: Date;
+}
+
+export const APPLY_DEFAULT_AVAILABILITY_MUTATION = gql`
+  mutation ($memberNumber: Int!, $start: DateTime!) {
+    applyDefaultAvailability(memberNumber: $memberNumber, start: $start)
   }
 `;
