@@ -37,6 +37,8 @@ import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import {
+  FaArrowLeft,
+  FaArrowRight,
   FaBolt,
   FaCheck,
   FaCheckSquare,
@@ -606,18 +608,24 @@ const ManageMember: React.FC = () => {
           <WeekBrowser value={week} onChange={handleChangeWeek} />
         </div>
       </div>
-      <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
-        {row => (
-          <AvailabilityRow
-            key={row.toString()}
-            interval={row}
-            availabilities={availabilities}
-            selections={selections}
-            onChangeSelections={setSelections}
-            rescueMember={rescueMember}
-          />
-        )}
-      </WeekTable>
+      <div className='week-table-overflow'>
+        <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
+          {row => (
+            <AvailabilityRow
+              key={row.toString()}
+              interval={row}
+              availabilities={availabilities}
+              selections={selections}
+              onChangeSelections={setSelections}
+              rescueMember={rescueMember}
+            />
+          )}
+        </WeekTable>
+        <div className='d-flex d-md-none justify-content-between align-items-center p-3'>
+          <span>{week.start.toLocaleString(DateTime.DATE_MED)}</span>
+          <div><WeekBrowser value={week} onChange={handleChangeWeek} /></div>
+        </div>
+      </div>
       {selectingVehicle && (
         <CoverVehicleModal
           onSelect={vehicle => handleSet({ vehicle })}

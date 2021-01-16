@@ -18,9 +18,12 @@
   max-width: 400px;
 }
 
+.week-table-overflow {
+  overflow-y: scroll;
+}
+
 .week-table {
   flex-direction: column;
-  overflow-y: scroll;
 
   .week-table-head, .week-table-row {
     border-bottom: 1px solid $table-border-color;
