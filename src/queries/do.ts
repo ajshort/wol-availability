@@ -34,7 +34,7 @@ export interface GetDutyOfficersVars {
 }
 
 export const SET_DUTY_OFFICER_MUTATION = gql`
-  mutation ($shift: TeamShift!, $member: Int, $from: DateTime!, $to: DateTime!) {
+  mutation ($shift: Shift!, $member: Int, $from: DateTime!, $to: DateTime!) {
     setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
   }
 `;
