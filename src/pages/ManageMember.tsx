@@ -7,6 +7,7 @@ import {
   AvailabilityInterval,
   StormAvailable,
   RescueAvailable,
+  mergeAbuttingAvailabilities,
 } from '../model/availability';
 import { getDayIntervals, getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import { VERTICAL_RESCUE, FLOOD_RESCUE, PAD } from '../model/qualifications';
@@ -454,30 +455,10 @@ const ManageMember: React.FC = () => {
       )));
     }
 
-    // Sort availabilities.
+    // Sort availabilities, then merge and set.
     updated.sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis());
 
-    // Merge adjacent equivalent availabilities.
-    const merged: AvailabilityInterval[] = [];
-
-    for (const value of updated) {
-      const last = _.last(merged);
-      const merge =
-        last !== undefined &&
-        last.interval.abutsStart(value.interval) &&
-        _.isEqual(
-          _.pickBy(_.pick(last, ['storm', 'rescue', 'vehicle', 'note']), _.identity),
-          _.pickBy(_.pick(value, ['storm', 'rescue', 'vehicle', 'note']), _.identity),
-        );
-
-      if (merge) {
-        merged[merged.length - 1].interval = last!.interval.set({ end: value.interval.end });
-      } else {
-        merged.push(value);
-      }
-    }
-
-    setAvailabilities(merged);
+    setAvailabilities(mergeAbuttingAvailabilities(updated));
   };
 
   const handleToggleClick = () => {

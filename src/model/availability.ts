@@ -1,6 +1,8 @@
-import { DateTime, Interval } from 'luxon';
 import { MemberWithAvailabilityData } from '../queries/availability';
 import { MemberData } from '../queries/members';
+
+import _ from 'lodash';
+import { DateTime, Interval } from 'luxon';
 
 export enum Shift {
   DAY = 'DAY',
@@ -56,4 +58,32 @@ export function calculateMinimumAvailabilities(
 
     return Math.min(countAvailable(interval.start), ...breaks.map(countAvailable));
   });
+}
+
+/**
+ * Merges abutting sorted availabilities.
+ */
+export function mergeAbuttingAvailabilities(
+  availabilities: AvailabilityInterval[], fields = ['storm', 'rescue', 'vehicle', 'note']
+) {
+  const merged: AvailabilityInterval[] = [];
+
+  for (const value of availabilities) {
+    const last = _.last(merged);
+    const merge =
+      last !== undefined &&
+      last.interval.abutsStart(value.interval) &&
+      _.isEqual(
+        _.pickBy(_.pick(last, fields), _.identity),
+        _.pickBy(_.pick(value, fields), _.identity),
+      );
+
+    if (merge) {
+      merged[merged.length - 1].interval = last!.interval.set({ end: value.interval.end });
+    } else {
+      merged.push(value);
+    }
+  }
+
+  return merged;
 }

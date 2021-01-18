@@ -2,6 +2,7 @@ import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../compon
 import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
+import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   compareFloodRescue,
@@ -178,21 +179,22 @@ const Rescue: React.FC<RescueProps> = props => {
               }
             ]}
             renderMember={(interval, member) => (
-              member.availabilities.map(availability => {
-                if (availability.rescue === undefined) {
-                  return null;
-                }
-
-                if (immediateOnly && availability.rescue !== 'IMMEDIATE') {
-                  return null;
-                }
-
-                const left = getIntervalPosition(interval, DateTime.fromISO(availability.start));
-                const right = getIntervalPosition(interval, DateTime.fromISO(availability.end));
+              mergeAbuttingAvailabilities(
+                member
+                  .availabilities
+                  .filter(({ rescue }) => immediateOnly ? (rescue === 'IMMEDIATE') : (rescue !== undefined))
+                  .map(({ start, end, ...data }) => ({
+                    interval: Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)), ...data
+                  }))
+                  .sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis()),
+                ['rescue', 'vehicle', 'note'],
+              ).map(availability => {
+                const left = getIntervalPosition(interval, availability.interval.start);
+                const right = getIntervalPosition(interval, availability.interval.end);
 
                 return (
                   <div
-                    key={availability.start.toString()}
+                    key={availability.interval.toString()}
                     className={clsx('unit-table-availability-block', {
                       'availability-success': availability.rescue === 'IMMEDIATE',
                       'availability-warning': availability.rescue === 'SUPPORT',
