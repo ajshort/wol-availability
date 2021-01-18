@@ -302,6 +302,8 @@ const DutyOfficer: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.start.endOf('day'));
+
   const handleWeekChange = (value: Interval) => {
     history.push(`/unit/do/${value.start.toISODate()}`);
   };
@@ -324,7 +326,7 @@ const DutyOfficer: React.FC = () => {
       </div>
       <Query<GetDutyOfficersData, GetDutyOfficersVars>
         query={GET_DUTY_OFFICERS_QUERY}
-        variables={{ from: week.start.toJSDate(), to: week.end.toJSDate() }}
+        variables={{ from: visible.start.toJSDate(), to: visible.end.toJSDate() }}
         fetchPolicy='network-only'
       >
         {({ loading, error, data }) => {
