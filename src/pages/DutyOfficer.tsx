@@ -302,7 +302,7 @@ const DutyOfficer: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.start.endOf('day'));
+  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
 
   const handleWeekChange = (value: Interval) => {
     history.push(`/unit/do/${value.start.toISODate()}`);
