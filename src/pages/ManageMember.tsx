@@ -26,7 +26,6 @@ import {
 
 import { useMutation, useQuery } from '@apollo/client';
 import clsx from 'clsx';
-import _ from 'lodash';
 import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
@@ -38,8 +37,6 @@ import Modal from 'react-bootstrap/Modal'
 import Spinner from 'react-bootstrap/Spinner';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import {
-  FaArrowLeft,
-  FaArrowRight,
   FaBolt,
   FaCheck,
   FaCheckSquare,
