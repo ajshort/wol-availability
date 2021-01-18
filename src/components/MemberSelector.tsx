@@ -32,9 +32,10 @@ const MemberSelector: React.FC<MemberSelectorProps> = ({ id, onChange, allowNone
           placeholder = 'Error loading members';
           disabled = true;
         } else {
-          placeholder = 'Select member...'
+          placeholder = 'Select member...';
 
           members = data.members
+            .slice()
             .sort((a, b) => a.surname.localeCompare(b.surname))
             .map((member) => ({ id: member.number, label: member.fullName, team: member.team }));
 
