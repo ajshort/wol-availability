@@ -4,6 +4,7 @@ import Page from '../components/Page';
 import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
+import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getWeekInterval, getIntervalPosition, TIME_ZONE } from '../model/dates';
 import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
@@ -17,6 +18,7 @@ import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Spinner from 'react-bootstrap/Spinner';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -106,17 +108,21 @@ const ManageMember: React.FC = () => {
               }
             ]}
             renderMember={(interval, member) => (
-              member.availabilities.map(availability => {
-                if (availability.storm === undefined) {
-                  return null;
-                }
-
-                const left = getIntervalPosition(interval, DateTime.fromISO(availability.start));
-                const right = getIntervalPosition(interval, DateTime.fromISO(availability.end));
+              mergeAbuttingAvailabilities(
+                member.availabilities
+                  .filter(({ storm }) => storm !== undefined)
+                  .map(({ start, end, ...data }) => ({
+                    interval: Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)), ...data
+                  }))
+                  .sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis()),
+                ['storm', 'note'],
+              ).map(availability => {
+                const left = getIntervalPosition(interval, availability.interval.start);
+                const right = getIntervalPosition(interval, availability.interval.end);
 
                 return (
                   <div
-                    key={availability.start.toString()}
+                    key={availability.interval.toString()}
                     className={clsx('unit-table-availability-block', {
                       'availability-success': availability.storm === 'AVAILABLE',
                       'availability-danger': availability.storm === 'UNAVAILABLE',
@@ -125,7 +131,11 @@ const ManageMember: React.FC = () => {
                       left: `${left * 100}%`,
                       right: `${(1 - right) * 100}%`,
                     }}
-                  />
+                  >
+                    {availability.note && (
+                      <Badge variant='secondary'>{availability.note}</Badge>
+                    )}
+                  </div>
                 );
               })
             )}
