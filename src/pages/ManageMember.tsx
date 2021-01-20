@@ -229,12 +229,14 @@ const AddNoteModal: React.FC<AddNoteModalProps> = ({ onHide, onSubmit }) => {
     <Modal show onHide={onHide}>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
+          <Form.Label>Note (e.g. OOA)</Form.Label>
           <Form.Group controlId='note'>
             <Form.Control
               type='text'
               required
               value={note}
               onChange={e => setNote(e.target.value)}
+              maxLength={16}
               autoFocus
             />
           </Form.Group>
@@ -531,17 +533,13 @@ const ManageMember: React.FC = () => {
         <FaEllipsisV />
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        {rescueMember && (
-          <>
-            <Dropdown.Item
-              disabled={selections.length === 0}
-              onClick={() => setAddingNote(true)}
-            >
-              Add note&hellip;
-            </Dropdown.Item>
-            <Dropdown.Divider />
-          </>
-        )}
+        <Dropdown.Item
+          disabled={selections.length === 0}
+          onClick={() => setAddingNote(true)}
+        >
+          Add note&hellip;
+        </Dropdown.Item>
+        <Dropdown.Divider />
         <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
         <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
         <Dropdown.Divider />
