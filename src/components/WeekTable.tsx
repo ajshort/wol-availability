@@ -344,6 +344,8 @@ const WeekTable: React.FC<WeekTableProps> = props => {
     'week-table-selectable': onChangeSelections !== undefined,
   });
 
+  const now = DateTime.local();
+
   return (
     <Measure bounds onResize={handleResize}>
       {({ measureRef }) => (
@@ -356,7 +358,13 @@ const WeekTable: React.FC<WeekTableProps> = props => {
             ))}
           </div>
           {rows.map(row => (
-            <div key={row.toString()} className='week-table-row'>
+            <div
+              key={row.toString()}
+              className={clsx({
+                'week-table-row': true,
+                'week-table-row-now': row.contains(now),
+              })}
+            >
               <div className='week-table-date' onClick={() => handleRowClick(row)}>
                 <span className='text-muted'>{row.start.toFormat('ccc')}</span>
                 <span className='h5 mb-0'>{row.start.toFormat('d')}</span>

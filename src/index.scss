@@ -50,6 +50,9 @@
   .week-table-row {
     height: 64px;
   }
+  .week-table-row-now .week-table-date {
+    @extend .text-primary;
+  }
   .week-table-date {
     align-items: center;
     background: $light;
