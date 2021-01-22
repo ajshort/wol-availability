@@ -372,12 +372,14 @@ const WeekTable: React.FC<WeekTableProps> = props => {
                   />
                 ))}
                 {children(row)}
-                <IntervalSelection
-                  interval={row}
-                  selections={selections}
-                  onClick={dt => handleBodyClick(row, dt)}
-                  onChangeSelections={onChangeSelections}
-                />
+                {onChangeSelections && (
+                  <IntervalSelection
+                    interval={row}
+                    selections={selections}
+                    onClick={dt => handleBodyClick(row, dt)}
+                    onChangeSelections={onChangeSelections}
+                  />
+                )}
                 {(interval.start > row.start) && (
                   <div
                     className='week-table-bound'

@@ -108,7 +108,7 @@ interface AvailabilityRowProps {
   interval: Interval;
   availabilities: AvailabilityInterval[];
   selections: Interval[];
-  onChangeSelections: (value: Interval[]) => void;
+  onChangeSelections?: (value: Interval[]) => void;
   rescueMember?: boolean;
 }
 
@@ -116,6 +116,10 @@ const AvailabilityRow: React.FC<AvailabilityRowProps> = props => {
   const { interval, availabilities, selections, onChangeSelections, rescueMember } = props;
 
   const handleClick = (clicked: Interval) => {
+    if (!onChangeSelections) {
+      return;
+    }
+
     const selected = selections.some(selection => selection.engulfs(clicked));
 
     if (selected) {
@@ -279,6 +283,9 @@ const ManageMember: React.FC = () => {
 
   const days = getDayIntervals(week);
   const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
+
+  // We don't allow editing availability data in the past.
+  const inPast = DateTime.local() > visible.end;
 
   const availabilityVars = {
     memberNumber: number,
@@ -551,41 +558,47 @@ const ManageMember: React.FC = () => {
   return (
     <Page title={member.fullName}>
       <div className='d-flex justify-content-between border-bottom p-3'>
-        <div className='d-flex align-items-center'>
-          {toggle}
-          {rescueMember ? (
-            <React.Fragment>
-              {storm}
-              {rescue}
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Button
-                variant='success'
-                className='mr-2'
-                onClick={() => handleSet({ storm: 'AVAILABLE' })}
-                disabled={mutating || selections.length === 0}
-              >
-                <FaCheck /> <span className='d-none d-md-inline'>Available</span>
-              </Button>
-              <Button
-                variant='danger'
-                className='mr-2'
-                onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
-                disabled={mutating || selections.length === 0}
-              >
-                <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
-              </Button>
-            </React.Fragment>
-          )}
-          {more}
-        </div>
+        {!inPast ? (
+          <div className='d-flex align-items-center'>
+            {toggle}
+            {rescueMember ? (
+              <React.Fragment>
+                {storm}
+                {rescue}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <Button
+                  variant='success'
+                  className='mr-2'
+                  onClick={() => handleSet({ storm: 'AVAILABLE' })}
+                  disabled={mutating || selections.length === 0}
+                >
+                  <FaCheck /> <span className='d-none d-md-inline'>Available</span>
+                </Button>
+                <Button
+                  variant='danger'
+                  className='mr-2'
+                  onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
+                  disabled={mutating || selections.length === 0}
+                >
+                  <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
+                </Button>
+              </React.Fragment>
+            )}
+            {more}
+          </div>
+        ) : (
+          <div className='d-flex align-items-center'>
+            <span className='text-muted'>You can&apos;t edit availability in the past.</span>
+          </div>
+        )}
         <div className='d-none d-md-flex align-items-center'>
           <WeekBrowser value={week} onChange={handleChangeWeek} />
         </div>
       </div>
       <div className='week-table-overflow'>
-        <WeekTable interval={week} selections={selections} onChangeSelections={setSelections}>
+        <WeekTable interval={week} selections={selections} onChangeSelections={!inPast ? setSelections : undefined}>
           {row => (
             <AvailabilityRow
               key={row.toString()}
