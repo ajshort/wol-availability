@@ -3,7 +3,7 @@ import RadioButtonGroup from '../components/RadioButtonGroup';
 import { getWeekInterval } from '../model/dates'
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
@@ -19,7 +19,10 @@ enum Type {
 }
 
 const Stats = () => {
-  const [interval, setInterval] = useState(getWeekInterval());
+  const week = getWeekInterval();
+  const weekExpanded = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
+
+  const [interval, setInterval] = useState(weekExpanded);
   const [type, setType] = useState(Type.STORM);
 
   const { loading, error, data } = useQuery<GetStatisticsData, GetStatisticsVars>(
