@@ -13,9 +13,9 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { Area, AreaChart, XAxis, YAxis } from 'recharts';
 
 enum Type {
-  STORM,
-  VR,
-  FR,
+  STORM = 'STORM',
+  VR = 'VR',
+  FR = 'FR',
 }
 
 const Stats = () => {
@@ -56,6 +56,7 @@ const Stats = () => {
         <RadioButtonGroup<Type>
           options={[
             { value: Type.STORM, label: 'Storm', variant: 'info' },
+            { value: Type.VR, label: 'VR', variant: 'info' },
           ]}
           value={type}
           onChange={handleChangeType}
@@ -93,13 +94,18 @@ const Stats = () => {
         }
 
         const counts = data.statistics.counts.map(
-          ({ start, end, storm }) => ({
-            time: DateTime.fromISO(start).toMillis(), storm,
+          ({ start, end, storm, vr }) => ({
+            time: DateTime.fromISO(start).toMillis(),
+            storm,
+            vrImmediate: vr.immediate,
+            vrSupport: vr.support,
           })
         );
 
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
+
+        console.log(type);
 
         return (
           <AutoSizer className='my-2'>
@@ -112,7 +118,9 @@ const Stats = () => {
                   tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString(DateTime.DATE_SHORT)}
                 />
                 <YAxis />
-                <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
+                <Area hide={type !== Type.STORM} type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
+                <Area hide={type !== Type.VR} type='stepAfter' dataKey='vrImmediate' stackId={1} fill='#d4edda' stroke='#155724' />
+                <Area hide={type !== Type.VR} type='stepAfter' dataKey='vrSupport' stackId={1} fill='#fff3cd' stroke='#856404' />
               </AreaChart>
             )}
           </AutoSizer>

@@ -97,13 +97,24 @@ export const GET_STATISTICS_QUERY = gql`
         start
         end
         storm
+        vr {
+          immediate
+          support
+        }
       }
     }
   }
 `;
 
+interface StatisticCount {
+  start: string;
+  end: string;
+  storm: number;
+  vr: { immediate: number; support: number };
+}
+
 export interface GetStatisticsData {
-  statistics: { counts: Array<{ start: string; end: string; storm: number; }> };
+  statistics: { counts: StatisticCount[] };
 }
 
 export interface GetStatisticsVars {
