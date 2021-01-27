@@ -101,6 +101,15 @@ export const GET_STATISTICS_QUERY = gql`
           immediate
           support
         }
+        frInWater {
+          immediate
+        }
+        frOnWater {
+          immediate
+        }
+        frOnLand {
+          immediate
+        }
       }
     }
   }
@@ -111,6 +120,9 @@ interface StatisticCount {
   end: string;
   storm: number;
   vr: { immediate: number; support: number };
+  frInWater: { immediate: number };
+  frOnWater: { immediate: number };
+  frOnLand: { immediate: number };
 }
 
 export interface GetStatisticsData {
