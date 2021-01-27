@@ -168,6 +168,8 @@ const Rescue: React.FC<RescueProps> = props => {
                     classNames.push('dov-badge-3');
                   } else if (driverLevel === 2) {
                     classNames.push('dov-badge-2');
+                  } else if (driverLevel === 1) {
+                    classNames.push('dov-badge-1');
                   }
 
                   if (!qualifications.includes(MANUAL_DRIVER)) {
