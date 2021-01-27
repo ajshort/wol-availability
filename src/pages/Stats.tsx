@@ -108,8 +108,6 @@ const Stats = () => {
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
 
-        console.log(type);
-
         return (
           <AutoSizer className='my-2'>
             {({ width }) => (
