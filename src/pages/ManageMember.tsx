@@ -40,6 +40,7 @@ import {
   FaBolt,
   FaCheck,
   FaCheckSquare,
+  FaCircle,
   FaEllipsisV,
   FaExclamationTriangle,
   FaMinusSquare,
@@ -521,9 +522,15 @@ const ManageMember: React.FC = () => {
         <FaExclamationTriangle /> Rescue
       </Dropdown.Toggle>
       <Dropdown.Menu>
-        <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>Immediate</Dropdown.Item>
-        <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>Support</Dropdown.Item>
-        <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>
+          <FaCircle className='text-success mr-2' /> Immediate
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>
+          <FaCircle className='text-warning mr-2' /> Support
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>
+          <FaCircle className='text-danger mr-2' /> Unavailable
+        </Dropdown.Item>
         <Dropdown.Divider />
         <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
       </Dropdown.Menu>
