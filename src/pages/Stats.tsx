@@ -12,7 +12,7 @@ import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Area, AreaChart, Bar, BarChart, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, Legend, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 
 enum Type {
   STORM = 'STORM',
@@ -159,10 +159,12 @@ const Stats = () => {
 
               if (type === Type.VR) {
                 return (
-                  <AreaChart width={width} height={400} data={counts}>
+                  <AreaChart width={width} height={500} data={counts}>
                     {x}
                     <YAxis />
                     {tooltip}
+                    <ReferenceLine y={2} stroke='#dc3545' />
+                    <ReferenceLine y={3} stroke='#ffc107' />
                     <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
                     <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                   </AreaChart>
