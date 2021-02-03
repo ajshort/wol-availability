@@ -4,7 +4,7 @@ import { setContext } from '@apollo/client/link/context';
 import gql from 'graphql-tag';
 import React, { useContext, useState } from 'react';
 
-interface LoggedInMember {
+export interface LoggedInMember {
   number: number;
   fullName: string;
   permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';

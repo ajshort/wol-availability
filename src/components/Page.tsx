@@ -1,5 +1,5 @@
 import logo from '../assets/logo.svg';
-import { AuthConsumer } from './AuthContext';
+import { AuthConsumer, LoggedInMember } from './AuthContext';
 
 import React, { useEffect } from 'react';
 import Div100vh from 'react-div-100vh';
@@ -21,7 +21,11 @@ const NavLink: React.FC<NavLinkProps> = ({ children, ...props }) => (
   </LinkContainer>
 );
 
-const UnitNavDropdown: React.FC = () => {
+interface UnitNavDropdownProps {
+  member: LoggedInMember;
+}
+
+const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ member }) => {
   const active = useRouteMatch('/unit') !== null;
 
   return (
@@ -32,9 +36,11 @@ const UnitNavDropdown: React.FC = () => {
       <LinkContainer to='/unit/vr'>
         <NavDropdown.Item>Rescue</NavDropdown.Item>
       </LinkContainer>
-      <LinkContainer to='/unit/do'>
-        <NavDropdown.Item>Duty Officers</NavDropdown.Item>
-      </LinkContainer>
+      {member.unit === 'WOL' && (
+        <LinkContainer to='/unit/do'>
+          <NavDropdown.Item>Duty Officers</NavDropdown.Item>
+        </LinkContainer>
+      )}
     </NavDropdown>
   );
 };
@@ -62,7 +68,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
             <Nav>
               <NavLink to='/' exact>Home</NavLink>
               <NavLink to='/member'>Member</NavLink>
-              <UnitNavDropdown />
+              <UnitNavDropdown member={member} />
               <NavLink to='/stats'>Statistics</NavLink>
             </Nav>
             <Nav className='ml-auto'>
