@@ -91,8 +91,8 @@ export interface GetMemberAvailabilityVars {
 }
 
 export const GET_STATISTICS_QUERY = gql`
-  query ($start: DateTime!, $end: DateTime!) {
-    statistics(start: $start, end: $end) {
+  query ($start: DateTime!, $end: DateTime!, $unit: String) {
+    statistics(start: $start, end: $end, unit: $unit) {
       counts {
         start
         end
@@ -111,6 +111,12 @@ export const GET_STATISTICS_QUERY = gql`
           immediate
         }
       }
+
+      teams {
+        team
+        members
+        enteredStorm
+      }
     }
   }
 `;
@@ -125,11 +131,18 @@ interface StatisticCount {
   frOnLand: { immediate: number };
 }
 
+interface TeamEnteredCount {
+  team: string;
+  members: number;
+  enteredStorm: number;
+}
+
 export interface GetStatisticsData {
-  statistics: { counts: StatisticCount[] };
+  statistics: { counts: StatisticCount[]; teams: TeamEnteredCount[]; };
 }
 
 export interface GetStatisticsVars {
   start: Date;
   end: Date;
+  unit?: string;
 }

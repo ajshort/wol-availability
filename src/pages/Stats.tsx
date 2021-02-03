@@ -1,6 +1,8 @@
+import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import { getWeekInterval } from '../model/dates'
+import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
 import { DateTime, Interval } from 'luxon';
@@ -10,7 +12,7 @@ import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Area, AreaChart, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 enum Type {
   STORM = 'STORM',
@@ -25,12 +27,16 @@ const Stats = () => {
   const [interval, setInterval] = useState(weekExpanded);
   const [type, setType] = useState(Type.STORM);
 
+  const auth = useAuth();
+  const unit = auth.member!.unit;
+
   const { loading, error, data } = useQuery<GetStatisticsData, GetStatisticsVars>(
     GET_STATISTICS_QUERY,
     {
       variables: {
         start: interval.start.toJSDate(),
         end: interval.end.toJSDate(),
+        unit: unit,
       },
     },
   );
@@ -106,6 +112,18 @@ const Stats = () => {
           frOnLand: data.frOnLand.immediate,
         }));
 
+        const teams = data.statistics.teams
+          .filter(({ team }) => (
+            !FLEXIBLE_TEAMS.includes(team) && !SUPPORT_TEAMS.includes(team)
+          ))
+          .map(data => ({
+            name: data.team,
+            enteredStorm: data.enteredStorm,
+            missingStorm: data.members - data.enteredStorm,
+            percentage: data.enteredStorm / data.members,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
 
@@ -121,13 +139,11 @@ const Stats = () => {
                 />
               );
 
-              const y = <YAxis />;
-
               if (type === Type.FR) {
                 return (
                   <LineChart width={width} height={500} data={counts}>
                     {x}
-                    {y}
+                    <YAxis />
 
                     <Legend />
 
@@ -138,16 +154,32 @@ const Stats = () => {
                 );
               }
 
+              if (type === Type.VR) {
+                return (
+                  <AreaChart width={width} height={400} data={counts}>
+                    {x}
+                    <YAxis />
+                    <Area type='stepAfter' dataKey='vr.immediate' stackId={1} fill='#d4edda' stroke='#155724' />
+                    <Area type='stepAfter' dataKey='vr.support' stackId={1} fill='#fff3cd' stroke='#856404' />
+                  </AreaChart>
+                );
+              }
+
               return (
-                <AreaChart width={width} height={500} data={counts}>
-                  {x}
-                  {y}
-
-                  <Area hide={type !== Type.STORM} type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
-
-                  <Area hide={type !== Type.VR} type='stepAfter' dataKey='vr.immediate' stackId={1} fill='#d4edda' stroke='#155724' />
-                  <Area hide={type !== Type.VR} type='stepAfter' dataKey='vr.support' stackId={1} fill='#fff3cd' stroke='#856404' />
-                </AreaChart>
+                <>
+                  <AreaChart width={width} height={400} data={counts}>
+                    {x}
+                    <YAxis />
+                    <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
+                  </AreaChart>
+                  <BarChart width={width} height={400} data={teams}>
+                    <XAxis dataKey='name' />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
+                    <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
+                  </BarChart>
+                </>
               );
             }}
           </AutoSizer>
