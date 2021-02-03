@@ -139,17 +139,20 @@ const Stats = () => {
                 />
               );
 
+              const tooltip = (
+                <Tooltip labelFormatter={val => DateTime.fromMillis(val as number).toLocaleString(DateTime.DATETIME_SHORT)} />
+              );
+
               if (type === Type.FR) {
                 return (
                   <LineChart width={width} height={500} data={counts}>
                     {x}
                     <YAxis />
-
+                    {tooltip}
                     <Legend />
-
-                    <Line type='stepAfter' hide={type !== Type.FR} dataKey='frInWater' name='In water (L3)' stroke='#0d47a1' />
-                    <Line type='stepAfter' hide={type !== Type.FR} dataKey='frOnWater' name='On water (L2)' stroke='#2196f3' />
-                    <Line type='stepAfter' hide={type !== Type.FR} dataKey='frOnLand' name='Land based (L1)' stroke='#bbdefb' />
+                    <Line type='stepAfter' dataKey='frInWater' name='In water (L3)' stroke='#0d47a1' />
+                    <Line type='stepAfter' dataKey='frOnWater' name='On water (L2)' stroke='#2196f3' />
+                    <Line type='stepAfter' dataKey='frOnLand' name='Land based (L1)' stroke='#bbdefb' />
                   </LineChart>
                 );
               }
@@ -159,8 +162,9 @@ const Stats = () => {
                   <AreaChart width={width} height={400} data={counts}>
                     {x}
                     <YAxis />
-                    <Area type='stepAfter' dataKey='vr.immediate' stackId={1} fill='#d4edda' stroke='#155724' />
-                    <Area type='stepAfter' dataKey='vr.support' stackId={1} fill='#fff3cd' stroke='#856404' />
+                    {tooltip}
+                    <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
+                    <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                   </AreaChart>
                 );
               }
@@ -170,6 +174,7 @@ const Stats = () => {
                   <AreaChart width={width} height={400} data={counts}>
                     {x}
                     <YAxis />
+                    {tooltip}
                     <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
                   </AreaChart>
                   <BarChart width={width} height={400} data={teams}>
