@@ -157,7 +157,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
   return (
     <Card className='mb-3'>
       <Card.Header className='d-flex justify-content-between align-items-center'>
-        Storm
+        <span>Storm <Badge variant='info'>{members.length}</Badge></span>
         <LinkContainer to='/member/me'>
           <Button variant='primary' size='sm'>
             My availability
