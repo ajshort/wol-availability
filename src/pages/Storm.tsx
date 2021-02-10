@@ -42,13 +42,15 @@ const ManageMember: React.FC = () => {
 
   const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
 
+  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
+
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
         filter: { unit: me.unit },
-        start: week.start.toJSDate(),
-        end: week.end.toJSDate(),
+        start: visible.start.toJSDate(),
+        end: visible.end.toJSDate(),
       },
     },
   );
