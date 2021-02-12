@@ -3,7 +3,7 @@ import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
 import { mergeAbuttingAvailabilities } from '../model/availability';
-import { getIntervalPosition, getWeekInterval, TIME_ZONE } from '../model/dates';
+import { getIntervalPosition, getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   compareFloodRescue,
   FLOOD_RESCUE,
@@ -62,7 +62,8 @@ const Rescue: React.FC<RescueProps> = props => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
+  const days = getDayIntervals(week);
+  const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
@@ -193,6 +194,10 @@ const Rescue: React.FC<RescueProps> = props => {
                   .sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis()),
                 ['rescue', 'vehicle', 'note'],
               ).map(availability => {
+                if (!interval.overlaps(availability.interval)) {
+                  return null;
+                }
+
                 const left = getIntervalPosition(interval, availability.interval.start);
                 const right = getIntervalPosition(interval, availability.interval.end);
 

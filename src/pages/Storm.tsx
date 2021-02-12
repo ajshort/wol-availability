@@ -5,7 +5,7 @@ import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
 import { mergeAbuttingAvailabilities } from '../model/availability';
-import { getWeekInterval, getIntervalPosition, TIME_ZONE } from '../model/dates';
+import { getWeekInterval, getDayIntervals, getIntervalPosition, TIME_ZONE } from '../model/dates';
 import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
   GetMembersAvailabilitiesData,
@@ -42,7 +42,8 @@ const ManageMember: React.FC = () => {
 
   const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
 
-  const visible = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
+  const days = getDayIntervals(week);
+  const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
@@ -119,6 +120,10 @@ const ManageMember: React.FC = () => {
                   .sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis()),
                 ['storm', 'note'],
               ).map(availability => {
+                if (!interval.overlaps(availability.interval)) {
+                  return null;
+                }
+
                 const left = getIntervalPosition(interval, availability.interval.start);
                 const right = getIntervalPosition(interval, availability.interval.end);
 

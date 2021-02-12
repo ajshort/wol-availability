@@ -294,13 +294,14 @@
 .unit-table-availability-block {
   align-items: center;
   display: flex;
-  padding: 0.5 * $spacer;
   position: absolute;
   top: 0;
   bottom: 1px;
+  overflow: hidden;
 
   .badge {
     font-weight: normal;
+    margin-left: 0.5 * $spacer;
   }
 }
 
