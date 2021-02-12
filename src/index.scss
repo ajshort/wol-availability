@@ -179,6 +179,16 @@
   background: #f8d7da;
 }
 
+.availability-success + .availability-success {
+  border-left: 1px solid darken(#d4edda, 20%);
+}
+.availability-warning + .availability-warning {
+  border-left: 1px solid darken(#fff3cd, 20%);
+}
+.availability-danger + .availability-danger {
+  border-left: 1px solid darken(#f8d7da, 20%);
+}
+
 .availability-block {
   display: flex;
   cursor: pointer;
