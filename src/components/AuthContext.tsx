@@ -50,7 +50,7 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   // Create an apollo client using the bearer token.
   const httpLink = createHttpLink({
-    uri: process.env.REACT_APP_API_URI || 'https://https://wol-api-ajshort.vercel.app//graphql',
+    uri: process.env.REACT_APP_API_URI || 'https://wol-api-ajshort.vercel.app/graphql',
   });
 
   const authLink = setContext((_operation, { headers }) => {
