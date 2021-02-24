@@ -15,6 +15,6 @@
     { "src": "/(.*)", "headers": {"cache-control": "s-maxage=0"}, "dest": "/index.html" }
   ],
   "env": {
-    "REACT_APP_API_URI": "https://wol-api.ajshort.now.sh/graphql"
+    "REACT_APP_API_URI": "https://https://wol-api-ajshort.vercel.app//graphql"
   }
 }
