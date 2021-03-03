@@ -126,13 +126,14 @@ const Stats = () => {
           .sort((a, b) => a.name.localeCompare(b.name));
 
         const members = data.statistics.members
-          .filter(({ member }) => member !== null && member.qualifications.includes(VERTICAL_RESCUE))
+          .filter(({ member }) => member !== null)
           .map(data => ({
             name: data.member!.fullName,
+            qualifications: data.member!.qualifications,
+            storm: data.storm / (24 * 60 * 60),
             rescueImmediate: data.rescueImmediate / (24 * 60 * 60),
             rescueSupport: data.rescueSupport / (24 * 60 * 60),
-          }))
-          .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
+          }));
 
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
@@ -168,6 +169,10 @@ const Stats = () => {
               }
 
               if (type === Type.VR) {
+                const vr = members
+                  .filter(({ qualifications }) => qualifications.includes(VERTICAL_RESCUE))
+                  .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
+
                 return (
                   <>
                     <AreaChart width={width} height={400} data={counts}>
@@ -179,7 +184,7 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
-                    <BarChart width={width} height={400} data={members}>
+                    <BarChart width={width} height={400} data={vr}>
                       <XAxis dataKey='name' />
                       <YAxis />
                       <Tooltip />
@@ -204,6 +209,12 @@ const Stats = () => {
                     <Tooltip />
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
+                  </BarChart>
+                  <BarChart width={width} height={400} data={members.sort((a, b) => b.storm - a.storm)}>
+                    <XAxis dataKey='name' />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey='storm' fill='#d4edda' stroke='#155724' />
                   </BarChart>
                 </>
               );

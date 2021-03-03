@@ -124,6 +124,7 @@ export const GET_STATISTICS_QUERY = gql`
           qualifications
         }
 
+        storm
         rescueImmediate
         rescueSupport
       }
@@ -149,6 +150,7 @@ interface TeamEnteredCount {
 
 interface MemberAvailabilitySum {
   member: { fullName: string; qualifications: string[]; } | null;
+  storm: number;
   rescueImmediate: number;
   rescueSupport: number;
 }
