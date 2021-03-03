@@ -2,6 +2,7 @@ import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import { getWeekInterval } from '../model/dates'
+import { VERTICAL_RESCUE } from '../model/qualifications';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
@@ -124,6 +125,15 @@ const Stats = () => {
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
+        const members = data.statistics.members
+          .filter(({ member }) => member !== null && member.qualifications.includes(VERTICAL_RESCUE))
+          .map(data => ({
+            name: data.member!.fullName,
+            rescueImmediate: data.rescueImmediate / (24 * 60 * 60),
+            rescueSupport: data.rescueSupport / (24 * 60 * 60),
+          }))
+          .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
+
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
 
@@ -159,15 +169,24 @@ const Stats = () => {
 
               if (type === Type.VR) {
                 return (
-                  <AreaChart width={width} height={500} data={counts}>
-                    {x}
-                    <YAxis />
-                    {tooltip}
-                    <ReferenceLine y={2} stroke='#dc3545' />
-                    <ReferenceLine y={3} stroke='#ffc107' />
-                    <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
-                    <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
-                  </AreaChart>
+                  <>
+                    <AreaChart width={width} height={400} data={counts}>
+                      {x}
+                      <YAxis />
+                      {tooltip}
+                      <ReferenceLine y={2} stroke='#dc3545' />
+                      <ReferenceLine y={3} stroke='#ffc107' />
+                      <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
+                      <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
+                    </AreaChart>
+                    <BarChart width={width} height={400} data={members}>
+                      <XAxis dataKey='name' />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey='rescueImmediate' stackId={1} fill='#d4edda' stroke='#155724' />
+                      <Bar dataKey='rescueSupport' stackId={1} fill='#fff3cd' stroke='#856404' />
+                    </BarChart>
+                  </>
                 );
               }
 

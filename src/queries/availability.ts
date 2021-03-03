@@ -117,6 +117,16 @@ export const GET_STATISTICS_QUERY = gql`
         members
         enteredStorm
       }
+
+      members {
+        member {
+          fullName
+          qualifications
+        }
+
+        rescueImmediate
+        rescueSupport
+      }
     }
   }
 `;
@@ -137,8 +147,18 @@ interface TeamEnteredCount {
   enteredStorm: number;
 }
 
+interface MemberAvailabilitySum {
+  member: { fullName: string; qualifications: string[]; } | null;
+  rescueImmediate: number;
+  rescueSupport: number;
+}
+
 export interface GetStatisticsData {
-  statistics: { counts: StatisticCount[]; teams: TeamEnteredCount[]; };
+  statistics: {
+    counts: StatisticCount[];
+    teams: TeamEnteredCount[];
+    members: MemberAvailabilitySum[];
+  };
 }
 
 export interface GetStatisticsVars {
