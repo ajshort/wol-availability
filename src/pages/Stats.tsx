@@ -125,15 +125,7 @@ const Stats = () => {
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
 
-        const members = data.statistics.members
-          .filter(({ member }) => member !== null)
-          .map(data => ({
-            name: data.member!.fullName,
-            qualifications: data.member!.qualifications,
-            storm: data.storm / (24 * 60 * 60),
-            rescueImmediate: data.rescueImmediate / (24 * 60 * 60),
-            rescueSupport: data.rescueSupport / (24 * 60 * 60),
-          }));
+        const formatDays = (seconds: any) => (seconds / (24 * 60 * 60)).toLocaleString();
 
         // We copy the final value across to get the end to line up.
         counts.push({ ...counts[counts.length - 1], time: interval.end.toMillis() });
@@ -169,8 +161,8 @@ const Stats = () => {
               }
 
               if (type === Type.VR) {
-                const vr = members
-                  .filter(({ qualifications }) => qualifications.includes(VERTICAL_RESCUE))
+                const vr = data.statistics.members
+                  .filter(({ member }) => member.qualifications.includes(VERTICAL_RESCUE))
                   .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
 
                 return (
@@ -185,15 +177,19 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
                     <BarChart width={width} height={400} data={vr}>
-                      <XAxis dataKey='name' />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey='rescueImmediate' stackId={1} fill='#d4edda' stroke='#155724' />
-                      <Bar dataKey='rescueSupport' stackId={1} fill='#fff3cd' stroke='#856404' />
+                      <XAxis dataKey='member.fullName' />
+                      <YAxis tickFormatter={formatDays} />
+                      <Tooltip formatter={formatDays} />
+                      <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
+                      <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
                     </BarChart>
                   </>
                 );
               }
+
+              const storm = data.statistics.members
+                .filter(({ member }) => member.unit === unit)
+                .sort((a, b) => b.storm - a.storm);
 
               return (
                 <>
@@ -210,11 +206,11 @@ const Stats = () => {
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
                   </BarChart>
-                  <BarChart width={width} height={400} data={members.sort((a, b) => b.storm - a.storm)}>
-                    <XAxis dataKey='name' />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey='storm' fill='#d4edda' stroke='#155724' />
+                  <BarChart width={width} height={400} data={storm}>
+                    <XAxis dataKey='member.fullName' />
+                    <YAxis tickFormatter={formatDays} />
+                    <Tooltip formatter={formatDays} />
+                    <Bar dataKey='storm' fill='#28a745' />
                   </BarChart>
                 </>
               );
