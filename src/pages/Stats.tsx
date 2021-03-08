@@ -28,7 +28,7 @@ const Stats = () => {
   const [type, setType] = useState(Type.STORM);
 
   const auth = useAuth();
-  const unit = auth.member!.unit;
+  const { unit, permission } = auth.member!;
 
   const { loading, error, data } = useQuery<GetStatisticsData, GetStatisticsVars>(
     GET_STATISTICS_QUERY,
@@ -177,13 +177,15 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
-                    <BarChart width={width} height={400} data={vr}>
-                      <XAxis dataKey='member.fullName' />
-                      <YAxis tickFormatter={formatDays} />
-                      <Tooltip formatter={formatDays} />
-                      <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
-                      <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
-                    </BarChart>
+                    {permission === 'EDIT_UNIT' && (
+                      <BarChart width={width} height={400} data={vr}>
+                        <XAxis dataKey='member.fullName' />
+                        <YAxis tickFormatter={formatDays} />
+                        <Tooltip formatter={formatDays} />
+                        <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
+                        <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
+                      </BarChart>
+                    )}
                   </>
                 );
               }
@@ -191,6 +193,8 @@ const Stats = () => {
               const storm = data.statistics.members
                 .filter(({ member }) => member.unit === unit)
                 .sort((a, b) => b.storm - a.storm);
+
+console.log(permission);
 
               return (
                 <>
@@ -207,12 +211,14 @@ const Stats = () => {
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
                   </BarChart>
-                  <BarChart width={width} height={400} data={storm}>
-                    <XAxis dataKey='member.fullName' />
-                    <YAxis tickFormatter={formatDays} />
-                    <Tooltip formatter={formatDays} />
-                    <Bar dataKey='storm' fill='#28a745' />
-                  </BarChart>
+                  {permission === 'EDIT_UNIT' && (
+                    <BarChart width={width} height={400} data={storm}>
+                      <XAxis dataKey='member.fullName' />
+                      <YAxis tickFormatter={formatDays} />
+                      <Tooltip formatter={formatDays} />
+                      <Bar dataKey='storm' fill='#28a745' />
+                    </BarChart>
+                  )}
                 </>
               );
             }}
