@@ -121,6 +121,7 @@ export const GET_STATISTICS_QUERY = gql`
       members {
         member {
           fullName
+          team
           unit
           qualifications
         }
@@ -150,7 +151,7 @@ interface TeamEnteredCount {
 }
 
 interface MemberAvailabilitySum {
-  member: { fullName: string; unit: string; qualifications: string[]; };
+  member: { fullName: string; unit: string; team: string; qualifications: string[]; };
   storm: number;
   rescueImmediate: number;
   rescueSupport: number;

@@ -6,7 +6,7 @@ import { VERTICAL_RESCUE } from '../model/qualifications';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
-import { DateTime, Interval } from 'luxon';
+import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
@@ -191,10 +191,18 @@ const Stats = () => {
               }
 
               const storm = data.statistics.members
-                .filter(({ member }) => member.unit === unit)
-                .sort((a, b) => b.storm - a.storm);
+                .filter(({ member, storm }) => {
+                  if (member.unit !== unit) {
+                    return false;
+                  }
 
-console.log(permission);
+                  if (storm === 0 && (FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team))) {
+                    return false;
+                  }
+
+                  return true;
+                })
+                .sort((a, b) => b.storm - a.storm);
 
               return (
                 <>
