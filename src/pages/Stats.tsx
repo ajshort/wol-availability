@@ -23,9 +23,8 @@ enum Type {
 
 const Stats = () => {
   const week = getWeekInterval();
-  const weekExpanded = Interval.fromDateTimes(week.start.startOf('day'), week.end.endOf('day'));
 
-  const [interval, setInterval] = useState(weekExpanded);
+  const [interval, setInterval] = useState(week);
   const [type, setType] = useState(Type.STORM);
 
   const auth = useAuth();
@@ -78,6 +77,7 @@ const Stats = () => {
           onChange={handleSetFrom}
           maxDate={interval.end.toJSDate()}
           showTimeSelect
+          dateFormat='cccc do MMM yyyy HH:mm'
           className='form-control'
         />
         <span className='mx-2'>to</span>
@@ -86,6 +86,7 @@ const Stats = () => {
           onChange={handleSetTo}
           minDate={interval.start.toJSDate()}
           showTimeSelect
+          dateFormat='cccc do MMM yyyy HH:mm'
           className='form-control'
         />
       </div>
