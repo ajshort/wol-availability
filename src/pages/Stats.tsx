@@ -178,9 +178,9 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
                     {permission === 'EDIT_UNIT' && (
-                      <BarChart width={width} height={400} data={vr}>
-                        <XAxis dataKey='member.fullName' />
-                        <YAxis tickFormatter={formatDays} />
+                      <BarChart width={width} height={32 * vr.length} data={vr} layout='vertical'>
+                        <XAxis type='number' tickFormatter={formatDays} domain={[0, interval.count('days')]} />
+                        <YAxis type='category' dataKey='member.fullName' width={180} />
                         <Tooltip formatter={formatDays} />
                         <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
                         <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
@@ -189,20 +189,6 @@ const Stats = () => {
                   </>
                 );
               }
-
-              const storm = data.statistics.members
-                .filter(({ member, storm }) => {
-                  if (member.unit !== unit) {
-                    return false;
-                  }
-
-                  if (storm === 0 && (FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team))) {
-                    return false;
-                  }
-
-                  return true;
-                })
-                .sort((a, b) => b.storm - a.storm);
 
               return (
                 <>
@@ -219,14 +205,6 @@ const Stats = () => {
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
                   </BarChart>
-                  {permission === 'EDIT_UNIT' && (
-                    <BarChart width={width} height={400} data={storm}>
-                      <XAxis dataKey='member.fullName' />
-                      <YAxis tickFormatter={formatDays} />
-                      <Tooltip formatter={formatDays} />
-                      <Bar dataKey='storm' fill='#28a745' />
-                    </BarChart>
-                  )}
                 </>
               );
             }}
