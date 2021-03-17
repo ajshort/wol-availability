@@ -153,16 +153,16 @@ const Stats = () => {
 
               if (type === Type.FR) {
                 return (
-                  <LineChart width={width} height={500} data={counts}>
+                  <AreaChart width={width} height={500} data={counts}>
                     {x}
                     {lines}
                     <YAxis />
                     {tooltip}
                     <Legend />
-                    <Line type='stepAfter' dataKey='frInWater' name='In water (L3)' stroke='#0d47a1' />
-                    <Line type='stepAfter' dataKey='frOnWater' name='On water (L2)' stroke='#2196f3' />
-                    <Line type='stepAfter' dataKey='frOnLand' name='Land based (L1)' stroke='#bbdefb' />
-                  </LineChart>
+                    <Area type='stepAfter' stackId={1} dataKey='frInWater' name='In water (L3)' fill='#0d47a1' />
+                    <Area type='stepAfter' stackId={1} dataKey='frOnWater' name='On water (L2)' fill='#2196f3' />
+                    <Area type='stepAfter' stackId={1} dataKey='frOnLand' name='Land based (L1)' fill='#bbdefb' />
+                  </AreaChart>
                 );
               }
 
