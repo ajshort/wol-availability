@@ -1,7 +1,7 @@
 import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
-import { getWeekInterval } from '../model/dates'
+import { getDayIntervals, getWeekInterval } from '../model/dates'
 import { VERTICAL_RESCUE } from '../model/qualifications';
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
@@ -139,7 +139,8 @@ const Stats = () => {
                   dataKey='time'
                   type='number'
                   domain={[interval.start.toMillis(), interval.end.toMillis()]}
-                  tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString(DateTime.DATE_SHORT)}
+                  ticks={getDayIntervals(interval).map(day => DateTime.max(interval.start, day.start).toMillis())}
+                  tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString({ ...DateTime.DATE_SHORT, weekday: 'short', year: undefined })}
                 />
               );
 
@@ -147,10 +148,14 @@ const Stats = () => {
                 <Tooltip labelFormatter={val => DateTime.fromMillis(val as number).toLocaleString(DateTime.DATETIME_SHORT)} />
               );
 
+              const lines = getDayIntervals(interval)
+                .map(day => <ReferenceLine x={day.start.toMillis()} />);
+
               if (type === Type.FR) {
                 return (
                   <LineChart width={width} height={500} data={counts}>
                     {x}
+                    {lines}
                     <YAxis />
                     {tooltip}
                     <Legend />
@@ -170,6 +175,7 @@ const Stats = () => {
                   <>
                     <AreaChart width={width} height={400} data={counts}>
                       {x}
+                      {lines}
                       <YAxis />
                       {tooltip}
                       <ReferenceLine y={2} stroke='#dc3545' />
@@ -194,6 +200,7 @@ const Stats = () => {
                 <>
                   <AreaChart width={width} height={400} data={counts}>
                     {x}
+                    {lines}
                     <YAxis />
                     {tooltip}
                     <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
