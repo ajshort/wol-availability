@@ -79,7 +79,7 @@ const ChooseMember: React.FC = () => {
 
               const members = data.members
                 .filter(member => !team || team === member.team)
-                .sort((a, b) => a.surname.localeCompare(b.surname));
+                .sort((a, b) => a.lastName.localeCompare(b.lastName));
 
               return (
                 <React.Fragment>

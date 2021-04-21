@@ -9,7 +9,7 @@ export interface MemberFilter {
 export interface MemberData {
   number: number;
   fullName: string;
-  surname: string;
+  lastName: string;
   rank: string;
   qualifications: string[];
   team: string;
@@ -28,7 +28,7 @@ export const GET_MEMBERS_QUERY = gql`
     members(filter: $filter) {
       number
       fullName
-      surname
+      lastName
       rank
       qualifications
       team

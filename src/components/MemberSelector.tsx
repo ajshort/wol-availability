@@ -36,7 +36,7 @@ const MemberSelector: React.FC<MemberSelectorProps> = ({ id, onChange, allowNone
 
           members = data.members
             .slice()
-            .sort((a, b) => a.surname.localeCompare(b.surname))
+            .sort((a, b) => a.lastName.localeCompare(b.lastName))
             .map((member) => ({ id: member.number, label: member.fullName, team: member.team }));
 
           if (allowNone) {

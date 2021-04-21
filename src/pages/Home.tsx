@@ -81,7 +81,7 @@ const QUERY = gql`
       member {
         number
         fullName
-        surname
+        lastName
         rank
         qualifications
         team
@@ -151,7 +151,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
   members = members
     .filter(member => member.unit === unit)
     .sort((a, b) => (
-      a.surname.localeCompare(b.surname)
+      a.lastName.localeCompare(b.lastName)
     ));
 
   return (
@@ -252,7 +252,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     .sort((a, b) => (
       compareRescue(a, b) ||
       a.member.team.localeCompare(b.member.team) ||
-      a.member.surname.localeCompare(b.member.surname)
+      a.member.lastName.localeCompare(b.member.lastName)
     ));
 
   const flood = availabilties
@@ -262,13 +262,13 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     .sort((a, b) => (
       compareRescue(a, b) ||
       compareFloodRescue(a.member.qualifications, b.member.qualifications) ||
-      a.member.surname.localeCompare(b.member.surname)
+      a.member.lastName.localeCompare(b.member.lastName)
     ));
 
   const pad = availabilties
     .filter(({ member: { qualifications } }) => qualifications.includes(PAD))
     .filter(({ rescue }) => rescue === 'IMMEDIATE')
-    .sort((a, b) => a.member.surname.localeCompare(b.member.surname));
+    .sort((a, b) => a.member.lastName.localeCompare(b.member.lastName));
 
   const vr = { immediate: 0, support: 0 };
   const fr = { l1: 0, l2: 0, l3: 0 };

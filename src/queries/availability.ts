@@ -7,7 +7,7 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
     members(filter: $filter) {
       number
       fullName
-      surname
+      lastName
       rank
       qualifications
       team
@@ -30,7 +30,7 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
 interface MemberData {
   number: number;
   fullName: string;
-  surname: string;
+  lastName: string;
   rank: string;
   qualifications: string[];
   team: string;
@@ -62,7 +62,7 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
     member(number: $memberNumber) {
       number
       fullName
-      surname
+      lastName
       rank
       qualifications
       team

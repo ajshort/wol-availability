@@ -114,7 +114,7 @@ const UnitTable: React.FC<UnitTableProps> = props => {
   const { className, interval, members, sort, renderMember, footers, infoColumns } = props;
 
   const defaultSort = (a: MemberWithAvailabilityData, b: MemberWithAvailabilityData) => (
-    a.team.localeCompare(b.team) || a.surname.localeCompare(b.surname)
+    a.team.localeCompare(b.team) || a.lastName.localeCompare(b.lastName)
   );
   const sorted = members.sort(sort || defaultSort);
 

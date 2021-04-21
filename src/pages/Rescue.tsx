@@ -240,7 +240,7 @@ export const FloodRescue: React.FC = () => {
       qualifications={FLOOD_RESCUE}
       sort={(a, b) => (
         compareFloodRescue(a.qualifications, b.qualifications) ||
-        a.surname.localeCompare(b.surname)
+        a.lastName.localeCompare(b.lastName)
       )}
       footers={[
         {
@@ -305,7 +305,7 @@ export const VerticalRescue: React.FC = () => (
     baseUrl='/unit/vr'
     qualifications={[VERTICAL_RESCUE]}
     sort={(a, b) => (
-      compareCallsigns(a.callsign, b.callsign) || a.surname.localeCompare(b.surname)
+      compareCallsigns(a.callsign, b.callsign) || a.lastName.localeCompare(b.lastName)
     )}
     footers={[
       {
@@ -328,7 +328,7 @@ export const PublicAccessDefib: React.FC = () => (
     qualifications={[PAD]}
     immediateOnly
     sort={(a, b) => (
-      a.surname.localeCompare(b.surname)
+      a.lastName.localeCompare(b.lastName)
     )}
     footers={[
       {
