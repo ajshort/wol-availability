@@ -56,7 +56,7 @@ const Brand: React.FC<BrandProps> = ({ text }) => (
 const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
   <Navbar id='app-navbar' bg='dark' expand='md' variant='dark'>
     <AuthConsumer>
-      {({ member }) => (member ? (
+      {({ member, unit }) => (member ? (
         <React.Fragment>
           <LinkContainer to='/' exact>
             <Brand text={shortTitle || title} />
@@ -72,8 +72,12 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
             <Nav className='ml-auto'>
               <NavDropdown
                 id='nav-dropdown-user'
-                title={<><FaUser /> {member.fullName}</>}
+                title={<><FaUser /> {member.preferredName || member.fullName} ({unit})</>}
               >
+                {member.units.map(({ code, name }) => (
+                  <NavDropdown.Item key={code}>{name}</NavDropdown.Item>
+                ))}
+                <NavDropdown.Divider />
                 <LinkContainer to='/member/me'>
                   <NavDropdown.Item>My availability</NavDropdown.Item>
                 </LinkContainer>
