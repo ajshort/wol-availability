@@ -84,8 +84,6 @@ const QUERY = gql`
         lastName
         rank
         qualifications
-        team
-        unit
         mobile
       }
 
@@ -146,10 +144,9 @@ interface StormCardProps {
 
 const StormCard: React.FC<StormCardProps> = ({ members }) => {
   const auth = useAuth();
-  const unit = auth.unit!;
 
   members = members
-    .filter(member => member.unit === unit)
+    // .filter(member => member.unit === unit)
     .sort((a, b) => (
       a.lastName.localeCompare(b.lastName)
     ));
@@ -181,7 +178,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
                 </div>
                 <div className='text-right'>
                   <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
-                  <TeamBadge team={member.team} />
+                  {/* <TeamBadge team={member.team} /> */}
                   {
                     FEATURED
                       .filter(qual => member.qualifications.includes(qual))
@@ -251,7 +248,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     .filter(({ member: { qualifications } }) => qualifications.includes(VERTICAL_RESCUE))
     .sort((a, b) => (
       compareRescue(a, b) ||
-      a.member.team.localeCompare(b.member.team) ||
+      // a.member.team.localeCompare(b.member.team) ||
       a.member.lastName.localeCompare(b.member.lastName)
     ));
 
@@ -389,7 +386,7 @@ const Home: React.FC = () => {
 
             return (
               <React.Fragment>
-                <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} />
+                {/* <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} /> */}
                 <Row>
                   <Col md={6}>
                     <StormCard

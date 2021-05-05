@@ -65,7 +65,6 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
       lastName
       rank
       qualifications
-      team
 
       availabilities(start: $start, end: $end) {
         _id
@@ -121,7 +120,6 @@ export const GET_STATISTICS_QUERY = gql`
       members {
         member {
           fullName
-          team
           unit
           qualifications
         }
