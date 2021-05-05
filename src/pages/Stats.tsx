@@ -28,7 +28,7 @@ const Stats = () => {
   const [type, setType] = useState(Type.STORM);
 
   const auth = useAuth();
-  const { unit, permission } = auth.member!;
+  const unit = auth.unit!;
 
   const { loading, error, data } = useQuery<GetStatisticsData, GetStatisticsVars>(
     GET_STATISTICS_QUERY,
@@ -36,7 +36,7 @@ const Stats = () => {
       variables: {
         start: interval.start.toJSDate(),
         end: interval.end.toJSDate(),
-        unit: unit,
+        unit,
       },
     },
   );
@@ -177,7 +177,7 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
-                    {permission === 'EDIT_UNIT' && (
+                    {/* {permission === 'EDIT_UNIT' && ( */}
                       <BarChart width={width} height={32 * vr.length} data={vr} layout='vertical'>
                         <XAxis type='number' tickFormatter={formatDays} domain={[0, interval.count('days')]} />
                         <YAxis type='category' dataKey='member.fullName' width={180} />
@@ -185,7 +185,7 @@ const Stats = () => {
                         <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
                         <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
                       </BarChart>
-                    )}
+                    {/* )} */}
                   </>
                 );
               }

@@ -8,12 +8,12 @@ export interface LoggedInMember {
   number: number;
   fullName: string;
   permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';
-  team: string;
-  unit: string;
+  units: Array<{ code: string }>;
 }
 
 interface AuthContextProps {
   member?: LoggedInMember;
+  unit?: string;
   loading: boolean;
   error?: ApolloError;
   login: (token: string, remember: boolean) => void;
@@ -21,7 +21,6 @@ interface AuthContextProps {
 };
 
 const AuthContext = React.createContext<AuthContextProps>({
-  member: undefined,
   loading: false,
   login: () => { throw new Error('no auth provider') },
   logout: () => { throw new Error('no auth provider') },
@@ -37,8 +36,7 @@ const LOGGED_IN_MEMBERY_QUERY = gql`
       number
       fullName
       permission
-      team
-      unit
+      units { code }
     }
   }
 `;
@@ -88,6 +86,7 @@ export const AuthProvider: React.FC = ({ children }) => {
 
           if (data && data.loggedInMember) {
             value.member = data.loggedInMember;
+            value.unit = 'SEZ-NIC-WOL';
           }
 
           // If there's an error (e.g. expired token), logout to clear it.

@@ -146,7 +146,7 @@ interface StormCardProps {
 
 const StormCard: React.FC<StormCardProps> = ({ members }) => {
   const auth = useAuth();
-  const unit = auth.member!.unit;
+  const unit = auth.unit!;
 
   members = members
     .filter(member => member.unit === unit)
@@ -370,9 +370,6 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
 }
 
 const Home: React.FC = () => {
-  const auth = useAuth();
-  const unit = auth.member!.unit;
-
   return (
     <Page>
       <Container fluid className='my-3'>
@@ -392,9 +389,7 @@ const Home: React.FC = () => {
 
             return (
               <React.Fragment>
-                {unit === 'WOL' && (
-                  <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} />
-                )}
+                <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} />
                 <Row>
                   <Col md={6}>
                     <StormCard

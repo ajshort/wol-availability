@@ -36,11 +36,9 @@ const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ member }) => {
       <LinkContainer to='/unit/vr'>
         <NavDropdown.Item>Rescue</NavDropdown.Item>
       </LinkContainer>
-      {member.unit === 'WOL' && (
-        <LinkContainer to='/unit/do'>
-          <NavDropdown.Item>Duty Officers</NavDropdown.Item>
-        </LinkContainer>
-      )}
+      <LinkContainer to='/unit/do'>
+        <NavDropdown.Item>Duty Officers</NavDropdown.Item>
+      </LinkContainer>
     </NavDropdown>
   );
 };
@@ -74,7 +72,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
             <Nav className='ml-auto'>
               <NavDropdown
                 id='nav-dropdown-user'
-                title={<><FaUser /> {`${member.fullName} (${member.unit})`}</>}
+                title={<><FaUser /> {member.fullName}</>}
               >
                 <LinkContainer to='/member/me'>
                   <NavDropdown.Item>My availability</NavDropdown.Item>

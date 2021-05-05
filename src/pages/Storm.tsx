@@ -30,7 +30,7 @@ const ManageMember: React.FC = () => {
   const params = useParams<Params>();
   const history = useHistory();
   const auth = useAuth();
-  const me = auth.member!;
+  const unit = auth.unit!;
 
   let week: Interval;
 
@@ -49,7 +49,7 @@ const ManageMember: React.FC = () => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
-        filter: { unit: me.unit },
+        filter: { unit },
         start: visible.start.toJSDate(),
         end: visible.end.toJSDate(),
       },

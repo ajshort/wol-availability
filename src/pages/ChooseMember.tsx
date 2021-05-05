@@ -19,6 +19,7 @@ const ChooseMember: React.FC = () => {
   const auth = useAuth();
   const history = useHistory();
   const me = auth.member!;
+  const unit = auth.unit!;
 
   const currentWeek = getWeekInterval();
   const weeks = [];
@@ -28,7 +29,7 @@ const ChooseMember: React.FC = () => {
   }
 
   const [week, setWeek] = useState(currentWeek.start.toISODate());
-  const [team, setTeam] = useState(me.team);
+  const [team, setTeam] = useState<string | undefined>(/* me.team */);
   const [member, setMember] = useState(me.number);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,7 +61,7 @@ const ChooseMember: React.FC = () => {
           </Form.Group>
           <Query<GetMembersData, GetMembersVars>
             query={GET_MEMBERS_QUERY}
-            variables={{ filter: { unit: me.unit } }}
+            variables={{ filter: { unit } }}
           >
             {({ loading, error, data }) => {
               if (loading) {
