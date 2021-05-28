@@ -11,7 +11,6 @@ import {
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
   MANUAL_DRIVER,
-  PAD,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
 import {
@@ -316,25 +315,6 @@ export const VerticalRescue: React.FC = () => (
       {
         title: 'Support',
         included: (_, { rescue }) => rescue === 'SUPPORT',
-      },
-    ]}
-  />
-);
-
-export const PublicAccessDefib: React.FC = () => (
-  <Rescue
-    title='Public Access Defib'
-    baseUrl='/unit/pad'
-    qualifications={[PAD]}
-    immediateOnly
-    sort={(a, b) => (
-      a.lastName.localeCompare(b.lastName)
-    )}
-    footers={[
-      {
-        title: '',
-        included: (_, { rescue }) => rescue === 'IMMEDIATE',
-        highlightLessThan: 2,
       },
     ]}
   />

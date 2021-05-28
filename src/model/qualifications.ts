@@ -1,8 +1,8 @@
-export const VERTICAL_RESCUE = 'Vertical Rescue (PUASAR004B/PUASAR032A)';
+export const VERTICAL_RESCUE = 'VR-ACC';
 
-export const FLOOD_RESCUE_L1 = 'Swiftwater Rescue Awareness (FR L1)';
-export const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';
-export const FLOOD_RESCUE_L3 = 'Swiftwater Rescue Technician (FR L3)';
+export const FLOOD_RESCUE_L1 = 'FRL1-ACC';
+export const FLOOD_RESCUE_L2 = 'FRL2-ACC';
+export const FLOOD_RESCUE_L3 = 'FRL3-ACC';
 
 export const FLOOD_RESCUE = [
   FLOOD_RESCUE_L1,
@@ -10,41 +10,26 @@ export const FLOOD_RESCUE = [
   FLOOD_RESCUE_L3,
 ];
 
-export const PAD = 'PAD Operator';
-
 export const FEATURED = [
-  'Storm and Water Damage Operation',
-  'Land Search Team Member',
-  'Chainsaw Operator (Cross-Cut & Limb)',
-  'Chainsaw Operator (Tree Felling)',
-  'Swiftwater Rescue Awareness (FR L1)',
-  'Flood Rescue Boat Operator (FR L2)',
-  'Swiftwater Rescue Technician (FR L3)',
-  'Vertical Rescue (PUASAR004B/PUASAR032A)',
-  'IMT Member',
-  'Incident Controller',
-  'Key holder',
+  'SWDG-ACC',
+  'CL1-ACC',
+  ...FLOOD_RESCUE,
+  VERTICAL_RESCUE,
 ];
 
 export const MANUAL_DRIVER = 'Manual Driver';
 
 export const SUPPRESSED_BY: { [key: string]: string } = {
-  'Chainsaw Operator (Cross-Cut & Limb)': 'Chainsaw Operator (Tree Felling)',
-  'Swiftwater Rescue Awareness (FR L1)': 'Swiftwater Rescue Technician (FR L3)',
+  [FLOOD_RESCUE_L1]: FLOOD_RESCUE_L3,
 };
 
 export const ABBREVIATIONS: { [key: string]: string } = {
-  'Chainsaw Operator (Cross-Cut & Limb)': 'CS',
-  'Chainsaw Operator (Tree Felling)': 'CS2',
-  'Flood Rescue Boat Operator (FR L2)': 'OW',
-  'IMT Member': 'IMT',
-  'Incident Controller': 'IC',
-  'Key holder': '🔑',
-  'Land Search Team Member': 'LS',
-  'Storm and Water Damage Operation': 'SWD',
-  'Swiftwater Rescue Awareness (FR L1)': 'LB',
-  'Swiftwater Rescue Technician (FR L3)': 'IW',
-  'Vertical Rescue (PUASAR004B/PUASAR032A)': 'VR',
+  'CL1-ACC': 'CS',
+  'FRL2-ACC': 'OW',
+  'SWDG-ACC': 'SWD',
+  'FRL1-ACC': 'LB',
+  'FRL3-ACC': 'IW',
+  'VR-ACC': 'VR',
 };
 
 export function compareFloodRescue(qualificationsA: string[], qualificationsB: string[]) {
