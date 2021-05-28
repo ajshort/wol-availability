@@ -33,11 +33,6 @@ import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FaCircle, FaMobileAlt } from 'react-icons/fa';
 
-interface ShiftTeamsData {
-  day: string;
-  night: string;
-}
-
 interface DutyOfficersData {
   shift: string;
   member: { fullName: string; mobile: string; };
@@ -56,18 +51,12 @@ interface AvailableData {
 }
 
 interface QueryData {
-  shiftTeams: ShiftTeamsData;
   dutyOfficersAt: DutyOfficersData[];
   availableAt: AvailableData[];
 }
 
 const QUERY = gql`
   {
-    shiftTeams(unit: "WOL") {
-      day
-      night
-    }
-
     dutyOfficersAt {
       shift
       member {
@@ -105,37 +94,6 @@ function formatMobile(mobile?: string) {
 
   return [nums.substring(0, 4), nums.substring(4, 7), nums.substring(7, 10)].join(' ');
 }
-
-interface ShiftTeamsAlertProps {
-  shiftTeams: ShiftTeamsData;
-  dutyOfficers: DutyOfficersData[];
-}
-
-const ShiftTeamsAlert: React.FC<ShiftTeamsAlertProps> = ({ shiftTeams, dutyOfficers }) => (
-  <Alert variant='info' className='mb-3'>
-    {(() => {
-      const { day, night } = shiftTeams;
-      const shift = getShift();
-      const duty = dutyOfficers.find(x => x.shift === shift)?.member;
-
-      return (
-        <>
-          <p>
-            Duty officer is <strong>{duty ? duty.fullName : 'unknown'}</strong>
-            {duty && (<a className='ml-1' href={`tel:${duty.mobile}`}>
-              <small>
-                <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
-              </small>
-            </a>)}
-          </p>
-          <p className='mb-0'>
-            Day shift is <strong>{day}</strong>, night shift is <strong>{night}</strong>.
-          </p>
-        </>
-      );
-    })()}
-  </Alert>
-);
 
 interface StormCardProps {
   members: ExtendedMemberData[];
@@ -362,7 +320,6 @@ const Home: React.FC = () => {
 
             return (
               <React.Fragment>
-                {/* <ShiftTeamsAlert shiftTeams={data.shiftTeams} dutyOfficers={data.dutyOfficersAt} /> */}
                 <Row>
                   <Col md={6}>
                     <StormCard
