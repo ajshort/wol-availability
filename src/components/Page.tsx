@@ -49,7 +49,7 @@ interface BrandProps {
 
 const Brand: React.FC<BrandProps> = ({ text }) => (
   <Navbar.Brand>
-    <img src={logo} alt='SES Logo' width={20} height={20} /> {text || 'NIC SES' }
+    <img src={logo} alt='SES Logo' width={20} height={20} /> {text || 'SES Availability' }
   </Navbar.Brand>
 );
 
@@ -105,7 +105,7 @@ const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
 
 const Page: React.FC<PageProps> = ({ title, shortTitle, children }) => {
   useEffect(() => {
-    document.title = title ? `${title} | NIC SES Availability` : 'NIC SES Availability';
+    document.title = title ? `${title} | SES Availability` : 'SES Availability';
   });
 
   return (
