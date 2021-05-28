@@ -150,38 +150,38 @@ const Rescue: React.FC<RescueProps> = props => {
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
             sort={sort}
             infoColumns={[
-              {
-                key: 'callsign',
-                className: 'unit-table-callsign d-none d-xl-flex',
-                heading: 'Callsign',
-                render: (member) => member.callsign,
-              },
-              {
-                key: 'dov',
-                className: 'unit-table-dov d-none d-xl-flex',
-                heading: 'DOV',
-                render: ({ driverLevel, qualifications }) => {
-                  if (typeof driverLevel !== 'number') {
-                    return null;
-                  }
+              // {
+              //   key: 'callsign',
+              //   className: 'unit-table-callsign d-none d-xl-flex',
+              //   heading: 'Callsign',
+              //   render: (member) => member.callsign,
+              // },
+              // {
+              //   key: 'dov',
+              //   className: 'unit-table-dov d-none d-xl-flex',
+              //   heading: 'DOV',
+              //   render: ({ driverLevel, qualifications }) => {
+              //     if (typeof driverLevel !== 'number') {
+              //       return null;
+              //     }
 
-                  let classNames: string[] = [];
+              //     let classNames: string[] = [];
 
-                  if (driverLevel === 3) {
-                    classNames.push('dov-badge-3');
-                  } else if (driverLevel === 2) {
-                    classNames.push('dov-badge-2');
-                  } else if (driverLevel === 1) {
-                    classNames.push('dov-badge-1');
-                  }
+              //     if (driverLevel === 3) {
+              //       classNames.push('dov-badge-3');
+              //     } else if (driverLevel === 2) {
+              //       classNames.push('dov-badge-2');
+              //     } else if (driverLevel === 1) {
+              //       classNames.push('dov-badge-1');
+              //     }
 
-                  if (!qualifications.includes(MANUAL_DRIVER)) {
-                    classNames.push('dov-badge-auto-only');
-                  }
+              //     if (!qualifications.includes(MANUAL_DRIVER)) {
+              //       classNames.push('dov-badge-auto-only');
+              //     }
 
-                  return <Badge className={clsx(classNames)}>{`L${driverLevel}`}</Badge>
-                },
-              }
+              //     return <Badge className={clsx(classNames)}>{`L${driverLevel}`}</Badge>
+              //   },
+              // }
             ]}
             renderMember={(interval, member) => (
               mergeAbuttingAvailabilities(
@@ -305,7 +305,7 @@ export const VerticalRescue: React.FC = () => (
     baseUrl='/unit/vr'
     qualifications={[VERTICAL_RESCUE]}
     sort={(a, b) => (
-      compareCallsigns(a.callsign, b.callsign) || a.lastName.localeCompare(b.lastName)
+      0 // compareCallsigns(a.callsign, b.callsign) || a.lastName.localeCompare(b.lastName)
     )}
     footers={[
       {
