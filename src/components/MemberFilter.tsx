@@ -90,9 +90,9 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
 };
 
 export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvailabilityData) {
-  if (filter.team && member.team !== filter.team) {
-    return false;
-  }
+  // if (filter.team && member.team !== filter.team) {
+  //   return false;
+  // }
 
   if (filter.qualifications && filter.qualifications.length > 0) {
     for (const qual of filter.qualifications) {
@@ -112,14 +112,14 @@ export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvai
     }
   }
 
-  if (filter.hideFlexibleAndSupport) {
-    const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
-    const filteredTo = filter.team === member.team;
+  // if (filter.hideFlexibleAndSupport) {
+  //   const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
+  //   const filteredTo = filter.team === member.team;
 
-    if (flexible && !filteredTo) {
-      return false;
-    }
-  }
+  //   if (flexible && !filteredTo) {
+  //     return false;
+  //   }
+  // }
 
   return true;
 }

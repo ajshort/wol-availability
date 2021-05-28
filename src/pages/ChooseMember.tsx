@@ -76,10 +76,10 @@ const ChooseMember: React.FC = () => {
                 return null;
               }
 
-              const teams = _.uniq(data.members.map(member => member.team)).sort();
+              // const teams = _.uniq(data.members.map(member => member.team)).sort();
 
               const members = data.members
-                .filter(member => !team || team === member.team)
+                // .filter(member => !team || team === member.team)
                 .sort((a, b) => a.lastName.localeCompare(b.lastName));
 
               return (
@@ -94,7 +94,7 @@ const ChooseMember: React.FC = () => {
                         onChange={e => setTeam(e.target.value)}
                       >
                         <option></option>
-                        {teams.sort().map(team => <option key={team}>{team}</option>)}
+                        {/* teams.sort().map(team => <option key={team}>{team}</option>) */}
                       </Form.Control>
                     </Form.Group>
                   )}

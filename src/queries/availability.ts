@@ -10,7 +10,6 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
       lastName
       rank
       qualifications
-      team
       callsign
       driverLevel
 
@@ -33,7 +32,6 @@ interface MemberData {
   lastName: string;
   rank: string;
   qualifications: string[];
-  team: string;
   callsign?: string;
   driverLevel?: number;
 }

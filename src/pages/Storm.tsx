@@ -60,7 +60,7 @@ const ManageMember: React.FC = () => {
     history.push(`/unit/storm/${value.start.toISODate()}`);
   };
 
-  const teams = data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
+  const teams: string[] = []; // data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
   const quals = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
@@ -106,7 +106,7 @@ const ManageMember: React.FC = () => {
                 className: 'unit-table-team',
                 heading: 'Team',
                 render: (member) => (
-                  <TeamBadge team={member.team} />
+                  null /* <TeamBadge team={member.team} /> */
                 )
               }
             ]}

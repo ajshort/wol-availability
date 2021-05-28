@@ -12,7 +12,6 @@ export interface MemberData {
   lastName: string;
   rank: string;
   qualifications: string[];
-  team: string;
 }
 
 export interface GetMembersVars {
