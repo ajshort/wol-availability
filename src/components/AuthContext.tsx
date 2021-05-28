@@ -89,6 +89,12 @@ export const AuthProvider: React.FC = ({ children }) => {
   const logout = () => {
     setToken(undefined);
     localStorage.removeItem('token');
+    localStorage.removeItem('unitCode');
+  };
+
+  const setUnit = (code: string) => {
+    setUnitCode(code);
+    localStorage.setItem('unitCode', code);
   };
 
   return (
@@ -100,7 +106,7 @@ export const AuthProvider: React.FC = ({ children }) => {
             error,
             login,
             logout,
-            setUnit: setUnitCode,
+            setUnit,
           };
 
           if (data && data.loggedInMember) {
