@@ -36,7 +36,7 @@ const Stats = () => {
       variables: {
         start: interval.start.toJSDate(),
         end: interval.end.toJSDate(),
-        unit,
+        unit: unit.code,
       },
     },
   );

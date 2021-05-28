@@ -49,7 +49,7 @@ const ManageMember: React.FC = () => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
-        filter: { unit },
+        filter: { unit: unit.code },
         start: visible.start.toJSDate(),
         end: visible.end.toJSDate(),
       },

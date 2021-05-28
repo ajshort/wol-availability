@@ -61,7 +61,7 @@ const ChooseMember: React.FC = () => {
           </Form.Group>
           <Query<GetMembersData, GetMembersVars>
             query={GET_MEMBERS_QUERY}
-            variables={{ filter: { unit } }}
+            variables={{ filter: { unit: unit.code } }}
           >
             {({ loading, error, data }) => {
               if (loading) {
