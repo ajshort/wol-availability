@@ -8,28 +8,32 @@ import sgo from '../assets/senior-group-officer.svg';
 import ins from '../assets/inspector.svg';
 
 export default ({ rank, ...props }) => {
-  if (rank === 'Job Ready') {
+  if (rank === 'SES Job Ready') {
     return <img src={jr} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'Operator') {
+  if (rank === 'SES Operator') {
     return <img src={o} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'Senior Operator') {
+  if (rank === 'SES Senior Operator') {
     return <img src={so} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'Leading Senior Operator') {
+  if (rank === 'SES Leading Senior Operator') {
     return <img src={lso} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'Senior Group Officer') {
+  if (rank === 'SES Senior Group Officer') {
     return <img src={sgo} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'Inspector') {
+  if (rank === 'SES Inspector') {
     return <img src={ins} alt={rank} title={rank} {...props} />;
+  }
+
+  if (rank) {
+    console.warn(`Missing rank image for ${rank}`);
   }
 
   return null;
