@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 
 export interface MemberFilter {
   unit?: string;
-  team?: string;
   qualificationsAny?: string[];
 }
 
@@ -30,7 +29,6 @@ export const GET_MEMBERS_QUERY = gql`
       lastName
       rank
       qualifications
-      team
     }
   }
 `;
