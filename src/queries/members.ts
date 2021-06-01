@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export interface MemberFilter {
-  unit?: string;
+  unitsAny?: string[];
   qualificationsAny?: string[];
 }
 

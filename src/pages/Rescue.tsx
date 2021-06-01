@@ -1,7 +1,9 @@
+import { useAuth } from '../components/AuthContext';
 import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
+import { UNIT_CONFIGS } from '../config/units';
 import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getIntervalPosition, getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
@@ -50,6 +52,8 @@ const Rescue: React.FC<RescueProps> = props => {
 
   const history = useHistory();
   const params = useParams<Params>();
+  const unit = useAuth().unit!;
+  const config = UNIT_CONFIGS[unit.code];
 
   const [filter, setFilter] = useState<MemberFilter>({});
 
@@ -68,7 +72,7 @@ const Rescue: React.FC<RescueProps> = props => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
-        filter: { qualificationsAny: qualifications },
+        filter: { unitsAny: config.rescueUnits, qualificationsAny: qualifications },
         start: visible.start.toJSDate(),
         end: visible.end.toJSDate(),
       },
@@ -99,14 +103,6 @@ const Rescue: React.FC<RescueProps> = props => {
               <span className='d-none d-lg-inline'>Flood Rescue</span>
               <span className='d-lg-none'>FR</span>
             </Nav.Link>
-          </LinkContainer>
-        </Nav.Item>
-        <Nav.Item>
-          <LinkContainer to='/unit/pad'>
-              <Nav.Link>
-                <span className='d-none d-lg-inline'>Public Access Defib</span>
-                <span className='d-lg-none'>PAD</span>
-              </Nav.Link>
           </LinkContainer>
         </Nav.Item>
       </Nav>

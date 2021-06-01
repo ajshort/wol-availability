@@ -11,6 +11,11 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
       rank
       qualifications
 
+      units {
+        code
+        team
+      }
+
       availabilities(start: $start, end: $end) {
         _id
         start
@@ -24,12 +29,18 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
   }
 `;
 
+interface UnitData {
+  code: string;
+  team?: string;
+}
+
 interface MemberData {
   number: number;
   fullName: string;
   lastName: string;
   rank: string;
   qualifications: string[];
+  units: UnitData[];
 }
 
 export interface AvailabilityData extends Availability {

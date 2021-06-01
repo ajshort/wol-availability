@@ -4,6 +4,7 @@ import Page from '../components/Page';
 import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
+import { UNIT_CONFIGS } from '../config/units';
 import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getWeekInterval, getDayIntervals, getIntervalPosition, TIME_ZONE } from '../model/dates';
 import {
@@ -31,6 +32,7 @@ const ManageMember: React.FC = () => {
   const history = useHistory();
   const auth = useAuth();
   const unit = auth.unit!;
+  const config = UNIT_CONFIGS[unit.code];
 
   let week: Interval;
 
@@ -49,7 +51,7 @@ const ManageMember: React.FC = () => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
-        filter: { unit: unit.code },
+        filter: { unitsAny: config.stormUnits },
         start: visible.start.toJSDate(),
         end: visible.end.toJSDate(),
       },
