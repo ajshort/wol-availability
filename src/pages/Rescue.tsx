@@ -8,11 +8,11 @@ import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getIntervalPosition, getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
   compareFloodRescue,
+  getDriverAuthLevel,
   FLOOD_RESCUE,
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
-  MANUAL_DRIVER,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
 import {
@@ -145,38 +145,20 @@ const Rescue: React.FC<RescueProps> = props => {
             featuredQualifications={qualifications.length > 1 ? qualifications : []}
             sort={sort}
             infoColumns={[
-              // {
-              //   key: 'callsign',
-              //   className: 'unit-table-callsign d-none d-xl-flex',
-              //   heading: 'Callsign',
-              //   render: (member) => member.callsign,
-              // },
-              // {
-              //   key: 'dov',
-              //   className: 'unit-table-dov d-none d-xl-flex',
-              //   heading: 'DOV',
-              //   render: ({ driverLevel, qualifications }) => {
-              //     if (typeof driverLevel !== 'number') {
-              //       return null;
-              //     }
+              {
+                key: 'dov',
+                className: 'unit-table-dov d-none d-xl-flex',
+                heading: 'DOV',
+                render: ({ qualifications }) => {
+                  const level = getDriverAuthLevel(qualifications);
 
-              //     let classNames: string[] = [];
+                  if (level > 0) {
+                    return <Badge className={`dov-badge-${level}`}>{`L${level}`}</Badge>;
+                  }
 
-              //     if (driverLevel === 3) {
-              //       classNames.push('dov-badge-3');
-              //     } else if (driverLevel === 2) {
-              //       classNames.push('dov-badge-2');
-              //     } else if (driverLevel === 1) {
-              //       classNames.push('dov-badge-1');
-              //     }
-
-              //     if (!qualifications.includes(MANUAL_DRIVER)) {
-              //       classNames.push('dov-badge-auto-only');
-              //     }
-
-              //     return <Badge className={clsx(classNames)}>{`L${driverLevel}`}</Badge>
-              //   },
-              // }
+                  return null;
+                },
+              }
             ]}
             renderMember={(interval, member) => (
               mergeAbuttingAvailabilities(
@@ -262,46 +244,11 @@ export const FloodRescue: React.FC = () => {
   );
 };
 
-function compareCallsigns(a?: string, b?: string) {
-  if (!a && !b) {
-    return 0;
-  }
-  if (!b) {
-    return -1;
-  }
-  if (!a) {
-    return 1;
-  }
-
-  const extract = (callsign: string) => {
-    const match = callsign.match(/([A-Z]+)([0-9]+)/);
-
-    if (!match) {
-      return undefined;
-    }
-
-    return { unit: match[1], number: parseInt(match[2], 10) };
-  }
-
-  // Split the callsign and sort by unit and number.
-  const ea = extract(a);
-  const eb = extract(b);
-
-  if (!ea || !eb) {
-    return 0;
-  }
-
-  return ea.unit.localeCompare(eb.unit) || ea.number - eb.number;
-}
-
 export const VerticalRescue: React.FC = () => (
   <Rescue
     title='Vertical Rescue'
     baseUrl='/unit/vr'
     qualifications={[VERTICAL_RESCUE]}
-    sort={(a, b) => (
-      0 // compareCallsigns(a.callsign, b.callsign) || a.lastName.localeCompare(b.lastName)
-    )}
     footers={[
       {
         title: 'Immediate',
