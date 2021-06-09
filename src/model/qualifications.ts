@@ -45,3 +45,16 @@ export function compareFloodRescue(qualificationsA: string[], qualificationsB: s
 
   return level(qualificationsB) - level(qualificationsA);
 }
+
+export function getDriverAuthLevel(qualifications: string[]) {
+  if (qualifications.includes('DRL3-ACC')) {
+    return 3;
+  }
+  if (qualifications.includes('DRL2-ACC')) {
+    return 2;
+  }
+  if (qualifications.includes('DRL1-ACC')) {
+    return 1;
+  }
+  return 0;
+}
