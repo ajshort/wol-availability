@@ -7,13 +7,13 @@ import React, { useContext, useState } from 'react';
 interface Unit {
   code: string;
   name: string;
+  permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';
 }
 
 export interface LoggedInMember {
   number: number;
   fullName: string;
-  preferredName: string | null;
-  permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';
+  preferredName?: string;
   units: Unit[];
 }
 
@@ -44,10 +44,10 @@ const LOGGED_IN_MEMBERY_QUERY = gql`
       number
       fullName
       preferredName
-      permission
       units {
         code
         name
+        permission
       }
     }
   }

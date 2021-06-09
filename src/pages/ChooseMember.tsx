@@ -16,113 +16,115 @@ import { FaArrowRight } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 
 const ChooseMember: React.FC = () => {
-  const auth = useAuth();
-  const history = useHistory();
-  const me = auth.member!;
-  const unit = auth.unit!;
+  return null;
 
-  const currentWeek = getWeekInterval();
-  const weeks = [];
+  // const auth = useAuth();
+  // const history = useHistory();
+  // const me = auth.member!;
+  // const unit = auth.unit!;
 
-  for (let i = 0; i < 4; ++i) {
-    weeks.push(currentWeek.start.plus({ weeks: i }));
-  }
+  // const currentWeek = getWeekInterval();
+  // const weeks = [];
 
-  const [week, setWeek] = useState(currentWeek.start.toISODate());
-  const [team, setTeam] = useState<string | undefined>(/* me.team */);
-  const [member, setMember] = useState(me.number);
+  // for (let i = 0; i < 4; ++i) {
+  //   weeks.push(currentWeek.start.plus({ weeks: i }));
+  // }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+  // const [week, setWeek] = useState(currentWeek.start.toISODate());
+  // const [team, setTeam] = useState<string | undefined>(/* me.team */);
+  // const [member, setMember] = useState(me.number);
 
-    history.push(`/member/${member}/${week}`);
-  };
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
 
-  return (
-    <Page title='Member'>
-      <Container className='my-3'>
-        <Form onSubmit={handleSubmit}>
-          <h1>Manage Availability</h1>
-          <Form.Group controlId='week'>
-            <Form.Label>Enter availability for the week of</Form.Label>
-            <Form.Control
-              as='select'
-              className='custom-select'
-              value={week}
-              onChange={e => setWeek(e.target.value)}
-            >
-              {weeks.map(week => (
-                <option key={week.toISODate()} value={week.toISODate()}>
-                  {week.toLocaleString(DateTime.DATE_HUGE)}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          <Query<GetMembersData, GetMembersVars>
-            query={GET_MEMBERS_QUERY}
-            variables={{ filter: { unit: unit.code } }}
-          >
-            {({ loading, error, data }) => {
-              if (loading) {
-                return <p><Spinner as='span' animation='border' size='sm' /> Loading&hellip;</p>;
-              }
+  //   history.push(`/member/${member}/${week}`);
+  // };
 
-              if (error || !data) {
-                return <Alert variant='danger'>Error loading members</Alert>;
-              }
+  // return (
+  //   <Page title='Member'>
+  //     <Container className='my-3'>
+  //       <Form onSubmit={handleSubmit}>
+  //         <h1>Manage Availability</h1>
+  //         <Form.Group controlId='week'>
+  //           <Form.Label>Enter availability for the week of</Form.Label>
+  //           <Form.Control
+  //             as='select'
+  //             className='custom-select'
+  //             value={week}
+  //             onChange={e => setWeek(e.target.value)}
+  //           >
+  //             {weeks.map(week => (
+  //               <option key={week.toISODate()} value={week.toISODate()}>
+  //                 {week.toLocaleString(DateTime.DATE_HUGE)}
+  //               </option>
+  //             ))}
+  //           </Form.Control>
+  //         </Form.Group>
+  //         <Query<GetMembersData, GetMembersVars>
+  //           query={GET_MEMBERS_QUERY}
+  //           variables={{ filter: { unit: unit.code } }}
+  //         >
+  //           {({ loading, error, data }) => {
+  //             if (loading) {
+  //               return <p><Spinner as='span' animation='border' size='sm' /> Loading&hellip;</p>;
+  //             }
 
-              if (me.permission === 'EDIT_SELF') {
-                return null;
-              }
+  //             if (error || !data) {
+  //               return <Alert variant='danger'>Error loading members</Alert>;
+  //             }
 
-              // const teams = _.uniq(data.members.map(member => member.team)).sort();
+  //             if (me.permission === 'EDIT_SELF') {
+  //               return null;
+  //             }
 
-              const members = data.members
-                // .filter(member => !team || team === member.team)
-                .sort((a, b) => a.lastName.localeCompare(b.lastName));
+  //             // const teams = _.uniq(data.members.map(member => member.team)).sort();
 
-              return (
-                <React.Fragment>
-                  {me.permission === 'EDIT_UNIT' && (
-                    <Form.Group controlId='week'>
-                      <Form.Label>What team are you in?</Form.Label>
-                      <Form.Control
-                        as='select'
-                        className='custom-select'
-                        value={team}
-                        onChange={e => setTeam(e.target.value)}
-                      >
-                        <option></option>
-                        {/* teams.sort().map(team => <option key={team}>{team}</option>) */}
-                      </Form.Control>
-                    </Form.Group>
-                  )}
-                  <Form.Group controlId='member'>
-                    <Form.Label>Who are you?</Form.Label>
-                    <Form.Control
-                      as='select'
-                      className='custom-select'
-                      value={member}
-                      onChange={e => setMember(e.target.value ? parseInt(e.target.value, 10) : 0)}
-                    >
-                      <option></option>
-                      {members.map(member => (
-                        <option key={member.number} value={member.number}>{member.fullName}</option>
-                      ))}
-                    </Form.Control>
-                  </Form.Group>
-                </React.Fragment>
-              );
-            }}
-          </Query>
-          <Button type='submit' variant='primary' className='ml-auto' disabled={!(week && member)}>
-            Next <FaArrowRight />
-          </Button>
-        </Form>
-      </Container>
-    </Page>
-  );
+  //             const members = data.members
+  //               // .filter(member => !team || team === member.team)
+  //               .sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+  //             return (
+  //               <React.Fragment>
+  //                 {me.permission === 'EDIT_UNIT' && (
+  //                   <Form.Group controlId='week'>
+  //                     <Form.Label>What team are you in?</Form.Label>
+  //                     <Form.Control
+  //                       as='select'
+  //                       className='custom-select'
+  //                       value={team}
+  //                       onChange={e => setTeam(e.target.value)}
+  //                     >
+  //                       <option></option>
+  //                       {/* teams.sort().map(team => <option key={team}>{team}</option>) */}
+  //                     </Form.Control>
+  //                   </Form.Group>
+  //                 )}
+  //                 <Form.Group controlId='member'>
+  //                   <Form.Label>Who are you?</Form.Label>
+  //                   <Form.Control
+  //                     as='select'
+  //                     className='custom-select'
+  //                     value={member}
+  //                     onChange={e => setMember(e.target.value ? parseInt(e.target.value, 10) : 0)}
+  //                   >
+  //                     <option></option>
+  //                     {members.map(member => (
+  //                       <option key={member.number} value={member.number}>{member.fullName}</option>
+  //                     ))}
+  //                   </Form.Control>
+  //                 </Form.Group>
+  //               </React.Fragment>
+  //             );
+  //           }}
+  //         </Query>
+  //         <Button type='submit' variant='primary' className='ml-auto' disabled={!(week && member)}>
+  //           Next <FaArrowRight />
+  //         </Button>
+  //       </Form>
+  //     </Container>
+  //   </Page>
+  // );
 };
 
 export default ChooseMember;
