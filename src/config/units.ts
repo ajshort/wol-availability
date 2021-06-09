@@ -1,4 +1,4 @@
-interface UnitConfig {
+export interface UnitConfig {
   stormUnits: string[];
   rescueUnits: string[];
 }

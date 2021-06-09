@@ -1,3 +1,5 @@
+import { UnitConfig, UNIT_CONFIGS } from '../config/units';
+
 import { ApolloClient, ApolloError, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { Query } from '@apollo/client/react/components';
 import { setContext } from '@apollo/client/link/context';
@@ -20,6 +22,7 @@ export interface LoggedInMember {
 interface AuthContextProps {
   member?: LoggedInMember;
   unit?: Unit;
+  config: UnitConfig;
   loading: boolean;
   error?: ApolloError;
   login: (token: string, remember: boolean) => void;
@@ -32,6 +35,7 @@ const AuthContext = React.createContext<AuthContextProps>({
   login: () => { throw new Error('no auth provider') },
   logout: () => { throw new Error('no auth provider') },
   setUnit: () => { return; },
+  config: { stormUnits: [], rescueUnits: [] },
 });
 
 interface LoggedInMemberData {
@@ -107,6 +111,7 @@ export const AuthProvider: React.FC = ({ children }) => {
             login,
             logout,
             setUnit,
+            config: { stormUnits: [], rescueUnits: [] },
           };
 
           if (data && data.loggedInMember) {
@@ -122,6 +127,9 @@ export const AuthProvider: React.FC = ({ children }) => {
             }
           }
 
+          if (value.unit && typeof UNIT_CONFIGS[value.unit.code] !== 'undefined') {
+            value.config = UNIT_CONFIGS[value.unit.code];
+          }
 
           // If there's an error (e.g. expired token), logout to clear it.
           if (error && token) {
