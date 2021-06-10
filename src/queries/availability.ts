@@ -3,12 +3,12 @@ import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
 export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
-  query ($units: [String!]!, $start: DateTime!, $end: DateTime!) {
+  query ($units: [String!]!, $start: DateTime!, $end: DateTime!, $filter: MemberFilter) {
     units(filter: { codeAny: $units }) {
       code
       name
 
-      membersWithAvailabilities(start: $start, end: $end) {
+      membersWithAvailabilities(start: $start, end: $end, filter: $filter) {
         member {
           number
           fullName
@@ -71,6 +71,7 @@ export interface GetMembersAvailabilitiesVars {
   units: string[];
   start: Date;
   end: Date;
+  filter?: MemberFilter;
 }
 
 export const GET_MEMBER_AVAILABILITY_QUERY = gql`
