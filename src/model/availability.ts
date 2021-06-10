@@ -30,11 +30,11 @@ export type AvailabilityIncludedFn = (member: MemberData, availability: Availabi
  * the @a included callback at any particular time within the interval.
  */
 export function calculateMinimumAvailabilities(
-  intervals: Interval[], members: MemberWithAvailabilityData[], included: AvailabilityIncludedFn
+  intervals: Interval[], data: MemberWithAvailabilityData[], included: AvailabilityIncludedFn
 ) {
   // Get all intervals for which a member is available.
-  const availables = members.flatMap(member => member.availabilities
-    .filter(availability => included(member, availability))
+  const availables = data.flatMap(entry => entry.availabilities
+    .filter(availability => included(entry.member, availability))
     .map(({ start, end }) => Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)))
   );
 

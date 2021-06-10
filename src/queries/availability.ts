@@ -3,35 +3,37 @@ import { Availability } from '../model/availability';
 import gql from 'graphql-tag';
 
 export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
-  query ($filter: MemberFilter, $start: DateTime!, $end: DateTime!) {
-    members(filter: $filter) {
-      number
-      fullName
-      lastName
-      rank
-      qualifications
+  query ($units: [String!]!, $start: DateTime!, $end: DateTime!) {
+    units(filter: { codeAny: $units }) {
+      code
+      name
 
-      units {
-        code
-        team
-      }
+      membersWithAvailabilities(start: $start, end: $end) {
+        member {
+          number
+          fullName
+          lastName
+          rank
+          qualifications
+        }
 
-      availabilities(start: $start, end: $end) {
-        _id
-        start
-        end
-        storm
-        rescue
-        vehicle
-        note
+        availabilities {
+          start
+          end
+          storm
+          rescue
+          vehicle
+          note
+        }
       }
     }
   }
 `;
 
-interface UnitData {
+interface UnitAvailabilityData {
   code: string;
-  team?: string;
+  name: string;
+  membersWithAvailabilities: MemberWithAvailabilityData[];
 }
 
 interface MemberData {
@@ -40,7 +42,6 @@ interface MemberData {
   lastName: string;
   rank: string;
   qualifications: string[];
-  units: UnitData[];
 }
 
 export interface AvailabilityData extends Availability {
@@ -48,16 +49,17 @@ export interface AvailabilityData extends Availability {
   end: string;
 }
 
-export interface MemberWithAvailabilityData extends MemberData {
+export interface MemberWithAvailabilityData {
+  member: MemberData;
   availabilities: AvailabilityData[];
 }
 
 export interface GetMembersAvailabilitiesData {
-  members: MemberWithAvailabilityData[];
+  units: UnitAvailabilityData[];
 }
 
 export interface GetMembersAvailabilitiesVars {
-  filter?: MemberFilter;
+  units: string[];
   start: Date;
   end: Date;
 }

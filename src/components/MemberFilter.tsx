@@ -89,25 +89,25 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
   );
 };
 
-export function filterAcceptsMember(filter: MemberFilter, member: MemberWithAvailabilityData) {
+export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvailabilityData) {
   // if (filter.team && member.team !== filter.team) {
   //   return false;
   // }
 
   if (filter.qualifications && filter.qualifications.length > 0) {
     for (const qual of filter.qualifications) {
-      if (!member.qualifications.includes(qual)) {
+      if (!data.member.qualifications.includes(qual)) {
         return false;
       }
     }
   }
 
   if (filter.hideBlankAndUnavailable) {
-    if (member.availabilities.length === 0) {
+    if (data.availabilities.length === 0) {
       return false;
     }
 
-    if (!member.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
+    if (!data.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
       return false;
     }
   }

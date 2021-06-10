@@ -33,9 +33,8 @@ interface UnitTableRowProps extends ListChildComponentProps {
 
 const UnitTableRow: React.FC<UnitTableRowProps> = props => {
   const { data, week, days, index, style, featuredQualifications, infoColumns, renderMember } = props;
-  const { member: me } = useAuth();
 
-  const member = data[index];
+  const { member } = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
   const editable = true;
@@ -55,7 +54,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
       </div>
       {infoColumns && infoColumns.map(column => (
         <div key={column.key} className={clsx('unit-table-cell', column.className)}>
-          {column.render(member)}
+          {column.render(data[index])}
         </div>
       ))}
       {featuredQualifications.length > 0 && (
@@ -76,7 +75,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
             ))}
           </div>
         ))}
-        {renderMember ? renderMember(interval, member) : null}
+        {renderMember ? renderMember(interval, data[index]) : null}
         {(week.start > interval.start) && (
           <div
             className='unit-table-bound'

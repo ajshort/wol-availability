@@ -4,7 +4,6 @@ import Page from '../components/Page';
 import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
 import UnitTable from '../components/UnitTable';
-import { UNIT_CONFIGS } from '../config/units';
 import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getWeekInterval, getDayIntervals, getIntervalPosition, TIME_ZONE } from '../model/dates';
 import {
@@ -27,12 +26,10 @@ interface Params {
   week?: string;
 }
 
-const ManageMember: React.FC = () => {
+const Storm: React.FC = () => {
   const params = useParams<Params>();
   const history = useHistory();
-  const auth = useAuth();
-  const unit = auth.unit!;
-  const config = UNIT_CONFIGS[unit.code];
+  const { config } = useAuth();
 
   let week: Interval;
 
@@ -51,7 +48,7 @@ const ManageMember: React.FC = () => {
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
       variables: {
-        filter: { unitsAny: config.stormUnits },
+        units: config.stormUnits,
         start: visible.start.toJSDate(),
         end: visible.end.toJSDate(),
       },
@@ -63,7 +60,7 @@ const ManageMember: React.FC = () => {
   };
 
   const teams: string[] = []; // data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
-  const quals = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
+  const quals: string[] = []; // = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
     <Page title='Storm'>
@@ -96,7 +93,10 @@ const ManageMember: React.FC = () => {
           );
         }
 
-        const members = data.members.filter(member => filterAcceptsMember(filter, member));
+        // We flat map all the units into one.
+        const members = data.units
+          .flatMap(unit => unit.membersWithAvailabilities)
+          .filter(member => filterAcceptsMember(filter, member));
 
         return (
           <UnitTable
@@ -161,4 +161,4 @@ const ManageMember: React.FC = () => {
   );
 };
 
-export default ManageMember;
+export default Storm;
