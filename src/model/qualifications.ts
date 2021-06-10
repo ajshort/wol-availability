@@ -13,6 +13,7 @@ export const FLOOD_RESCUE = [
 export const FEATURED = [
   'SWDG-ACC',
   'CL1-ACC',
+  'PUASAR027A',
   ...FLOOD_RESCUE,
   VERTICAL_RESCUE,
 ];
@@ -30,6 +31,7 @@ export const ABBREVIATIONS: { [key: string]: string } = {
   'FRL1-ACC': 'LB',
   'FRL3-ACC': 'IW',
   'VR-ACC': 'VR',
+  'PUASAR027A': 'LS',
 };
 
 export function compareFloodRescue(qualificationsA: string[], qualificationsB: string[]) {
