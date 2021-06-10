@@ -9,6 +9,7 @@ import React, { useContext, useState } from 'react';
 interface Unit {
   code: string;
   name: string;
+  team: string;
   permission: 'EDIT_SELF' | 'EDIT_TEAM' | 'EDIT_UNIT';
 }
 
@@ -51,6 +52,7 @@ const LOGGED_IN_MEMBERY_QUERY = gql`
       units {
         code
         name
+        team
         permission
       }
     }

@@ -33,14 +33,14 @@ interface UnitTableRowProps extends ListChildComponentProps {
 
 const UnitTableRow: React.FC<UnitTableRowProps> = props => {
   const { data, week, days, index, style, featuredQualifications, infoColumns, renderMember } = props;
+  const { unit, member: me } = useAuth();
 
-  const { member } = data[index];
+  const { member, membership } = data[index];
   const interval = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
 
-  const editable = true;
-  // const editable = (me?.permission === 'EDIT_UNIT') ||
-  //                  (me?.permission === 'EDIT_TEAM' && me?.team === member.team) ||
-  //                  (me?.number === member.number);
+  const editable = (unit?.permission === 'EDIT_UNIT') ||
+                   (unit?.permission === 'EDIT_TEAM' && unit?.team === membership.team) ||
+                   (me?.number === member.number);
 
   return (
     <div className='unit-table-row' style={style}>
