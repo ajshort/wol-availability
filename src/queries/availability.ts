@@ -25,6 +25,10 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
           vehicle
           note
         }
+
+        membership {
+          team
+        }
       }
     }
   }
@@ -44,6 +48,10 @@ interface MemberData {
   qualifications: string[];
 }
 
+interface MembershipData {
+  team?: string;
+}
+
 export interface AvailabilityData extends Availability {
   start: string;
   end: string;
@@ -52,6 +60,7 @@ export interface AvailabilityData extends Availability {
 export interface MemberWithAvailabilityData {
   member: MemberData;
   availabilities: AvailabilityData[];
+  membership: MembershipData;
 }
 
 export interface GetMembersAvailabilitiesData {

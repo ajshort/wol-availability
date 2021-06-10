@@ -107,9 +107,9 @@ const Storm: React.FC = () => {
                 key: 'team',
                 className: 'unit-table-team',
                 heading: 'Team',
-                render: (member) => (
-                  null /* <TeamBadge team={member.team} /> */
-                )
+                render: ({ membership }) => (
+                  membership.team ? <TeamBadge team={membership.team} /> : null
+                ),
               }
             ]}
             renderMember={(interval, member) => (
