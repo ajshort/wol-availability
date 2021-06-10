@@ -63,7 +63,7 @@ const Storm: React.FC = () => {
   const quals: string[] = []; // = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
-    <Page title='Storm'>
+    <Page title='Storm and Support' shortTitle='Storm'>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
         <div>
           <MemberFilterButton

@@ -31,7 +31,7 @@ const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ member }) => {
   return (
     <NavDropdown id='unit' title='Unit' className={active ? 'active' : null}>
       <LinkContainer to='/unit/storm'>
-        <NavDropdown.Item>Storm</NavDropdown.Item>
+        <NavDropdown.Item>Storm and Support</NavDropdown.Item>
       </LinkContainer>
       <LinkContainer to='/unit/vr'>
         <NavDropdown.Item>Rescue</NavDropdown.Item>
