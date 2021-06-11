@@ -13,21 +13,24 @@ export interface MemberData {
 }
 
 export interface GetMembersVars {
+  unit: string;
   filter?: MemberFilter;
 }
 
 export interface GetMembersData {
-  members: MemberData[];
+  unit: { members: MemberData[]; };
 }
 
 export const GET_MEMBERS_QUERY = gql`
-  query($filter: MemberFilter) {
-    members(filter: $filter) {
-      number
-      fullName
-      lastName
-      rank
-      qualifications
+  query($unit: String!, $filter: MemberFilter) {
+    unit(code: $unit) {
+      members(filter: $filter) {
+        number
+        fullName
+        lastName
+        rank
+        qualifications
+      }
     }
   }
 `;
