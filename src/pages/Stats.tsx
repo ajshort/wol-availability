@@ -27,16 +27,16 @@ const Stats = () => {
   const [interval, setInterval] = useState(week);
   const [type, setType] = useState(Type.STORM);
 
-  const auth = useAuth();
-  const unit = auth.unit!;
+  const { config } = useAuth();
 
   const { loading, error, data } = useQuery<GetStatisticsData, GetStatisticsVars>(
     GET_STATISTICS_QUERY,
     {
       variables: {
+        stormUnitCodes: config.stormUnits,
+        rescueUnitCodes: config.rescueUnits,
         start: interval.start.toJSDate(),
         end: interval.end.toJSDate(),
-        unit: unit.code,
       },
     },
   );
@@ -59,15 +59,21 @@ const Stats = () => {
     }
   };
 
+  const radios = [{ value: Type.STORM, label: 'Storm', variant: 'info' }];
+
+  if (config.capabilities.verticalRescue) {
+    radios.push({ value: Type.VR, label: 'VR', variant: 'info' });
+  }
+
+  if (config.capabilities.floodRescue) {
+    radios.push({ value: Type.FR, label: 'FR', variant: 'info' });
+  }
+
   return (
     <Page title='Statistics'>
       <div className='d-flex align-items-center border-bottom p-3'>
         <RadioButtonGroup<Type>
-          options={[
-            { value: Type.STORM, label: 'Storm', variant: 'info' },
-            { value: Type.VR, label: 'VR', variant: 'info' },
-            { value: Type.FR, label: 'FR', variant: 'info' },
-          ]}
+          options={radios}
           value={type}
           onChange={handleChangeType}
         />
@@ -114,17 +120,17 @@ const Stats = () => {
           frOnLand: data.frOnLand.immediate,
         }));
 
-        const teams = data.statistics.teams
-          .filter(({ team }) => (
-            !FLEXIBLE_TEAMS.includes(team) && !SUPPORT_TEAMS.includes(team)
-          ))
-          .map(data => ({
-            name: data.team,
-            enteredStorm: data.enteredStorm,
-            missingStorm: data.members - data.enteredStorm,
-            percentage: data.enteredStorm / data.members,
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name));
+        // const teams = data.statistics.teams
+        //   .filter(({ team }) => (
+        //     !FLEXIBLE_TEAMS.includes(team) && !SUPPORT_TEAMS.includes(team)
+        //   ))
+        //   .map(data => ({
+        //     name: data.team,
+        //     enteredStorm: data.enteredStorm,
+        //     missingStorm: data.members - data.enteredStorm,
+        //     percentage: data.enteredStorm / data.members,
+        //   }))
+        //   .sort((a, b) => a.name.localeCompare(b.name));
 
         const formatDays = (seconds: any) => (seconds / (24 * 60 * 60)).toLocaleString();
 
@@ -162,9 +168,9 @@ const Stats = () => {
               }
 
               if (type === Type.VR) {
-                const vr = data.statistics.members
-                  .filter(({ member }) => member.qualifications.includes(VERTICAL_RESCUE))
-                  .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
+                // const vr = data.statistics.members
+                //   .filter(({ member }) => member.qualifications.includes(VERTICAL_RESCUE))
+                //   .sort((a, b) => (b.rescueImmediate - a.rescueImmediate) || (b.rescueSupport - a.rescueSupport));
 
                 return (
                   <>
@@ -177,7 +183,7 @@ const Stats = () => {
                       <Area type='stepAfter' dataKey='vr.immediate' name='Immediate' stackId={1} fill='#d4edda' stroke='#155724' />
                       <Area type='stepAfter' dataKey='vr.support' name='Support' stackId={1} fill='#fff3cd' stroke='#856404' />
                     </AreaChart>
-                    {/* {permission === 'EDIT_UNIT' && ( */}
+                    {/* {permission === 'EDIT_UNIT' && (
                       <BarChart width={width} height={32 * vr.length} data={vr} layout='vertical'>
                         <XAxis type='number' tickFormatter={formatDays} domain={[0, interval.count('days')]} />
                         <YAxis type='category' dataKey='member.fullName' width={180} />
@@ -185,7 +191,7 @@ const Stats = () => {
                         <Bar dataKey='rescueImmediate' name='Immediate' stackId={1} fill='#28a745' />
                         <Bar dataKey='rescueSupport' name='Support' stackId={1} fill='#ffc658' />
                       </BarChart>
-                    {/* )} */}
+                    )} */}
                   </>
                 );
               }
@@ -198,13 +204,13 @@ const Stats = () => {
                     {tooltip}
                     <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
                   </AreaChart>
-                  <BarChart width={width} height={400} data={teams}>
+                  {/* <BarChart width={width} height={400} data={teams}>
                     <XAxis dataKey='name' />
                     <YAxis />
                     <Tooltip />
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
-                  </BarChart>
+                  </BarChart> */}
                 </>
               );
             }}
