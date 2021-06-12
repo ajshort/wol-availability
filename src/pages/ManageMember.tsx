@@ -420,6 +420,7 @@ const ManageMember: React.FC = () => {
   const applyDefaultAvailability = () => {
     mutateToDefault({
       variables: {
+        unitCode,
         memberNumber: number,
         start: week.start.toJSDate(),
       },

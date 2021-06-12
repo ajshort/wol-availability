@@ -84,18 +84,19 @@ export interface SetDefaultAvailabilityVars {
 }
 
 export const SET_DEFAULT_AVAILABILITY_MUTATION = gql`
-  mutation ($memberNumber: Int!, $start: DateTime!, $availabilities: [MemberAvailabilityInput!]!) {
+  mutation ($memberNumber: Int!, $start: DateTime!, $availabilities: [AvailabilityInput!]!) {
     setDefaultAvailability(memberNumber: $memberNumber, start: $start, availabilities: $availabilities)
   }
 `;
 
 export interface ApplyDefaultAvailabilityVars {
+  unitCode: string;
   memberNumber: number;
   start: Date;
 }
 
 export const APPLY_DEFAULT_AVAILABILITY_MUTATION = gql`
-  mutation ($memberNumber: Int!, $start: DateTime!) {
-    applyDefaultAvailability(memberNumber: $memberNumber, start: $start)
+  mutation ($unitCode: String!, $memberNumber: Int!, $start: DateTime!) {
+    applyDefaultAvailability(unitCode: $unitCode, memberNumber: $memberNumber, start: $start)
   }
 `;
