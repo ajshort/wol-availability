@@ -75,7 +75,7 @@ export interface GetMembersAvailabilitiesVars {
 }
 
 export const GET_MEMBER_AVAILABILITY_QUERY = gql`
-  query ($memberNumber: Int!, $start: DateTime!, $end: DateTime!) {
+  query ($unitCode: String!, $memberNumber: Int!, $start: DateTime!, $end: DateTime!) {
     member(number: $memberNumber) {
       number
       fullName
@@ -83,7 +83,7 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
       rank
       qualifications
 
-      availabilities(start: $start, end: $end) {
+      availabilities(unitCode: $unitCode, start: $start, end: $end) {
         _id
         start
         end
@@ -97,10 +97,11 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
 `;
 
 export interface GetMemberAvailabilityData {
-  member: MemberWithAvailabilityData | null;
+  member?: MemberData & { availabilities: AvailabilityData[] };
 }
 
 export interface GetMemberAvailabilityVars {
+  unitCode: string;
   memberNumber: number;
   start: Date;
   end: Date;

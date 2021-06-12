@@ -262,382 +262,379 @@ interface Params {
 }
 
 const ManageMember: React.FC = () => {
-  return null;
+  const auth = useAuth();
+  const params = useParams<Params>();
+  const history = useHistory();
 
-  // const auth = useAuth();
-  // const params = useParams<Params>();
-  // const history = useHistory();
+  let number: number;
 
-  // let number: number;
+  if (params.member === 'me') {
+    number = (auth.member as any).number;
+  } else {
+    number = parseInt(params.member, 10);
+  }
 
-  // if (params.member === 'me') {
-  //   number = (auth.member as any).number;
-  // } else {
-  //   number = parseInt(params.member, 10);
-  // }
+  let week: Interval;
 
-  // let week: Interval;
+  if (params.week === undefined) {
+    week = getWeekInterval();
+  } else {
+    week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
+  }
 
-  // if (params.week === undefined) {
-  //   week = getWeekInterval();
-  // } else {
-  //   week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
-  // }
+  const days = getDayIntervals(week);
+  const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
+  const unitCode = auth.unit!.code;
 
-  // const days = getDayIntervals(week);
-  // const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
+  // We don't allow editing availability data in the past.
+  const inPast = DateTime.local() > visible.end;
 
-  // // We don't allow editing availability data in the past.
-  // const inPast = DateTime.local() > visible.end;
+  const availabilityVars = {
+    unitCode,
+    memberNumber: number,
+    start: visible.start.toJSDate(),
+    end: visible.end.toJSDate(),
+  };
 
-  // const availabilityVars = {
-  //   memberNumber: number,
-  //   start: visible.start.toJSDate(),
-  //   end: visible.end.toJSDate(),
-  // };
+  const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
+    GET_MEMBER_AVAILABILITY_QUERY, {
+      variables: availabilityVars,
+    }
+  );
 
-  // const { loading, error, data } = useQuery<GetMemberAvailabilityData, GetMemberAvailabilityVars>(
-  //   GET_MEMBER_AVAILABILITY_QUERY, {
-  //     variables: availabilityVars,
-  //   }
-  // );
+  const [mutateAvailability, { loading: mutatingAvailability }] = useMutateMemberAvailability(unitCode, number, visible);
 
-  // const [mutateAvailability, { loading: mutatingAvailability }] = useMutateMemberAvailability(number, visible);
+  const [mutateDefault, { loading: mutatingDefault }] = useMutation<boolean, SetDefaultAvailabilityVars>(
+    SET_DEFAULT_AVAILABILITY_MUTATION,
+  );
 
-  // const [mutateDefault, { loading: mutatingDefault }] = useMutation<boolean, SetDefaultAvailabilityVars>(
-  //   SET_DEFAULT_AVAILABILITY_MUTATION,
-  // );
+  const [mutateToDefault, { loading: mutatingToDefault }] = useMutation<boolean, ApplyDefaultAvailabilityVars>(
+    APPLY_DEFAULT_AVAILABILITY_MUTATION,
+  );
 
-  // const [mutateToDefault, { loading: mutatingToDefault }] = useMutation<boolean, ApplyDefaultAvailabilityVars>(
-  //   APPLY_DEFAULT_AVAILABILITY_MUTATION,
-  // );
+  const mutating = mutatingAvailability || mutatingDefault || mutatingToDefault;
 
-  // const mutating = mutatingAvailability || mutatingDefault || mutatingToDefault;
+  const [selections, setSelections] = useState<Interval[]>([]);
+  const [selectingVehicle, setSelectingVehicle] = useState(false);
+  const [addingNote, setAddingNote] = useState(false);
 
-  // const [selections, setSelections] = useState<Interval[]>([]);
-  // const [selectingVehicle, setSelectingVehicle] = useState(false);
-  // const [addingNote, setAddingNote] = useState(false);
+  if (loading) {
+    return (
+      <Page title='Member'>
+        <Alert variant='info' className='m-3'>
+          <Spinner size='sm' animation='border' /> Loading member&hellip;
+        </Alert>
+      </Page>
+    );
+  }
 
-  // if (loading) {
-  //   return (
-  //     <Page title='Member'>
-  //       <Alert variant='info' className='m-3'>
-  //         <Spinner size='sm' animation='border' /> Loading member&hellip;
-  //       </Alert>
-  //     </Page>
-  //   );
-  // }
+  if (error || !data || !data.member) {
+    return (
+      <Page title='Member'>
+        <Alert variant='danger' className='m-3'> Error loading member.</Alert>
+      </Page>
+    );
+  }
 
-  // if (error || !data || !data.member) {
-  //   return (
-  //     <Page title='Member'>
-  //       <Alert variant='danger' className='m-3'> Error loading member.</Alert>
-  //     </Page>
-  //   );
-  // }
+  const { member } = data;
 
-  // const { member } = data;
+  const availabilities = member.availabilities.map(({ start, end, ...availability }) => {
+    const interval = Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end));
+    return { interval, ...availability } as AvailabilityInterval;
+  });
 
-  // const availabilities = member.availabilities.map(({ start, end, ...availability }) => {
-  //   const interval = Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end));
-  //   return { interval, ...availability } as AvailabilityInterval;
-  // });
+  // Figure out if the member should be shown storm only mode, or rescue mode.
+  const rescueQuals = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
+  const rescueMember = member.qualifications.some(qual => rescueQuals.includes(qual));
 
-  // // Figure out if the member should be shown storm only mode, or rescue mode.
-  // const rescueQuals = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
-  // const rescueMember = member.qualifications.some(qual => rescueQuals.includes(qual));
+  const handleChangeWeek = (value: Interval) => {
+    setSelections([]);
 
-  // const handleChangeWeek = (value: Interval) => {
-  //   setSelections([]);
+    if (number === (auth.member as any).number) {
+      history.push(`/member/me/${value.start.toISODate()}`);
+    } else {
+      history.push(`/member/${number}/${value.start.toISODate()}`);
+    }
+  };
 
-  //   if (number === (auth.member as any).number) {
-  //     history.push(`/member/me/${value.start.toISODate()}`);
-  //   } else {
-  //     history.push(`/member/${number}/${value.start.toISODate()}`);
-  //   }
-  // };
+  const setAvailabilities = (availabilities: AvailabilityInterval[]) => {
+    // We expand the visible interval to encompass the beginning and end of any set intervals.
+    let bounds = visible;
 
-  // const setAvailabilities = (availabilities: AvailabilityInterval[]) => {
-  //   // We expand the visible interval to encompass the beginning and end of any set intervals.
-  //   let bounds = visible;
+    for (const { interval: { start, end } } of availabilities) {
+      if (start < bounds.start) {
+        bounds = bounds.set({ start });
+      }
 
-  //   for (const { interval: { start, end } } of availabilities) {
-  //     if (start < bounds.start) {
-  //       bounds = bounds.set({ start });
-  //     }
+      if (end > bounds.end) {
+        bounds = bounds.set({ end });
+      }
+    }
 
-  //     if (end > bounds.end) {
-  //       bounds = bounds.set({ end });
-  //     }
-  //   }
+    const promise = mutateAvailability({
+      variables: {
+        unitCode,
+        memberNumber: number,
+        start: bounds.start.toJSDate(),
+        end: bounds.end.toJSDate(),
+        availabilities: availabilities.map(({ interval, storm, rescue, vehicle, note }) => ({
+          start: interval.start.toISO(),
+          end: interval.end.toISO(),
+          storm,
+          rescue,
+          vehicle,
+          note,
+        })),
+      },
+    });
 
-  //   const promise = mutateAvailability({
-  //     variables: {
-  //       start: bounds.start.toJSDate(),
-  //       end: bounds.end.toJSDate(),
-  //       availabilities: [
-  //         {
-  //           memberNumber: number,
-  //           availabilities: availabilities.map(({ interval, storm, rescue, vehicle, note }) => ({
-  //             start: interval.start.toISO(),
-  //             end: interval.end.toISO(),
-  //             storm,
-  //             rescue,
-  //             vehicle,
-  //             note,
-  //           })),
-  //         }
-  //       ]
-  //     },
-  //   });
+    // If they are a storm only member, there's no need to select again so clear their selection.
+    if (!rescueMember) {
+      promise.then(() => setSelections([]));
+    }
+  };
 
-  //   // If they are a storm only member, there's no need to select again so clear their selection.
-  //   if (!rescueMember) {
-  //     promise.then(() => setSelections([]));
-  //   }
-  // };
+  const setDefaultAvailability = (availabilities: AvailabilityInterval[]) => {
+    mutateDefault({
+      variables: {
+        memberNumber: number,
+        start: week.start.toJSDate(),
+        availabilities: availabilities
+          .map(({ interval, ...rest }) => ({ ...rest, interval: interval.intersection(week) }))
+          .filter(({ interval }) => interval !== null && !interval.isEmpty())
+          .map(({ interval, storm, rescue, vehicle, note }) => ({
+            start: interval!.start.toISO(),
+            end: interval!.end.toISO(),
+            storm,
+            rescue,
+            vehicle,
+            note,
+          })),
+      },
+    });
+  }
 
-  // const setDefaultAvailability = (availabilities: AvailabilityInterval[]) => {
-  //   mutateDefault({
-  //     variables: {
-  //       memberNumber: number,
-  //       start: week.start.toJSDate(),
-  //       availabilities: availabilities
-  //         .map(({ interval, ...rest }) => ({ ...rest, interval: interval.intersection(week) }))
-  //         .filter(({ interval }) => interval !== null && !interval.isEmpty())
-  //         .map(({ interval, storm, rescue, vehicle, note }) => ({
-  //           start: interval!.start.toISO(),
-  //           end: interval!.end.toISO(),
-  //           storm,
-  //           rescue,
-  //           vehicle,
-  //           note,
-  //         })),
-  //     },
-  //   });
-  // }
+  const applyDefaultAvailability = () => {
+    mutateToDefault({
+      variables: {
+        memberNumber: number,
+        start: week.start.toJSDate(),
+      },
+      refetchQueries: [
+        {
+          query: GET_MEMBER_AVAILABILITY_QUERY,
+          variables: availabilityVars,
+        }
+      ]
+    });
+  };
 
-  // const applyDefaultAvailability = () => {
-  //   mutateToDefault({
-  //     variables: {
-  //       memberNumber: number,
-  //       start: week.start.toJSDate(),
-  //     },
-  //     refetchQueries: [
-  //       {
-  //         query: GET_MEMBER_AVAILABILITY_QUERY,
-  //         variables: availabilityVars,
-  //       }
-  //     ]
-  //   });
-  // };
+  const handleSet = (availability?: Availability) => {
+    let updated = [...availabilities];
 
-  // const handleSet = (availability?: Availability) => {
-  //   let updated = [...availabilities];
+    // Go through each selection and split existing availabilities at the start and end.
+    for (const selection of selections) {
+      updated = updated.flatMap(value => (
+        value.interval
+          .splitAt(selection.start, selection.end)
+          .map(split => {
+            if (selection.engulfs(split)) {
+              return ({ ...value, ...availability, interval: split });
+            } else {
+              return ({ ...value, interval: split });
+            }
+          })
+      ));
+    }
 
-  //   // Go through each selection and split existing availabilities at the start and end.
-  //   for (const selection of selections) {
-  //     updated = updated.flatMap(value => (
-  //       value.interval
-  //         .splitAt(selection.start, selection.end)
-  //         .map(split => {
-  //           if (selection.engulfs(split)) {
-  //             return ({ ...value, ...availability, interval: split });
-  //           } else {
-  //             return ({ ...value, interval: split });
-  //           }
-  //         })
-  //     ));
-  //   }
+    // Create availabilities as required, or delete them if selected.
+    if (availability !== undefined) {
+      const existing = availabilities.map(({ interval }) => interval);
+      const missing = selections.flatMap(selection => selection.difference(...existing));
 
-  //   // Create availabilities as required, or delete them if selected.
-  //   if (availability !== undefined) {
-  //     const existing = availabilities.map(({ interval }) => interval);
-  //     const missing = selections.flatMap(selection => selection.difference(...existing));
+      for (const interval of missing) {
+        updated.push({ interval, ...availability });
+      }
+    } else {
+      updated = updated.filter(({ interval }) => selections.some(selection => (
+        !selection.engulfs(interval)
+      )));
+    }
 
-  //     for (const interval of missing) {
-  //       updated.push({ interval, ...availability });
-  //     }
-  //   } else {
-  //     updated = updated.filter(({ interval }) => selections.some(selection => (
-  //       !selection.engulfs(interval)
-  //     )));
-  //   }
+    // Sort availabilities, then merge and set.
+    updated.sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis());
 
-  //   // Sort availabilities, then merge and set.
-  //   updated.sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis());
+    setAvailabilities(mergeAbuttingAvailabilities(updated));
+  };
 
-  //   setAvailabilities(mergeAbuttingAvailabilities(updated));
-  // };
+  const handleToggleClick = () => {
+    if (selections.length === 0) {
+      setSelections([week]);
+    } else {
+      setSelections([]);
+    }
+  };
 
-  // const handleToggleClick = () => {
-  //   if (selections.length === 0) {
-  //     setSelections([week]);
-  //   } else {
-  //     setSelections([]);
-  //   }
-  // };
+  const toggle = (
+    <Button variant='light' className='mr-2' onClick={handleToggleClick}>
+      {(() => {
+        if (mutating) {
+          return <Spinner animation='border' size='sm' />;
+        }
 
-  // const toggle = (
-  //   <Button variant='light' className='mr-2' onClick={handleToggleClick}>
-  //     {(() => {
-  //       if (mutating) {
-  //         return <Spinner animation='border' size='sm' />;
-  //       }
+        if (selections.some(selection => selection.engulfs(week))) {
+          return <FaCheckSquare />;
+        } else if (selections.length > 0) {
+          return <FaMinusSquare />;
+        }
 
-  //       if (selections.some(selection => selection.engulfs(week))) {
-  //         return <FaCheckSquare />;
-  //       } else if (selections.length > 0) {
-  //         return <FaMinusSquare />;
-  //       }
+        return <FaRegSquare />;
+      })()}
+    </Button>
+  );
 
-  //       return <FaRegSquare />;
-  //     })()}
-  //   </Button>
-  // );
+  const storm = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='primary'
+        id='storm-dropdown'
+        className='mr-2'
+        disabled={mutating || selections.length === 0}
+      >
+        <FaBolt /> Storm
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
 
-  // const storm = (
-  //   <Dropdown>
-  //     <Dropdown.Toggle
-  //       variant='primary'
-  //       id='storm-dropdown'
-  //       className='mr-2'
-  //       disabled={mutating || selections.length === 0}
-  //     >
-  //       <FaBolt /> Storm
-  //     </Dropdown.Toggle>
-  //     <Dropdown.Menu>
-  //       <Dropdown.Item onClick={() => handleSet({ storm: 'AVAILABLE' })}>Available</Dropdown.Item>
-  //       <Dropdown.Item onClick={() => handleSet({ storm: 'UNAVAILABLE' })}>Unavailable</Dropdown.Item>
-  //     </Dropdown.Menu>
-  //   </Dropdown>
-  // );
+  const rescue = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='info'
+        id='rescue-dropdown'
+        className='mr-2'
+        disabled={mutating || selections.length === 0}
+      >
+        <FaExclamationTriangle /> Rescue
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>
+          <FaCircle className='text-success mr-2' /> Immediate
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>
+          <FaCircle className='text-warning mr-2' /> Support
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>
+          <FaCircle className='text-danger mr-2' /> Unavailable
+        </Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
 
-  // const rescue = (
-  //   <Dropdown>
-  //     <Dropdown.Toggle
-  //       variant='info'
-  //       id='rescue-dropdown'
-  //       className='mr-2'
-  //       disabled={mutating || selections.length === 0}
-  //     >
-  //       <FaExclamationTriangle /> Rescue
-  //     </Dropdown.Toggle>
-  //     <Dropdown.Menu>
-  //       <Dropdown.Item onClick={() => handleSet({ rescue: 'IMMEDIATE' })}>
-  //         <FaCircle className='text-success mr-2' /> Immediate
-  //       </Dropdown.Item>
-  //       <Dropdown.Item onClick={() => handleSet({ rescue: 'SUPPORT' })}>
-  //         <FaCircle className='text-warning mr-2' /> Support
-  //       </Dropdown.Item>
-  //       <Dropdown.Item onClick={() => handleSet({ rescue: 'UNAVAILABLE' })}>
-  //         <FaCircle className='text-danger mr-2' /> Unavailable
-  //       </Dropdown.Item>
-  //       <Dropdown.Divider />
-  //       <Dropdown.Item onClick={() => setSelectingVehicle(true)}>Cover vehicle&hellip;</Dropdown.Item>
-  //     </Dropdown.Menu>
-  //   </Dropdown>
-  // );
+  const more = (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant='light'
+        id='more-dropdown'
+        disabled={mutating}
+      >
+        <FaEllipsisV />
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item
+          disabled={selections.length === 0}
+          onClick={() => setAddingNote(true)}
+        >
+          Add note&hellip;
+        </Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
+        <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
+        <Dropdown.Divider />
+        <Dropdown.Item onClick={() => handleSet(undefined)} disabled={selections.length === 0}>Clear</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
+  );
 
-  // const more = (
-  //   <Dropdown>
-  //     <Dropdown.Toggle
-  //       variant='light'
-  //       id='more-dropdown'
-  //       disabled={mutating}
-  //     >
-  //       <FaEllipsisV />
-  //     </Dropdown.Toggle>
-  //     <Dropdown.Menu>
-  //       <Dropdown.Item
-  //         disabled={selections.length === 0}
-  //         onClick={() => setAddingNote(true)}
-  //       >
-  //         Add note&hellip;
-  //       </Dropdown.Item>
-  //       <Dropdown.Divider />
-  //       <Dropdown.Item onClick={() => setDefaultAvailability(availabilities)}>Save as my default</Dropdown.Item>
-  //       <Dropdown.Item onClick={applyDefaultAvailability}>Set to my default</Dropdown.Item>
-  //       <Dropdown.Divider />
-  //       <Dropdown.Item onClick={() => handleSet(undefined)} disabled={selections.length === 0}>Clear</Dropdown.Item>
-  //     </Dropdown.Menu>
-  //   </Dropdown>
-  // );
-
-  // return (
-  //   <Page title={member.fullName}>
-  //     <div className='d-flex justify-content-between border-bottom p-3'>
-  //       {!inPast ? (
-  //         <div className='d-flex align-items-center'>
-  //           {toggle}
-  //           {rescueMember ? (
-  //             <React.Fragment>
-  //               {storm}
-  //               {rescue}
-  //             </React.Fragment>
-  //           ) : (
-  //             <React.Fragment>
-  //               <Button
-  //                 variant='success'
-  //                 className='mr-2'
-  //                 onClick={() => handleSet({ storm: 'AVAILABLE' })}
-  //                 disabled={mutating || selections.length === 0}
-  //               >
-  //                 <FaCheck /> <span className='d-none d-md-inline'>Available</span>
-  //               </Button>
-  //               <Button
-  //                 variant='danger'
-  //                 className='mr-2'
-  //                 onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
-  //                 disabled={mutating || selections.length === 0}
-  //               >
-  //                 <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
-  //               </Button>
-  //             </React.Fragment>
-  //           )}
-  //           {more}
-  //         </div>
-  //       ) : (
-  //         <div className='d-flex align-items-center'>
-  //           <span className='text-muted'>You can&apos;t edit availability in the past.</span>
-  //         </div>
-  //       )}
-  //       <div className='d-none d-md-flex align-items-center'>
-  //         <WeekBrowser value={week} onChange={handleChangeWeek} />
-  //       </div>
-  //     </div>
-  //     <div className='week-table-overflow'>
-  //       <WeekTable interval={week} selections={selections} onChangeSelections={!inPast ? setSelections : undefined}>
-  //         {row => (
-  //           <AvailabilityRow
-  //             key={row.toString()}
-  //             interval={row}
-  //             availabilities={availabilities}
-  //             selections={selections}
-  //             onChangeSelections={setSelections}
-  //             rescueMember={rescueMember}
-  //           />
-  //         )}
-  //       </WeekTable>
-  //       <div className='d-flex d-md-none justify-content-between align-items-center p-3'>
-  //         <span>{week.start.toLocaleString(DateTime.DATE_MED)}</span>
-  //         <div><WeekBrowser value={week} onChange={handleChangeWeek} /></div>
-  //       </div>
-  //     </div>
-  //     {selectingVehicle && (
-  //       <CoverVehicleModal
-  //         onSelect={vehicle => handleSet({ vehicle })}
-  //         onHide={() => setSelectingVehicle(false)}
-  //       />
-  //     )}
-  //     {addingNote && (
-  //       <AddNoteModal
-  //         onSubmit={note => handleSet({ note })}
-  //         onHide={() => setAddingNote(false)}
-  //       />
-  //     )}
-  //   </Page>
-  // );
+  return (
+    <Page title={member.fullName}>
+      <div className='d-flex justify-content-between border-bottom p-3'>
+        {!inPast ? (
+          <div className='d-flex align-items-center'>
+            {toggle}
+            {rescueMember ? (
+              <React.Fragment>
+                {storm}
+                {rescue}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <Button
+                  variant='success'
+                  className='mr-2'
+                  onClick={() => handleSet({ storm: 'AVAILABLE' })}
+                  disabled={mutating || selections.length === 0}
+                >
+                  <FaCheck /> <span className='d-none d-md-inline'>Available</span>
+                </Button>
+                <Button
+                  variant='danger'
+                  className='mr-2'
+                  onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
+                  disabled={mutating || selections.length === 0}
+                >
+                  <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
+                </Button>
+              </React.Fragment>
+            )}
+            {more}
+          </div>
+        ) : (
+          <div className='d-flex align-items-center'>
+            <span className='text-muted'>You can&apos;t edit availability in the past.</span>
+          </div>
+        )}
+        <div className='d-none d-md-flex align-items-center'>
+          <WeekBrowser value={week} onChange={handleChangeWeek} />
+        </div>
+      </div>
+      <div className='week-table-overflow'>
+        <WeekTable interval={week} selections={selections} onChangeSelections={!inPast ? setSelections : undefined}>
+          {row => (
+            <AvailabilityRow
+              key={row.toString()}
+              interval={row}
+              availabilities={availabilities}
+              selections={selections}
+              onChangeSelections={setSelections}
+              rescueMember={rescueMember}
+            />
+          )}
+        </WeekTable>
+        <div className='d-flex d-md-none justify-content-between align-items-center p-3'>
+          <span>{week.start.toLocaleString(DateTime.DATE_MED)}</span>
+          <div><WeekBrowser value={week} onChange={handleChangeWeek} /></div>
+        </div>
+      </div>
+      {selectingVehicle && (
+        <CoverVehicleModal
+          onSelect={vehicle => handleSet({ vehicle })}
+          onHide={() => setSelectingVehicle(false)}
+        />
+      )}
+      {addingNote && (
+        <AddNoteModal
+          onSubmit={note => handleSet({ note })}
+          onHide={() => setAddingNote(false)}
+        />
+      )}
+    </Page>
+  );
 };
 
 export default ManageMember;

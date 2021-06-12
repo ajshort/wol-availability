@@ -10,8 +10,8 @@ import gql from 'graphql-tag';
 import { Interval } from 'luxon';
 
 export const SET_MEMBER_AVAILABILITY_MUTATION = gql`
-  mutation ($start: DateTime!, $end: DateTime!, $availabilities: [AvailabilityInput!]!) {
-    setAvailabilities(start: $start, end: $end, availabilities: $availabilities) {
+  mutation ($unitCode: String!, $memberNumber: Int!, $start: DateTime!, $end: DateTime!, $availabilities: [AvailabilityInput!]!) {
+    setAvailabilities(unitCode: $unitCode, memberNumber: $memberNumber, start: $start, end: $end, availabilities: $availabilities) {
       _id
       start
       end
@@ -23,25 +23,23 @@ export const SET_MEMBER_AVAILABILITY_MUTATION = gql`
   }
 `;
 
-interface MemberAvailabilityInput {
-  memberNumber: number;
-  availabilities: AvailabilityData[]
-}
-
 export interface SetMemberAvailabilityData {
   setAvailabilities: AvailabilityData[];
 }
 
 export interface SetMemberAvailabilityVars {
+  unitCode: string;
+  memberNumber: number;
   start: Date;
   end: Date;
-  availabilities: MemberAvailabilityInput[];
+  availabilities: AvailabilityData[];
 }
 
-export function useMutateMemberAvailability(memberNumber: number, interval: Interval) {
+export function useMutateMemberAvailability(unitCode: string, memberNumber: number, interval: Interval) {
   return useMutation<SetMemberAvailabilityData, SetMemberAvailabilityVars>(SET_MEMBER_AVAILABILITY_MUTATION, {
     update: (cache, { data }) => {
       const variables: GetMemberAvailabilityVars = {
+        unitCode,
         memberNumber,
         start: interval.start.toJSDate(),
         end: interval.end.toJSDate(),
