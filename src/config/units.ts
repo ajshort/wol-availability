@@ -17,7 +17,7 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
     },
   },
   'SEZ-NIC-DPT': {
-    stormUnits: ['SEZ-NIC-WOL'],
+    stormUnits: ['SEZ-NIC-DPT'],
     rescueUnits: ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'],
     capabilities: {
       verticalRescue: true,
