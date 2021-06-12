@@ -36,7 +36,7 @@ const AuthContext = React.createContext<AuthContextProps>({
   login: () => { throw new Error('no auth provider') },
   logout: () => { throw new Error('no auth provider') },
   setUnit: () => { return; },
-  config: { stormUnits: [], rescueUnits: [] },
+  config: { stormUnits: [], rescueUnits: [], capabilities: { } },
 });
 
 interface LoggedInMemberData {
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC = ({ children }) => {
             login,
             logout,
             setUnit,
-            config: { stormUnits: [], rescueUnits: [] },
+            config: { stormUnits: [], rescueUnits: [], capabilities: { } },
           };
 
           if (data && data.loggedInMember) {

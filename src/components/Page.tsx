@@ -1,5 +1,6 @@
 import logo from '../assets/logo.svg';
-import { AuthConsumer, LoggedInMember } from './AuthContext';
+import { anyRescueCapabilities } from '../config/units';
+import { AuthConsumer, LoggedInMember, useAuth } from './AuthContext';
 
 import React, { useEffect } from 'react';
 import Div100vh from 'react-div-100vh';
@@ -22,10 +23,10 @@ const NavLink: React.FC<NavLinkProps> = ({ children, ...props }) => (
 );
 
 interface UnitNavDropdownProps {
-  member: LoggedInMember;
+  rescue?: boolean;
 }
 
-const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ member }) => {
+const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ rescue }) => {
   const active = useRouteMatch('/unit') !== null;
 
   return (
@@ -33,12 +34,14 @@ const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ member }) => {
       <LinkContainer to='/unit/storm'>
         <NavDropdown.Item>Storm and Support</NavDropdown.Item>
       </LinkContainer>
-      <LinkContainer to='/unit/vr'>
-        <NavDropdown.Item>Rescue</NavDropdown.Item>
-      </LinkContainer>
-      <LinkContainer to='/unit/do'>
+      {rescue && (
+        <LinkContainer to='/unit/vr'>
+          <NavDropdown.Item>Rescue</NavDropdown.Item>
+        </LinkContainer>
+      )}
+      {/* <LinkContainer to='/unit/do'>
         <NavDropdown.Item>Duty Officers</NavDropdown.Item>
-      </LinkContainer>
+      </LinkContainer> */}
     </NavDropdown>
   );
 };
@@ -53,55 +56,60 @@ const Brand: React.FC<BrandProps> = ({ text }) => (
   </Navbar.Brand>
 );
 
-const Header: React.FC<PageProps> = ({ title, shortTitle }) => (
-  <Navbar id='app-navbar' bg='dark' expand='md' variant='dark'>
-    <AuthConsumer>
-      {({ member, unit, setUnit }) => (member ? (
-        <React.Fragment>
-          <LinkContainer to='/' exact>
-            <Brand text={shortTitle || title} />
-          </LinkContainer>
-          <Navbar.Toggle />
-          <Navbar.Collapse timeout={0}>
-            <Nav>
-              <NavLink to='/' exact>Home</NavLink>
-              <NavLink to='/member'>Member</NavLink>
-              <UnitNavDropdown member={member} />
-              <NavLink to='/stats'>Statistics</NavLink>
-            </Nav>
-            <Nav className='ml-auto'>
-              <NavDropdown
-                id='nav-dropdown-user'
-                title={<><FaUser /> {member.preferredName || member.fullName} ({unit?.name})</>}
-              >
-                {member.units.map(({ code, name }) => (
-                  <NavDropdown.Item
-                    key={code}
-                    active={unit?.code === code}
-                    onClick={() => setUnit(code)}
-                  >
-                    {name}
-                  </NavDropdown.Item>
-                ))}
-                <NavDropdown.Divider />
-                <LinkContainer to='/member/me'>
-                  <NavDropdown.Item>My availability</NavDropdown.Item>
-                </LinkContainer>
-                <LinkContainer to='/logout'>
-                  <NavDropdown.Item>Logout</NavDropdown.Item>
-                </LinkContainer>
-              </NavDropdown>
-            </Nav>
-          </Navbar.Collapse>
-        </React.Fragment>
-      ) : (
-        <div className='mx-auto'>
-          <Brand />
-        </div>
-      ))}
-    </AuthConsumer>
-  </Navbar>
-);
+const Header: React.FC<PageProps> = ({ title, shortTitle }) => {
+  const { config } = useAuth();
+  const rescue = anyRescueCapabilities(config);
+
+  return (
+    <Navbar id='app-navbar' bg='dark' expand='md' variant='dark'>
+      <AuthConsumer>
+        {({ member, unit, setUnit }) => (member ? (
+          <React.Fragment>
+            <LinkContainer to='/' exact>
+              <Brand text={shortTitle || title} />
+            </LinkContainer>
+            <Navbar.Toggle />
+            <Navbar.Collapse timeout={0}>
+              <Nav>
+                <NavLink to='/' exact>Home</NavLink>
+                <NavLink to='/member'>Member</NavLink>
+                <UnitNavDropdown rescue={rescue} />
+                <NavLink to='/stats'>Statistics</NavLink>
+              </Nav>
+              <Nav className='ml-auto'>
+                <NavDropdown
+                  id='nav-dropdown-user'
+                  title={<><FaUser /> {member.preferredName || member.fullName} ({unit?.name})</>}
+                >
+                  {member.units.map(({ code, name }) => (
+                    <NavDropdown.Item
+                      key={code}
+                      active={unit?.code === code}
+                      onClick={() => setUnit(code)}
+                    >
+                      {name}
+                    </NavDropdown.Item>
+                  ))}
+                  <NavDropdown.Divider />
+                  <LinkContainer to='/member/me'>
+                    <NavDropdown.Item>My availability</NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to='/logout'>
+                    <NavDropdown.Item>Logout</NavDropdown.Item>
+                  </LinkContainer>
+                </NavDropdown>
+              </Nav>
+            </Navbar.Collapse>
+          </React.Fragment>
+        ) : (
+          <div className='mx-auto'>
+            <Brand />
+          </div>
+        ))}
+      </AuthConsumer>
+    </Navbar>
+  );
+};
 
 const Page: React.FC<PageProps> = ({ title, shortTitle, children }) => {
   useEffect(() => {

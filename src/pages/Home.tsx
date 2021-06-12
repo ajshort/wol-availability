@@ -2,10 +2,10 @@ import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import QualificationBadge from '../components/QualificationBadge';
 import RankImage from '../components/RankImage';
+import { anyRescueCapabilities } from '../config/units';
 import { MemberData } from '../queries/members';
 import TeamBadge from '../components/TeamBadge';
 import { StormAvailable, RescueAvailable } from '../model/availability';
-import { getShift } from '../model/dates';
 import {
   compareFloodRescue,
   FEATURED,
@@ -20,6 +20,7 @@ import {
 import gql from 'graphql-tag';
 import React, { useState } from 'react';
 import { Query } from '@apollo/client/react/components';
+import _ from 'lodash';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -33,39 +34,23 @@ import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FaCircle, FaMobileAlt } from 'react-icons/fa';
 
-interface DutyOfficersData {
-  shift: string;
-  member: { fullName: string; mobile: string; };
+interface MemberWithAvailability {
+  member: MemberData & { mobile: string; };
+  availability: { storm?: StormAvailable; rescue?: RescueAvailable; }
+  membership: { code: string; team: string; }
 }
 
-interface ExtendedMemberData extends MemberData {
-  unit: string;
-  mobile?: string;
-}
-
-interface AvailableData {
-  member: ExtendedMemberData;
-  storm?: StormAvailable;
-  rescue?: RescueAvailable;
-  vehicle?: string
+interface QueryVars {
+  unitCodes: string[];
 }
 
 interface QueryData {
-  dutyOfficersAt: DutyOfficersData[];
-  availableAt: AvailableData[];
+  availableAt: MemberWithAvailability[];
 }
 
 const QUERY = gql`
-  {
-    dutyOfficersAt {
-      shift
-      member {
-        fullName
-        mobile
-      }
-    }
-
-    availableAt {
+  query($unitCodes: [String!]!) {
+    availableAt(unitCodes: $unitCodes) {
       member {
         number
         fullName
@@ -75,8 +60,15 @@ const QUERY = gql`
         mobile
       }
 
-      storm
-      rescue
+      availability {
+        storm
+        rescue
+      }
+
+      membership {
+        code
+        team
+      }
     }
   }
 `;
@@ -96,22 +88,20 @@ function formatMobile(mobile?: string) {
 }
 
 interface StormCardProps {
-  members: ExtendedMemberData[];
+  data: MemberWithAvailability[];
 }
 
-const StormCard: React.FC<StormCardProps> = ({ members }) => {
-  const auth = useAuth();
+const StormCard: React.FC<StormCardProps> = ({ data }) => {
+  const { config } = useAuth();
 
-  members = members
-    // .filter(member => member.unit === unit)
-    .sort((a, b) => (
-      a.lastName.localeCompare(b.lastName)
-    ));
+  const members = data
+    .filter(({ membership }) => config.stormUnits.includes(membership.code))
+    .sort(({ member: a }, { member: b }) => a.lastName.localeCompare(b.lastName));
 
   return (
     <Card className='mb-3'>
       <Card.Header className='d-flex justify-content-between align-items-center'>
-        <span>Storm <Badge variant='info'>{members.length}</Badge></span>
+        <span>Storm and Support <Badge variant='info'>{members.length}</Badge></span>
         <LinkContainer to='/member/me'>
           <Button variant='primary' size='sm'>
             My availability
@@ -122,7 +112,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
         <Card.Body>There are no members available.</Card.Body>
       ) : (
         <ListGroup variant='flush'>
-          {members.map(member => (
+          {members.map(({ member, membership }) => (
             <ListGroup.Item key={member.number}>
               <div className='d-flex align-items-center justify-content-between'>
                 <div>
@@ -135,7 +125,7 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
                 </div>
                 <div className='text-right'>
                   <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
-                  {/* <TeamBadge team={member.team} /> */}
+                  {membership.team && <TeamBadge team={membership.team} />}
                   {
                     FEATURED
                       .filter(qual => member.qualifications.includes(qual))
@@ -153,17 +143,17 @@ const StormCard: React.FC<StormCardProps> = ({ members }) => {
 };
 
 interface RescueCardListItemProps {
-  availability: AvailableData;
+  data: MemberWithAvailability;
 }
 
 const FEATURED_RESCUE = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
 
-const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ availability: { member, rescue } }) => (
+const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ data: { member, availability } }) => (
   <ListGroup.Item>
     <div className='d-flex align-items-center justify-content-between'>
       <div>
-        {rescue === 'IMMEDIATE' && <FaCircle className='text-success mr-2' />}
-        {rescue === 'SUPPORT' && <FaCircle className='text-warning mr-2' />}
+        {availability.rescue === 'IMMEDIATE' && <FaCircle className='text-success mr-2' />}
+        {availability.rescue === 'SUPPORT' && <FaCircle className='text-warning mr-2' />}
         {member.fullName}
         <a className='ml-1' href={`tel:${member.mobile}`}>
           <small>
@@ -184,14 +174,14 @@ const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ availability: {
 );
 
 interface RescueCardProps {
-  availabilties: AvailableData[];
+  data: MemberWithAvailability[];
 }
 
-const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
+const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
   const [key, setKey] = useState('vr');
 
   // Create ordered list of VR and VR operators.
-  const compareRescue = ({ rescue: a }: AvailableData, { rescue: b }: AvailableData) => {
+  const compareRescue = (a?: RescueAvailable, b?: RescueAvailable) => {
     if (a === 'IMMEDIATE' && b !== 'IMMEDIATE') {
       return -1;
     }
@@ -201,20 +191,20 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
     return 0;
   };
 
-  const vertical = availabilties
+  const vertical = data
     .filter(({ member: { qualifications } }) => qualifications.includes(VERTICAL_RESCUE))
     .sort((a, b) => (
-      compareRescue(a, b) ||
-      // a.member.team.localeCompare(b.member.team) ||
+      compareRescue(a.availability.rescue, b.availability.rescue) ||
+      (a.membership.team || '').localeCompare(b.membership.team || '') ||
       a.member.lastName.localeCompare(b.member.lastName)
     ));
 
-  const flood = availabilties
+  const flood = data
     .filter(({ member: { qualifications } }) => qualifications.some(
       qual => FLOOD_RESCUE.indexOf(qual) !== -1
     ))
     .sort((a, b) => (
-      compareRescue(a, b) ||
+      compareRescue(a.availability.rescue, b.availability.rescue) ||
       compareFloodRescue(a.member.qualifications, b.member.qualifications) ||
       a.member.lastName.localeCompare(b.member.lastName)
     ));
@@ -223,7 +213,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
   const fr = { l1: 0, l2: 0, l3: 0 };
 
   // Create totals for the badges up the top.
-  for (const { member: { qualifications }, rescue } of availabilties) {
+  for (const { member: { qualifications }, availability: { rescue } } of data) {
     if (qualifications.includes(VERTICAL_RESCUE)) {
       if (rescue === 'IMMEDIATE') {
         vr.immediate++;
@@ -278,7 +268,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
         <ListGroup variant='flush'>
           {vertical.length > 0 ? (
             vertical.map(availability => (
-              <RescueCardListItem key={availability.member.number} availability={availability} />
+              <RescueCardListItem key={availability.member.number} data={availability} />
             ))
           ) : (
             <Card.Body>There are no members available.</Card.Body>
@@ -289,7 +279,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
         <ListGroup variant='flush'>
           {flood.length > 0 ? (
             flood.map(availability => (
-              <RescueCardListItem key={availability.member.number} availability={availability} />
+              <RescueCardListItem key={availability.member.number} data={availability} />
             ))
           ) : (
             <Card.Body>There are no members available.</Card.Body>
@@ -301,10 +291,14 @@ const RescueCard: React.FC<RescueCardProps> = ({ availabilties }) => {
 }
 
 const Home: React.FC = () => {
+  const { config } = useAuth();
+  const unitCodes = _.uniq(_.concat(config.stormUnits, config.rescueUnits));
+  const rescue = anyRescueCapabilities(config);
+
   return (
     <Page>
       <Container fluid className='my-3'>
-        <Query<QueryData> query={QUERY}>
+        <Query<QueryData, QueryVars> query={QUERY} variables={{ unitCodes }}>
           {({ loading, error, data }) => {
             if (loading) {
               return (
@@ -321,16 +315,20 @@ const Home: React.FC = () => {
             return (
               <React.Fragment>
                 <Row>
-                  <Col md={6}>
+                  <Col md={rescue ? 6 : 12}>
                     <StormCard
-                      members={data.availableAt.filter(({ storm }) => storm === 'AVAILABLE').map(val => val.member)}
+                      data={data.availableAt.filter(({ availability }) => availability.storm === 'AVAILABLE')}
                     />
                   </Col>
-                  <Col md={6}>
-                    <RescueCard availabilties={data.availableAt.filter(({ rescue }) => (
-                      rescue === 'IMMEDIATE' || rescue === 'SUPPORT'
-                    ))} />
-                  </Col>
+                  {rescue && (
+                    <Col md={6}>
+                      <RescueCard
+                        data={data.availableAt.filter(({ availability }) => (
+                          availability.rescue === 'IMMEDIATE' || availability.rescue === 'SUPPORT'
+                        ))}
+                      />
+                    </Col>
+                  )}
                 </Row>
               </React.Fragment>
             );

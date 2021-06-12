@@ -2,6 +2,7 @@ import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import WeekBrowser from '../components/WeekBrowser';
 import WeekTable from '../components/WeekTable';
+import { anyRescueCapabilities } from '../config/units';
 import {
   Availability,
   AvailabilityInterval,
@@ -345,7 +346,9 @@ const ManageMember: React.FC = () => {
 
   // Figure out if the member should be shown storm only mode, or rescue mode.
   const rescueQuals = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
-  const rescueMember = member.qualifications.some(qual => rescueQuals.includes(qual));
+  const rescueMember = anyRescueCapabilities(auth.config) && member.qualifications.some(
+    qual => rescueQuals.includes(qual)
+  );
 
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
