@@ -3,7 +3,6 @@ import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
 import { getWeekInterval } from '../model/dates'
 import { VERTICAL_RESCUE } from '../model/qualifications';
-import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
 import { DateTime } from 'luxon';

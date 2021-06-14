@@ -1,4 +1,3 @@
-import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
 import { QUALIFICATIONS } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -14,7 +13,7 @@ export interface MemberFilter {
   team?: string;
   qualifications?: string[];
   hideBlankAndUnavailable?: boolean;
-  hideFlexibleAndSupport?: boolean;
+  // hideFlexibleAndSupport?: boolean;
 }
 
 interface MemberFilterButtonProps {
@@ -65,7 +64,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             )}
           />
         </Form.Group>
-        <Form.Group controlId='hide-flexible-support-filter'>
+        {/* <Form.Group controlId='hide-flexible-support-filter'>
           <Form.Check
             type='checkbox'
             label='Hide blank flexible and support?'
@@ -74,7 +73,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
               { ...value, hideFlexibleAndSupport: e.target.checked}
             )}
           />
-        </Form.Group>
+        </Form.Group> */}
       </Form>
     </Popover>
   );

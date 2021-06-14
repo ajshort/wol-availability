@@ -39,7 +39,7 @@ const Storm: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
+  const [filter, setFilter] = useState<MemberFilter>({ });
 
   const days = getDayIntervals(week);
   const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
