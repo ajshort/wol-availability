@@ -84,7 +84,6 @@ const Rescue: React.FC<RescueProps> = props => {
   };
 
   const teams: string[] = []; // = data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
-  const quals: string[] = []; //= data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
     <Page title={title}>
@@ -111,7 +110,6 @@ const Rescue: React.FC<RescueProps> = props => {
           <MemberFilterButton
             id='storm-member-filter'
             teams={teams}
-            qualifications={quals}
             value={filter}
             onChange={setFilter}
           />

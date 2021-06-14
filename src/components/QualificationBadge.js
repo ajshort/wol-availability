@@ -1,24 +1,23 @@
+import { QUALIFICATIONS } from '../model/qualifications';
+
 import clsx from 'clsx';
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';
 
-import { ABBREVIATIONS } from '../model/qualifications';
-
 const QualificationBadge = ({ qualification, className }) => {
-  const classes = ['qual-badge', className];
+  const entry = QUALIFICATIONS[qualification];
 
-  let text;
+  console.log(entry);
 
-  if (qualification in ABBREVIATIONS) {
-    text = ABBREVIATIONS[qualification];
-    classes.push(`qual-badge-${text.toLowerCase()}`);
-  } else {
-    text = qualification;
+  if (!entry) {
+    return null;
   }
 
+  const { name, abbreviation } = entry;
+
   return (
-    <Badge className={clsx(classes)}>
-      <abbr title={qualification}>{text}</abbr>
+    <Badge className={clsx('qual-badge', `qual-badge-${abbreviation.toLowerCase()}`, className)}>
+      <abbr title={name}>{abbreviation}</abbr>
     </Badge>
   );
 };

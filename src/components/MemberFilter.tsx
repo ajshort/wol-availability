@@ -1,4 +1,5 @@
 import { FLEXIBLE_TEAMS, SUPPORT_TEAMS } from '../model/teams';
+import { QUALIFICATIONS } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
 import React from 'react';
@@ -19,13 +20,12 @@ export interface MemberFilter {
 interface MemberFilterButtonProps {
   id: string;
   teams?: string[];
-  qualifications?: string[];
   value: MemberFilter;
   onChange: (filter: MemberFilter) => void;
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
-  const { id, teams, qualifications, value, onChange } = props;
+  const { id, teams, value, onChange } = props;
 
   const popover = (
     <Popover id={id} title='Filter Members'>
@@ -42,18 +42,19 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             {teams && teams.map(team => <option key={team}>{team}</option>)}
           </Form.Control>
         </Form.Group>
-        {qualifications && (
-          <Form.Group controlId='qualifications-filter'>
-            <Form.Label>Qualifications</Form.Label>
-            <Typeahead
-              id={`${id}-typeahead`}
-              multiple
-              options={qualifications}
-              selected={value.qualifications}
-              onChange={qualifications => onChange({ ...value, qualifications })}
-            />
-          </Form.Group>
-        )}
+        <Form.Group controlId='qualifications-filter'>
+          <Form.Label>Qualifications</Form.Label>
+          <Typeahead
+            id={`${id}-typeahead`}
+            multiple
+            options={Object.entries(QUALIFICATIONS).map(([id, value]) => ({ id, label: value.name }))}
+            selected={value.qualifications?.map(code => ({ id: code, label: QUALIFICATIONS[code].name }))}
+            onChange={qualifications => onChange({
+              ...value,
+              qualifications: qualifications.map(({ id }) => id),
+            })}
+          />
+        </Form.Group>
         <Form.Group controlId='hide-blank-filter'>
           <Form.Check
             type='checkbox'

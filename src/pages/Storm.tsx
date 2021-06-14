@@ -60,7 +60,6 @@ const Storm: React.FC = () => {
   };
 
   const teams: string[] = []; // data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
-  const quals: string[] = []; // = data ? _.uniq(_.flatMap(data.members, 'qualifications')).sort() : undefined;
 
   return (
     <Page title='Storm and Support' shortTitle='Storm'>
@@ -69,7 +68,6 @@ const Storm: React.FC = () => {
           <MemberFilterButton
             id='storm-member-filter'
             teams={teams}
-            qualifications={quals}
             value={filter}
             onChange={setFilter}
           />
