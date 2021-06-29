@@ -8,24 +8,24 @@ export interface UnitConfig {
 }
 
 export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
-  'SEZ-NIC-WOL': {
-    stormUnits: ['SEZ-NIC-WOL'],
-    rescueUnits: ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'],
+  'WOL': {
+    stormUnits: ['WOL'],
+    rescueUnits: ['WOL', 'DPT'],
     capabilities: {
       verticalRescue: true,
       floodRescue: true,
     },
   },
-  'SEZ-NIC-DPT': {
-    stormUnits: ['SEZ-NIC-DPT'],
-    rescueUnits: ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'],
+  'DPT': {
+    stormUnits: ['DPT'],
+    rescueUnits: ['WOL', 'DPT'],
     capabilities: {
       verticalRescue: true,
       floodRescue: true,
     },
   },
-  'STR-SHQ-OSU': {
-    stormUnits: ['STR-SHQ-OSU'],
+  'OSU': {
+    stormUnits: ['OSU'],
     rescueUnits: [],
     capabilities: { },
   },
