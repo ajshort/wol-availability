@@ -1,3 +1,4 @@
+import { UNIT_CONFIGS } from '../config/units';
 import { QUALIFICATIONS } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
@@ -13,7 +14,7 @@ export interface MemberFilter {
   team?: string;
   qualifications?: string[];
   hideBlankAndUnavailable?: boolean;
-  // hideFlexibleAndSupport?: boolean;
+  hideFlexibleAndSupport?: boolean;
 }
 
 interface MemberFilterButtonProps {
@@ -64,7 +65,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             )}
           />
         </Form.Group>
-        {/* <Form.Group controlId='hide-flexible-support-filter'>
+        <Form.Group controlId='hide-flexible-support-filter'>
           <Form.Check
             type='checkbox'
             label='Hide blank flexible and support?'
@@ -73,7 +74,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
               { ...value, hideFlexibleAndSupport: e.target.checked}
             )}
           />
-        </Form.Group> */}
+        </Form.Group>
       </Form>
     </Popover>
   );
@@ -90,9 +91,9 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
 };
 
 export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvailabilityData) {
-  // if (filter.team && member.team !== filter.team) {
-  //   return false;
-  // }
+  if (filter.team && data.membership.team !== filter.team) {
+    return false;
+  }
 
   if (filter.qualifications && filter.qualifications.length > 0) {
     for (const qual of filter.qualifications) {
@@ -112,14 +113,14 @@ export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvaila
     }
   }
 
-  // if (filter.hideFlexibleAndSupport) {
-  //   const flexible = FLEXIBLE_TEAMS.includes(member.team) || SUPPORT_TEAMS.includes(member.team);
-  //   const filteredTo = filter.team === member.team;
+  if (filter.hideFlexibleAndSupport) {
+    const { code, team } = data.membership;
+    const config = UNIT_CONFIGS[code];
 
-  //   if (flexible && !filteredTo) {
-  //     return false;
-  //   }
-  // }
+    if (team && filter.team !== team && config.flexibleAndSupportTeams && config.flexibleAndSupportTeams.includes(team)) {
+      return false;
+    }
+  }
 
   return true;
 }

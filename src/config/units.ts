@@ -4,7 +4,8 @@ export interface UnitConfig {
   capabilities: {
     verticalRescue?: boolean;
     floodRescue?: boolean;
-  }
+  };
+  flexibleAndSupportTeams?: string[];
 }
 
 export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
@@ -15,6 +16,9 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
       verticalRescue: true,
       floodRescue: true,
     },
+    flexibleAndSupportTeams: [
+      'Foxtrot', 'Quebec', 'Catering', 'Logistics', 'Training', 'India', 'Planning'
+    ],
   },
   'DPT': {
     stormUnits: ['DPT'],

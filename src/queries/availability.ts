@@ -27,6 +27,7 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
         }
 
         membership {
+          code
           team
         }
       }
@@ -49,6 +50,7 @@ interface MemberData {
 }
 
 interface MembershipData {
+  code: string;
   team?: string;
 }
 

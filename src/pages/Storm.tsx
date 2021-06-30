@@ -10,6 +10,7 @@ import {
   GET_MEMBERS_AVAILABILITIES_QUERY,
   GetMembersAvailabilitiesData,
   GetMembersAvailabilitiesVars,
+  MemberWithAvailabilityData,
 } from '../queries/availability';
 
 import clsx from 'clsx';
@@ -39,7 +40,7 @@ const Storm: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
-  const [filter, setFilter] = useState<MemberFilter>({ });
+  const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
 
   const days = getDayIntervals(week);
   const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
@@ -59,7 +60,19 @@ const Storm: React.FC = () => {
     history.push(`/unit/storm/${value.start.toISODate()}`);
   };
 
-  const teams: string[] = []; // data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
+  let members: MemberWithAvailabilityData[] = [];
+
+  if (data) {
+    members = data.units.flatMap(unit => unit.membersWithAvailabilities);
+  }
+
+  const teams = new Set<string>();
+
+  members.forEach(({ membership }) => {
+    if (membership.team !== undefined) {
+      teams.add(membership.team);
+    }
+  });
 
   return (
     <Page title='Storm and Support' shortTitle='Storm'>
@@ -67,7 +80,7 @@ const Storm: React.FC = () => {
         <div>
           <MemberFilterButton
             id='storm-member-filter'
-            teams={teams}
+            teams={Array.from(teams).sort()}
             value={filter}
             onChange={setFilter}
           />
@@ -91,10 +104,7 @@ const Storm: React.FC = () => {
           );
         }
 
-        // We flat map all the units into one.
-        const members = data.units
-          .flatMap(unit => unit.membersWithAvailabilities)
-          .filter(member => filterAcceptsMember(filter, member));
+        members = members.filter(member => filterAcceptsMember(filter, member));
 
         return (
           <UnitTable

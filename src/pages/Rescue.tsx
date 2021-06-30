@@ -83,7 +83,19 @@ const Rescue: React.FC<RescueProps> = props => {
     history.push(`${baseUrl}/${value.start.toISODate()}`);
   };
 
-  const teams: string[] = []; // = data ? _.uniq(_.map(data.members, 'team')).sort() : undefined;
+  let members: MemberWithAvailabilityData[] = [];
+
+  if (data) {
+    members = data.units.flatMap(unit => unit.membersWithAvailabilities);
+  }
+
+  const teams = new Set<string>();
+
+  members.forEach(({ membership }) => {
+    if (membership.team !== undefined) {
+      teams.add(membership.team);
+    }
+  });
 
   return (
     <Page title={title}>
@@ -109,7 +121,7 @@ const Rescue: React.FC<RescueProps> = props => {
         <div>
           <MemberFilterButton
             id='storm-member-filter'
-            teams={teams}
+            teams={Array.from(teams).sort()}
             value={filter}
             onChange={setFilter}
           />
@@ -133,9 +145,7 @@ const Rescue: React.FC<RescueProps> = props => {
           );
         }
 
-        const members = data.units
-          .flatMap(unit => unit.membersWithAvailabilities)
-          .filter(member => filterAcceptsMember(filter, member));
+        members = members.filter(member => filterAcceptsMember(filter, member));
 
         return (
           <UnitTable
