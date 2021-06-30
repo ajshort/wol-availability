@@ -74,12 +74,16 @@ const ChooseMember: React.FC = () => {
                 return null;
               }
 
-              // const teams = _.uniq(data.members.map(member => member.team)).sort();
-
-              console.log(data.unit.members);
+              const teams = _.uniq(data.unit.members
+                .map(member => member.units.find(u => u.code === unit?.code)?.team)
+                .filter(team => team !== undefined)
+                .sort());
 
               const members = data.unit.members
-                // .filter(member => !team || team === member.team)
+                .filter(member => {
+                  const memberTeam = member.units.find(u => u.code === unit?.code)?.team;
+                  return !team || team === memberTeam;
+                })
                 .slice()
                 .sort((a, b) => a.lastName.localeCompare(b.lastName));
 
@@ -95,7 +99,7 @@ const ChooseMember: React.FC = () => {
                         onChange={e => setTeam(e.target.value)}
                       >
                         <option></option>
-                        {/* teams.sort().map(team => <option key={team}>{team}</option>) */}
+                        {teams.map(team => <option key={team}>{team}</option>)}
                       </Form.Control>
                     </Form.Group>
                   )}

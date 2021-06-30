@@ -17,8 +17,12 @@ export interface GetMembersVars {
   filter?: MemberFilter;
 }
 
+interface MemberWithUnitsData extends MemberData {
+  units: Array<{ code: string; team?: string; }>;
+}
+
 export interface GetMembersData {
-  unit: { members: MemberData[]; };
+  unit: { members: MemberWithUnitsData[]; };
 }
 
 export const GET_MEMBERS_QUERY = gql`
@@ -30,6 +34,11 @@ export const GET_MEMBERS_QUERY = gql`
         lastName
         rank
         qualifications
+
+        units {
+          code
+          team
+        }
       }
     }
   }
