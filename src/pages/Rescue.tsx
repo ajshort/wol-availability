@@ -156,6 +156,12 @@ const Rescue: React.FC<RescueProps> = props => {
             sort={sort}
             infoColumns={[
               {
+                key: 'callsign',
+                className: 'unit-table-callsign d-none d-xl-flex',
+                heading: 'Callsign',
+                render: ({ member }) => member.callsign,
+              },
+              {
                 key: 'dov',
                 className: 'unit-table-dov d-none d-xl-flex',
                 heading: 'DOV',
@@ -254,11 +260,47 @@ export const FloodRescue: React.FC = () => {
   );
 };
 
+function compareCallsigns(a?: string, b?: string) {
+  if (!a && !b) {
+    return 0;
+  }
+  if (!b) {
+    return -1;
+  }
+  if (!a) {
+    return 1;
+  }
+
+  const extract = (callsign: string) => {
+    const match = callsign.match(/([A-Z]+)([0-9]+)/);
+
+    if (!match) {
+      return undefined;
+    }
+
+    return { unit: match[1], number: parseInt(match[2], 10) };
+  }
+
+  // Split the callsign and sort by unit and number.
+  const ea = extract(a);
+  const eb = extract(b);
+
+  if (!ea || !eb) {
+    return 0;
+  }
+
+  return ea.unit.localeCompare(eb.unit) || ea.number - eb.number;
+}
+
+
 export const VerticalRescue: React.FC = () => (
   <Rescue
     title='Vertical Rescue'
     baseUrl='/unit/vr'
     qualifications={[VERTICAL_RESCUE]}
+    sort={(a, b) => (
+      compareCallsigns(a.member.callsign, b.member.callsign) || a.member.lastName.localeCompare(b.member.lastName)
+    )}
     footers={[
       {
         title: 'Immediate',

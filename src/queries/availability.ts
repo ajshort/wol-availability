@@ -13,6 +13,7 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
           number
           fullName
           lastName
+          callsign
           rank
           qualifications
         }
@@ -46,6 +47,7 @@ interface MemberData {
   fullName: string;
   lastName: string;
   rank: string;
+  callsign?: string;
   qualifications: string[];
 }
 
@@ -83,6 +85,7 @@ export const GET_MEMBER_AVAILABILITY_QUERY = gql`
       fullName
       lastName
       rank
+      callsign
       qualifications
 
       availabilities(unitCode: $unitCode, start: $start, end: $end) {
