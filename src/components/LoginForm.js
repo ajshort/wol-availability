@@ -70,7 +70,7 @@ const LoginForm = ({ location, history }) => {
               onChange={e => setPassword(e.target.value)}
             />
             <Form.Text className='text-muted'>
-              Log in with your Beacon password
+              Your default password is capital W followed by your member number.
             </Form.Text>
           </Form.Group>
           <Form.Group controlId='remember'>
