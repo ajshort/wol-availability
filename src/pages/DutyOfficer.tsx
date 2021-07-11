@@ -30,12 +30,13 @@ import { FaLock, FaUser } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 
 interface EditModalProps {
+  unit: string;
   week: Interval;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
+const EditModal: React.FC<EditModalProps> = ({ unit, week, show, setShow }) => {
   const [shift, setShift] = useState<Shift>(Shift.DAY);
   const [member, setMember] = useState<number | undefined>(undefined);
   const [from, setFrom] = useState<DateTime>(week.start);
@@ -130,7 +131,7 @@ const EditModal: React.FC<EditModalProps> = ({ week, show, setShow }) => {
       onCompleted={onHide}
       refetchQueries={() => [{
         query: GET_DUTY_OFFICERS_QUERY,
-        variables: { from: week.start.toJSDate(), to: week.end.toJSDate() },
+        variables: { unit, from: week.start.toJSDate(), to: week.end.toJSDate() },
       }]}
     >
       {(mutate, { loading, error }) => (
@@ -308,6 +309,7 @@ const DutyOfficer: React.FC = () => {
     history.push(`/unit/do/${value.start.toISODate()}`);
   };
 
+  const unit = auth.unit!.code;
   const authed: any = auth.member;
   const canEdit = authed && (authed.permission === 'EDIT_TEAM' || authed.permission === 'EDIT_UNIT');
 
@@ -326,7 +328,7 @@ const DutyOfficer: React.FC = () => {
       </div>
       <Query<GetDutyOfficersData, GetDutyOfficersVars>
         query={GET_DUTY_OFFICERS_QUERY}
-        variables={{ from: visible.start.toJSDate(), to: visible.end.toJSDate() }}
+        variables={{ unit, from: visible.start.toJSDate(), to: visible.end.toJSDate() }}
         fetchPolicy='network-only'
       >
         {({ loading, error, data }) => {
@@ -353,7 +355,7 @@ const DutyOfficer: React.FC = () => {
           return <Table interval={week} data={transformed} />;
         }}
       </Query>
-      {editing && <EditModal week={week} show={editing} setShow={setEditing} />}
+      {editing && <EditModal unit={unit} week={week} show={editing} setShow={setEditing} />}
     </Page>
   );
 };

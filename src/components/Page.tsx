@@ -39,9 +39,9 @@ const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ rescue }) => {
           <NavDropdown.Item>Rescue</NavDropdown.Item>
         </LinkContainer>
       )}
-      {/* <LinkContainer to='/unit/do'>
+      <LinkContainer to='/unit/do'>
         <NavDropdown.Item>Duty Officers</NavDropdown.Item>
-      </LinkContainer> */}
+      </LinkContainer>
     </NavDropdown>
   );
 };

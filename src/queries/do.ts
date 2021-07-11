@@ -4,8 +4,8 @@ import gql from 'graphql-tag';
 
 // Gets the duty officers for a date range
 export const GET_DUTY_OFFICERS_QUERY = gql`
-  query ($from: DateTime!, $to: DateTime!) {
-    dutyOfficers(from: $from, to: $to) {
+  query ($unit: String!, $from: DateTime!, $to: DateTime!) {
+    dutyOfficers(unitCode: $unit, from: $from, to: $to) {
       shift
       from
       to
@@ -29,6 +29,7 @@ export interface GetDutyOfficersData {
 }
 
 export interface GetDutyOfficersVars {
+  unit: string;
   from: Date;
   to: Date;
 }
