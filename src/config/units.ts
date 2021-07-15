@@ -1,6 +1,7 @@
 export interface UnitConfig {
   stormUnits: string[];
   rescueUnits: string[];
+  dutyOfficers?: boolean;
   capabilities: {
     verticalRescue?: boolean;
     floodRescue?: boolean;
@@ -12,6 +13,7 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
   'WOL': {
     stormUnits: ['WOL'],
     rescueUnits: ['WOL', 'DPT'],
+    dutyOfficers: true,
     capabilities: {
       verticalRescue: true,
       floodRescue: true,
@@ -31,6 +33,7 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
   'OSU': {
     stormUnits: ['OSU'],
     rescueUnits: [],
+    dutyOfficers: true,
     capabilities: { },
   },
 };

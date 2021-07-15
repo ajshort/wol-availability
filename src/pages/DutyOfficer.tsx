@@ -123,6 +123,7 @@ const EditModal: React.FC<EditModalProps> = ({ unit, week, show, setShow }) => {
     <Mutation<boolean, SetDutyOfficerVars>
       mutation={SET_DUTY_OFFICER_MUTATION}
       variables={{
+        unit,
         shift,
         member: member !== undefined && member !== 0 ? member : null,
         from: from.toJSDate(),
@@ -163,7 +164,7 @@ const EditModal: React.FC<EditModalProps> = ({ unit, week, show, setShow }) => {
               <Form.Group as={Row} controlId='member'>
                 <Form.Label column sm={3}>Duty officer</Form.Label>
                 <Col sm={9}>
-                  <MemberSelector id='do-member-selector' onChange={setMember} allowNone />
+                  <MemberSelector id='do-member-selector' unit={unit} onChange={setMember} allowNone />
                 </Col>
               </Form.Group>
               <Form.Group as={Row} controlId='from'>
@@ -309,9 +310,9 @@ const DutyOfficer: React.FC = () => {
     history.push(`/unit/do/${value.start.toISODate()}`);
   };
 
-  const unit = auth.unit!.code;
+  const { code: unit, permission } = auth.unit!;
   const authed: any = auth.member;
-  const canEdit = authed && (authed.permission === 'EDIT_TEAM' || authed.permission === 'EDIT_UNIT');
+  const canEdit = permission === 'EDIT_TEAM' || permission === 'EDIT_UNIT';
 
   const handleEdit = () => setEditing(true);
 

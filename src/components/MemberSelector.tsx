@@ -7,6 +7,7 @@ import { Typeahead, Highlighter } from 'react-bootstrap-typeahead';
 
 interface MemberSelectorProps {
   id: string;
+  unit: string;
   onChange: (value: number | undefined) => void;
   allowNone?: boolean;
 }
@@ -17,9 +18,9 @@ interface Model {
   team?: string;
 }
 
-const MemberSelector: React.FC<MemberSelectorProps> = ({ id, onChange, allowNone }) => {
+const MemberSelector: React.FC<MemberSelectorProps> = ({ unit, id, onChange, allowNone }) => {
   return (
-    <Query<GetMembersData, GetMembersVars> query={GET_MEMBERS_QUERY}>
+    <Query<GetMembersData, GetMembersVars> query={GET_MEMBERS_QUERY} variables={{ unit }}>
       {({ loading, error, data }) => {
         let placeholder: string;
         let disabled = false;

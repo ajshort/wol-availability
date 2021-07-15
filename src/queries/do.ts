@@ -35,12 +35,13 @@ export interface GetDutyOfficersVars {
 }
 
 export const SET_DUTY_OFFICER_MUTATION = gql`
-  mutation ($shift: TeamShift!, $member: Int, $from: DateTime!, $to: DateTime!) {
-    setDutyOfficer(shift: $shift, member: $member, from: $from, to: $to)
+  mutation ($unit: String!, $shift: Shift!, $member: Int, $from: DateTime!, $to: DateTime!) {
+    setDutyOfficer(unitCode: $unit, shift: $shift, memberNumber: $member, from: $from, to: $to)
   }
 `;
 
 export interface SetDutyOfficerVars {
+  unit: string;
   shift: Shift;
   member: number | null;
   from: Date;

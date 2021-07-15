@@ -7,8 +7,6 @@ import Badge from 'react-bootstrap/Badge';
 const QualificationBadge = ({ qualification, className }) => {
   const entry = QUALIFICATIONS[qualification];
 
-  console.log(entry);
-
   if (!entry) {
     return null;
   }

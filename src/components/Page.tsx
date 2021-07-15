@@ -27,6 +27,7 @@ interface UnitNavDropdownProps {
 }
 
 const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ rescue }) => {
+  const { config } = useAuth();
   const active = useRouteMatch('/unit') !== null;
 
   return (
@@ -39,9 +40,11 @@ const UnitNavDropdown: React.FC<UnitNavDropdownProps> = ({ rescue }) => {
           <NavDropdown.Item>Rescue</NavDropdown.Item>
         </LinkContainer>
       )}
-      <LinkContainer to='/unit/do'>
-        <NavDropdown.Item>Duty Officers</NavDropdown.Item>
-      </LinkContainer>
+      {config.dutyOfficers && (
+        <LinkContainer to='/unit/do'>
+          <NavDropdown.Item>Duty Officers</NavDropdown.Item>
+        </LinkContainer>
+      )}
     </NavDropdown>
   );
 };
