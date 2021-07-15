@@ -190,9 +190,10 @@ const Rescue: React.FC<RescueProps> = props => {
               mergeAbuttingAvailabilities(
                 member
                   .availabilities
-                  .filter(({ rescue }) => immediateOnly ? (rescue === 'IMMEDIATE') : (rescue !== undefined))
-                  .map(({ start, end, ...data }) => ({
-                    interval: Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)), ...data
+                  .map(({ start, end, rescue, ...data }) => ({
+                    interval: Interval.fromDateTimes(DateTime.fromISO(start), DateTime.fromISO(end)),
+                    rescue: (immediateOnly && rescue === 'SUPPORT') ? 'UNAVAILABLE' : rescue,
+                    ...data,
                   }))
                   .sort((a, b) => a.interval.start.toMillis() - b.interval.start.toMillis()),
                 ['rescue', 'vehicle', 'note'],

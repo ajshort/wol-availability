@@ -1,7 +1,7 @@
 import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
-import { getWeekInterval } from '../model/dates'
+import { getDayIntervals, getWeekInterval } from '../model/dates'
 import { VERTICAL_RESCUE } from '../model/qualifications';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
 
@@ -144,7 +144,8 @@ const Stats = () => {
                   dataKey='time'
                   type='number'
                   domain={[interval.start.toMillis(), interval.end.toMillis()]}
-                  tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString(DateTime.DATE_SHORT)}
+                  ticks={getDayIntervals(interval).map(day => DateTime.max(interval.start, day.start).toMillis())}
+                  tickFormatter={(time: number) => DateTime.fromMillis(time).toLocaleString({ ...DateTime.DATE_SHORT, weekday: 'short', year: undefined })}
                 />
               );
 
@@ -152,17 +153,21 @@ const Stats = () => {
                 <Tooltip labelFormatter={val => DateTime.fromMillis(val as number).toLocaleString(DateTime.DATETIME_SHORT)} />
               );
 
+              const lines = getDayIntervals(interval)
+                .map(day => <ReferenceLine x={day.start.toMillis()} />);
+
               if (type === Type.FR) {
                 return (
-                  <LineChart width={width} height={500} data={counts}>
+                  <AreaChart width={width} height={500} data={counts}>
                     {x}
+                    {lines}
                     <YAxis />
                     {tooltip}
                     <Legend />
-                    <Line type='stepAfter' dataKey='frInWater' name='In water (L3)' stroke='#0d47a1' />
-                    <Line type='stepAfter' dataKey='frOnWater' name='On water (L2)' stroke='#2196f3' />
-                    <Line type='stepAfter' dataKey='frOnLand' name='Land based (L1)' stroke='#bbdefb' />
-                  </LineChart>
+                    <Area type='stepAfter' stackId={1} dataKey='frInWater' name='In water (L3)' fill='#0d47a1' />
+                    <Area type='stepAfter' stackId={1} dataKey='frOnWater' name='On water (L2)' fill='#2196f3' />
+                    <Area type='stepAfter' stackId={1} dataKey='frOnLand' name='Land based (L1)' fill='#bbdefb' />
+                  </AreaChart>
                 );
               }
 
@@ -175,6 +180,7 @@ const Stats = () => {
                   <>
                     <AreaChart width={width} height={400} data={counts}>
                       {x}
+                      {lines}
                       <YAxis />
                       {tooltip}
                       <ReferenceLine y={2} stroke='#dc3545' />
@@ -199,6 +205,7 @@ const Stats = () => {
                 <>
                   <AreaChart width={width} height={400} data={counts}>
                     {x}
+                    {lines}
                     <YAxis />
                     {tooltip}
                     <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
