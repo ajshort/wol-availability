@@ -10,35 +10,39 @@ import sgo from '../assets/senior-group-officer.svg';
 import ins from '../assets/inspector.svg';
 
 export default ({ rank, ...props }) => {
-  if (rank === 'SES Job Ready') {
+  if (rank === 'None') {
+    return null;
+  }
+
+  if (rank === 'SES Job Ready' || rank === 'Job Ready') {
     return <img src={jr} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Operator') {
+  if (rank === 'SES Operator' || rank === 'Operator') {
     return <img src={o} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Senior Operator') {
+  if (rank === 'SES Senior Operator' || rank === 'Senior Operator') {
     return <img src={so} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Leading Senior Operator') {
+  if (rank === 'SES Leading Senior Operator' || rank === 'Leading Senior Operator') {
     return <img src={lso} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Group Officer') {
+  if (rank === 'SES Group Officer' || rank === 'Group Officer') {
     return <img src={go} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Senior Group Officer') {
+  if (rank === 'SES Senior Group Officer' || rank === 'Senior Group Officer') {
     return <img src={sgo} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Inspector') {
+  if (rank === 'SES Inspector' || rank === 'Inspector') {
     return <img src={ins} alt={rank} title={rank} {...props} />;
   }
 
-  if (rank === 'SES Chief Inspector' || rank === 'SES Local Controller') {
+  if (rank === 'SES Chief Inspector' || rank === 'Chief Inspector' || rank === 'SES Local Controller') {
     return <img src={ci} alt={rank} title={rank} {...props} />;
   }
 
