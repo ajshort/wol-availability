@@ -6,6 +6,7 @@ import { anyRescueCapabilities } from '../config/units';
 import { MemberData } from '../queries/members';
 import TeamBadge from '../components/TeamBadge';
 import { StormAvailable, RescueAvailable } from '../model/availability';
+import { getShift } from '../model/dates';
 import {
   compareFloodRescue,
   FEATURED,
@@ -290,8 +291,64 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
   );
 }
 
+const DO_QUERY = gql`
+  query($unit: String!) {
+    dutyOfficersAt(unitCode: $unit) {
+      shift
+      member {
+        fullName
+        mobile
+      }
+    }
+  }
+`;
+
+interface DutyOfficersData {
+  shift: string;
+  member: { fullName: string; mobile: string; };
+}
+
+interface DoQueryData {
+  dutyOfficersAt: DutyOfficersData[];
+}
+
+interface DoQueryVars {
+  unit: string;
+}
+
+const DutyOfficersAlert: React.FC<{ unit: string }> = ({ unit }) => (
+  <Alert variant='info' className='mb-3'>
+    <Query<DoQueryData, DoQueryVars> query={DO_QUERY} variables={{ unit }}>
+      {({ loading, error, data }) => {
+        if (loading) {
+          return <><Spinner size='sm' animation='border' /> Loading duty officer&hellip;</>;
+        }
+
+        if (error || !data) {
+          return <>Error loading duty officer</>;
+        }
+
+        const shift = getShift();
+        const duty = data.dutyOfficersAt.find(x => x.shift === shift)?.member;
+
+        return (
+          <>
+            Duty officer is <strong>{duty ? duty.fullName : 'unknown'}</strong>
+            {duty && (<a className='ml-1' href={`tel:${duty.mobile}`}>
+              <small>
+                <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
+              </small>
+            </a>)}
+          </>
+        );
+
+      }}
+    </Query>
+  </Alert>
+);
+
 const Home: React.FC = () => {
-  const { config } = useAuth();
+  const { config, unit } = useAuth();
   const unitCodes = _.uniq(_.concat(config.stormUnits, config.rescueUnits));
   const rescue = anyRescueCapabilities(config);
 
@@ -314,6 +371,9 @@ const Home: React.FC = () => {
 
             return (
               <React.Fragment>
+                {config.dutyOfficers && (
+                  <DutyOfficersAlert unit={unit!.code} />
+                )}
                 <Row>
                   <Col md={rescue ? 6 : 12}>
                     <StormCard
