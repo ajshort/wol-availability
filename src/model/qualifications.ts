@@ -39,6 +39,9 @@ export const FEATURED = [
   'FRL2-ACC',
   'FRL3-ACC',
   'VR-ACC',
+  'IMT Member',
+  'Incident Controller',
+  'Key holder',
 ];
 
 export const SUPPRESSED_BY: { [key: string]: string } = {
