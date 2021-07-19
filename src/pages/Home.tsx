@@ -42,15 +42,28 @@ interface MemberWithAvailability {
 }
 
 interface QueryVars {
+  primaryUnitCode: string;
   unitCodes: string[];
+}
+
+interface DutyOfficersData {
+  shift: string;
+  member: { fullName: string; mobile: string; };
+}
+
+interface ShiftTeamsData {
+  day?: string;
+  night?: string;
 }
 
 interface QueryData {
   availableAt: MemberWithAvailability[];
+  dutyOfficersAt: DutyOfficersData[];
+  shiftTeams?: ShiftTeamsData;
 }
 
 const QUERY = gql`
-  query($unitCodes: [String!]!) {
+  query($primaryUnitCode: String!, $unitCodes: [String!]!) {
     availableAt(unitCodes: $unitCodes) {
       member {
         number
@@ -70,6 +83,19 @@ const QUERY = gql`
         code
         team
       }
+    }
+
+    dutyOfficersAt(unitCode: $primaryUnitCode) {
+      shift
+      member {
+        fullName
+        mobile
+      }
+    }
+
+    shiftTeams(unitCode: $primaryUnitCode) {
+      day
+      night
     }
   }
 `;
@@ -291,59 +317,35 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
   );
 }
 
-const DO_QUERY = gql`
-  query($unit: String!) {
-    dutyOfficersAt(unitCode: $unit) {
-      shift
-      member {
-        fullName
-        mobile
-      }
-    }
-  }
-`;
-
-interface DutyOfficersData {
-  shift: string;
-  member: { fullName: string; mobile: string; };
+interface DutyOfficersAlertProps {
+  dutyOfficers: DutyOfficersData[];
+  shiftTeams?: ShiftTeamsData;
 }
 
-interface DoQueryData {
-  dutyOfficersAt: DutyOfficersData[];
-}
-
-interface DoQueryVars {
-  unit: string;
-}
-
-const DutyOfficersAlert: React.FC<{ unit: string }> = ({ unit }) => (
+const DutyOfficersAlert: React.FC<DutyOfficersAlertProps> = ({ dutyOfficers, shiftTeams }) => (
   <Alert variant='info' className='mb-3'>
-    <Query<DoQueryData, DoQueryVars> query={DO_QUERY} variables={{ unit }}>
-      {({ loading, error, data }) => {
-        if (loading) {
-          return <><Spinner size='sm' animation='border' /> Loading duty officer&hellip;</>;
-        }
+    {(() => {
+      const shift = getShift();
+      const duty = dutyOfficers.find(x => x.shift === shift)?.member;
 
-        if (error || !data) {
-          return <>Error loading duty officer</>;
-        }
-
-        const shift = getShift();
-        const duty = data.dutyOfficersAt.find(x => x.shift === shift)?.member;
-
-        return (
-          <>
+      return (
+        <>
+          <p className='mb-0'>
             Duty officer is <strong>{duty ? duty.fullName : 'unknown'}</strong>
             {duty && (<a className='ml-1' href={`tel:${duty.mobile}`}>
               <small>
                 <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(duty.mobile)}</span>
               </small>
             </a>)}
-          </>
-        );
-
-      }}
-    </Query>
+          </p>
+          {shiftTeams && (
+            <p className='mt-2 mb-0'>
+              Day shift is <strong>{shiftTeams.day}</strong> and night shift is <strong>{shiftTeams.night}</strong>
+            </p>
+          )}
+        </>
+      );
+    })()}
   </Alert>
 );
 
@@ -355,7 +357,7 @@ const Home: React.FC = () => {
   return (
     <Page>
       <Container fluid className='my-3'>
-        <Query<QueryData, QueryVars> query={QUERY} variables={{ unitCodes }}>
+        <Query<QueryData, QueryVars> query={QUERY} variables={{ primaryUnitCode: unit!.code, unitCodes }}>
           {({ loading, error, data }) => {
             if (loading) {
               return (
@@ -372,7 +374,7 @@ const Home: React.FC = () => {
             return (
               <React.Fragment>
                 {config.dutyOfficers && (
-                  <DutyOfficersAlert unit={unit!.code} />
+                  <DutyOfficersAlert dutyOfficers={data.dutyOfficersAt} shiftTeams={data.shiftTeams} />
                 )}
                 <Row>
                   <Col md={rescue ? 6 : 12}>
