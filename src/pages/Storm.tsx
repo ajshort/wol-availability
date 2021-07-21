@@ -74,6 +74,10 @@ const Storm: React.FC = () => {
     }
   });
 
+  const qualifications = Object.fromEntries(
+    _.uniq(members.flatMap(member => member.member.qualifications)).map(qual => ([qual, qual]))
+  );
+
   return (
     <Page title='Storm and Support' shortTitle='Storm'>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
@@ -81,6 +85,7 @@ const Storm: React.FC = () => {
           <MemberFilterButton
             id='storm-member-filter'
             teams={Array.from(teams).sort()}
+            qualifications={qualifications}
             value={filter}
             onChange={setFilter}
           />

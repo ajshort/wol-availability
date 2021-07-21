@@ -1,5 +1,4 @@
 import { UNIT_CONFIGS } from '../config/units';
-import { QUALIFICATIONS } from '../model/qualifications';
 import { MemberWithAvailabilityData } from '../queries/availability';
 
 import React from 'react';
@@ -20,12 +19,16 @@ export interface MemberFilter {
 interface MemberFilterButtonProps {
   id: string;
   teams?: string[];
+  qualifications?: { [code: string]: string };
   value: MemberFilter;
   onChange: (filter: MemberFilter) => void;
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
   const { id, teams, value, onChange } = props;
+  const qualifications = props.qualifications || {};
+
+  console.log(qualifications);
 
   const popover = (
     <Popover id={id} title='Filter Members'>
@@ -47,8 +50,8 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
           <Typeahead
             id={`${id}-typeahead`}
             multiple
-            options={Object.entries(QUALIFICATIONS).map(([id, value]) => ({ id, label: value.name }))}
-            selected={value.qualifications?.map(code => ({ id: code, label: QUALIFICATIONS[code].name }))}
+            options={Object.entries(qualifications).map(([id, value]) => ({ id, label: value }))}
+            selected={value.qualifications?.map(code => ({ id: code, label: qualifications[code] }))}
             onChange={qualifications => onChange({
               ...value,
               qualifications: qualifications.map(({ id }) => id),
