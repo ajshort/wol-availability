@@ -97,7 +97,7 @@ const Rescue: React.FC<RescueProps> = props => {
     }
   });
 
-  const qualifications = Object.fromEntries(
+  const filterQualifications = Object.fromEntries(
     _.uniq(members.flatMap(member => member.member.qualifications)).map(qual => ([qual, qual]))
   );
 
@@ -136,7 +136,7 @@ const Rescue: React.FC<RescueProps> = props => {
           <MemberFilterButton
             id='storm-member-filter'
             teams={Array.from(teams).sort()}
-            qualifications={qualifications}
+            qualifications={filterQualifications}
             value={filter}
             onChange={setFilter}
           />
