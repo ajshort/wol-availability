@@ -1,5 +1,6 @@
 import { useAuth } from '../components/AuthContext';
 import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
+import MapModal from '../components/MapModal';
 import Page from '../components/Page';
 import TeamBadge from '../components/TeamBadge';
 import WeekBrowser from '../components/WeekBrowser';
@@ -20,7 +21,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
+import { FaMap } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 
 interface Params {
@@ -40,6 +43,7 @@ const Storm: React.FC = () => {
     week = getWeekInterval(DateTime.fromISO(params.week, { zone: TIME_ZONE }));
   }
 
+  const [viewMap, setViewMap] = useState(false);
   const [filter, setFilter] = useState<MemberFilter>({ hideFlexibleAndSupport: true });
 
   const days = getDayIntervals(week);
@@ -63,7 +67,9 @@ const Storm: React.FC = () => {
   let members: MemberWithAvailabilityData[] = [];
 
   if (data) {
-    members = data.units.flatMap(unit => unit.membersWithAvailabilities);
+    members = data.units
+      .flatMap(unit => unit.membersWithAvailabilities)
+      .filter(member => filterAcceptsMember(filter, member));
   }
 
   const teams = new Set<string>();
@@ -89,6 +95,14 @@ const Storm: React.FC = () => {
             value={filter}
             onChange={setFilter}
           />
+          <Button
+            variant='link'
+            disabled={members.length === 0}
+            onClick={() => setViewMap(true)}
+            className='ml-1'
+          >
+            <FaMap />
+          </Button>
         </div>
         <div>
           <WeekBrowser value={week} onChange={handleChangeWeek} />
@@ -108,8 +122,6 @@ const Storm: React.FC = () => {
             <Alert variant='danger' className='m-3'> Error loading unit availability.</Alert>
           );
         }
-
-        members = members.filter(member => filterAcceptsMember(filter, member));
 
         return (
           <UnitTable
@@ -170,6 +182,9 @@ const Storm: React.FC = () => {
           />
         );
       })()}
+      {viewMap && (
+        <MapModal members={members.map(member => member.member)} onHide={() => setViewMap(false)} />
+      )}
     </Page>
   );
 };

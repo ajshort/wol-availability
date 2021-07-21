@@ -1,4 +1,5 @@
 @import 'bootstrap/scss/bootstrap.scss';
+@import '~leaflet/dist/leaflet.css';
 
 #container {
   display: flex;
@@ -348,4 +349,20 @@
 
 .react-datepicker-wrapper {
   width: 100%;
+}
+
+.fullscreen-modal {
+  .modal-dialog {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+  }
+
+  .modal-content {
+    height: auto;
+    min-height: 100%;
+    border-radius: 0;
+  }
 }

@@ -16,6 +16,11 @@ export const GET_MEMBERS_AVAILABILITIES_QUERY = gql`
           callsign
           rank
           qualifications
+          mobile
+          location {
+            lat
+            lng
+          }
         }
 
         availabilities {
@@ -49,6 +54,8 @@ interface MemberData {
   rank: string;
   callsign?: string;
   qualifications: string[];
+  mobile?: string;
+  location?: { lat: number; lng: number; };
 }
 
 interface MembershipData {

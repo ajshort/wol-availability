@@ -41,21 +41,14 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version",
-      "last 1 edge version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "devDependencies": {
     "@types/jest": "^25.2.1",
+    "@types/leaflet": "^1.7.4",
     "@types/lodash": "^4.14.150",
     "@types/luxon": "^1.24.0",
     "@types/node": "^13.13.5",
