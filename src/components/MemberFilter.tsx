@@ -28,8 +28,6 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
   const { id, teams, value, onChange } = props;
   const qualifications = props.qualifications || {};
 
-  console.log(qualifications);
-
   const popover = (
     <Popover id={id} title='Filter Members'>
       <Form className='p-3'>
