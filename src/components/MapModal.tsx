@@ -48,9 +48,9 @@ class MapModal extends React.Component<MapModalProps> {
     }
 
     const icon = L.icon({
-      iconUrl: '/leaflet/marker-icon.png',
-      iconRetinaUrl: '/leaflet/marker-icon-2x.png.png',
-      shadowUrl: '/leaflet/marker-shadow.png',
+      iconUrl: '/static/leaflet/marker-icon.png',
+      iconRetinaUrl: '/static/leaflet/marker-icon-2x.png.png',
+      shadowUrl: '/static/leaflet/marker-shadow.png',
     });
 
     return (
