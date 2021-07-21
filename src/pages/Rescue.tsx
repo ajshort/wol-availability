@@ -1,9 +1,9 @@
 import { useAuth } from '../components/AuthContext';
+import MapModal from '../components/MapModal';
 import { filterAcceptsMember, MemberFilter, MemberFilterButton } from '../components/MemberFilter';
 import Page from '../components/Page';
 import UnitTable, { UnitTableFooter } from '../components/UnitTable';
 import WeekBrowser from '../components/WeekBrowser';
-import { UNIT_CONFIGS } from '../config/units';
 import { mergeAbuttingAvailabilities } from '../model/availability';
 import { getIntervalPosition, getDayIntervals, getWeekInterval, TIME_ZONE } from '../model/dates';
 import {
@@ -29,9 +29,11 @@ import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/Nav';
+import { FaMap } from 'react-icons/fa';
 import { useHistory, useParams } from 'react-router-dom';
 
 interface RescueProps {
@@ -55,6 +57,7 @@ const Rescue: React.FC<RescueProps> = props => {
   const { config } = useAuth();
 
   const [filter, setFilter] = useState<MemberFilter>({});
+  const [viewMap, setViewMap] = useState(false);
 
   let week: Interval;
 
@@ -140,6 +143,14 @@ const Rescue: React.FC<RescueProps> = props => {
             value={filter}
             onChange={setFilter}
           />
+          <Button
+            variant='link'
+            disabled={members.length === 0}
+            onClick={() => setViewMap(true)}
+            className='ml-1'
+          >
+            <FaMap />
+          </Button>
         </div>
         <div>
           <WeekBrowser value={week} onChange={handleChangeWeek} />
@@ -237,6 +248,9 @@ const Rescue: React.FC<RescueProps> = props => {
           />
         );
       })()}
+      {viewMap && (
+        <MapModal members={members.map(member => member.member)} onHide={() => setViewMap(false)} />
+      )}
     </Page>
   );
 };
