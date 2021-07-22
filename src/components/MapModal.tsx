@@ -59,7 +59,8 @@ class MapModal extends React.Component<MapModalProps> {
     const mean = _.mean(distances);
     const stddev = Math.sqrt(_.sum(distances.map(distance => Math.pow(distance - mean, 2))) / distances.length);
 
-    const bounds = L.latLngBounds(locations.filter((_, i) => distances[i] <= 3 * stddev));
+    const limit = distances.length >= 50 ? 1.5 : 3;
+    const bounds = L.latLngBounds(locations.filter((_, i) => distances[i] <= limit * stddev));
 
     const icon = L.icon({
       iconUrl: '/static/leaflet/marker-icon.png',
@@ -82,6 +83,7 @@ class MapModal extends React.Component<MapModalProps> {
               return (
                 <MapContainer
                   bounds={bounds}
+                  boundsOptions={{ padding: [50, 50] }}
                   style={{ width, height }}
                   whenCreated={map => { this.map = map; }}
                 >
