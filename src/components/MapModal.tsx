@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import _ from 'lodash';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { FaMobileAlt } from 'react-icons/fa';
@@ -41,11 +42,24 @@ class MapModal extends React.Component<MapModalProps> {
 
   render() {
     const visible = this.props.members.filter(member => member.location !== undefined);
-    const bounds = L.latLngBounds(visible.map(member => member.location!));
 
     if (visible.length === 0) {
       return null;
     }
+
+    // Calculate the bounds, ignore any points which lie more than 3 standard deviations away
+    // from the weighted centre.
+    const locations = visible.map(member => member.location!);
+    const centre = locations.reduce(
+      (accum, val) => ({ lat: accum.lat + val.lat / visible.length, lng: accum.lng + val.lng / visible.length }),
+      { lat: 0, lng: 0 }
+    );
+
+    const distances = locations.map(loc => L.CRS.EPSG3857.distance(loc, centre));
+    const mean = _.mean(distances);
+    const stddev = Math.sqrt(_.sum(distances.map(distance => Math.pow(distance - mean, 2))) / distances.length);
+
+    const bounds = L.latLngBounds(locations.filter((_, i) => distances[i] <= 3 * stddev));
 
     const icon = L.icon({
       iconUrl: '/static/leaflet/marker-icon.png',
