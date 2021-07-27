@@ -249,7 +249,7 @@ const Rescue: React.FC<RescueProps> = props => {
         );
       })()}
       {viewMap && (
-        <MapModal members={members.map(member => member.member)} onHide={() => setViewMap(false)} />
+        <MapModal members={members} rescue onHide={() => setViewMap(false)} />
       )}
     </Page>
   );

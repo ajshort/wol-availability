@@ -183,7 +183,7 @@ const Storm: React.FC = () => {
         );
       })()}
       {viewMap && (
-        <MapModal members={members.map(member => member.member)} onHide={() => setViewMap(false)} />
+        <MapModal members={members} onHide={() => setViewMap(false)} />
       )}
     </Page>
   );
