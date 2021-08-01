@@ -33,7 +33,7 @@ class MapModal extends React.Component<MapModalProps> {
   private map?: L.Map;
 
   render() {
-    const visible = this.props.members.filter(({ member }) => member.location !== undefined);
+    const visible = this.props.members.filter(({ member }) => !!member.location);
 
     if (visible.length === 0) {
       return null;
