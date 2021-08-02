@@ -7,6 +7,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { FaMobileAlt } from 'react-icons/fa';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 export interface MapModalProps {
@@ -109,38 +110,40 @@ class MapModal extends React.Component<MapModalProps> {
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  {visible.map(({ member }, i) => {
-                    let icon: L.Icon;
+                  <MarkerClusterGroup>
+                    {visible.map(({ member }, i) => {
+                      let icon: L.Icon;
 
-                    switch (available[i]) {
-                      case 'AVAILABLE':
-                      case 'IMMEDIATE':
-                        icon = green;
-                        break;
-                      case 'SUPPORT':
-                        icon = yellow;
-                        break;
-                      case 'UNAVAILABLE':
-                        icon = red;
-                        break;
-                      default:
-                        icon = grey;
-                        break;
-                    }
+                      switch (available[i]) {
+                        case 'AVAILABLE':
+                        case 'IMMEDIATE':
+                          icon = green;
+                          break;
+                        case 'SUPPORT':
+                          icon = yellow;
+                          break;
+                        case 'UNAVAILABLE':
+                          icon = red;
+                          break;
+                        default:
+                          icon = grey;
+                          break;
+                      }
 
-                    return (
-                      <Marker position={locations[i]} icon={icon} key={member.number}>
-                        <Popup>
-                          {member.fullName}
-                          {member.mobile && (
-                            <a className='ml-1' href={`tel:${member.mobile}`}>
-                              <FaMobileAlt /> {formatMobile(member.mobile)}
-                            </a>
-                          )}
-                        </Popup>
-                      </Marker>
-                    );
-                  })}
+                      return (
+                        <Marker position={locations[i]} icon={icon} key={member.number}>
+                          <Popup>
+                            {member.fullName}
+                            {member.mobile && (
+                              <a className='ml-1' href={`tel:${member.mobile}`}>
+                                <FaMobileAlt /> {formatMobile(member.mobile)}
+                              </a>
+                            )}
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+                  </MarkerClusterGroup>
                 </MapContainer>
               );
             }}
