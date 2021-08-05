@@ -14,6 +14,7 @@ import {
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
+  PAD,
   SUPPRESSED_BY,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
@@ -206,6 +207,7 @@ interface RescueCardProps {
 
 const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
   const [key, setKey] = useState('vr');
+  const { config } = useAuth();
 
   // Create ordered list of VR and VR operators.
   const compareRescue = (a?: RescueAvailable, b?: RescueAvailable) => {
@@ -235,6 +237,11 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
       compareFloodRescue(a.member.qualifications, b.member.qualifications) ||
       a.member.lastName.localeCompare(b.member.lastName)
     ));
+
+  const pad = data
+    .filter(({ member: { qualifications } }) => qualifications.includes(PAD))
+    .filter(({ availability: { rescue } }) => rescue === 'IMMEDIATE')
+    .sort((a, b) => a.member.lastName.localeCompare(b.member.lastName));
 
   const vr = { immediate: 0, support: 0 };
   const fr = { l1: 0, l2: 0, l3: 0 };
@@ -272,23 +279,36 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
     <Card className='mb-3'>
       <Card.Header>
         <Nav variant='tabs' activeKey={key} onSelect={setKey}>
-          <Nav.Item>
-            <Nav.Link eventKey='vr'>
-              <span className='d-none d-lg-inline'>Vertical Rescue</span>{' '}
-              <span className='d-lg-none'>VR</span>{' '}
-              <Badge variant='success'>{vr.immediate}</Badge>{' '}
-              <Badge variant='warning'>{vr.support}</Badge>
-            </Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="fr">
-              <span className='d-none d-lg-inline'>Flood Rescue</span>{' '}
-              <span className='d-lg-none'>FR</span>{' '}
-              <Badge className='qual-badge-iw'>{fr.l3}</Badge>{' '}
-              <Badge className='qual-badge-ow'>{fr.l2}</Badge>{' '}
-              <Badge className='qual-badge-lb'>{fr.l1}</Badge>
-            </Nav.Link>
-          </Nav.Item>
+          {config.capabilities.verticalRescue && (
+            <Nav.Item>
+              <Nav.Link eventKey='vr'>
+                <span className='d-none d-lg-inline'>Vertical Rescue</span>{' '}
+                <span className='d-lg-none'>VR</span>{' '}
+                <Badge variant='success'>{vr.immediate}</Badge>{' '}
+                <Badge variant='warning'>{vr.support}</Badge>
+              </Nav.Link>
+            </Nav.Item>
+          )}
+          {config.capabilities.floodRescue && (
+            <Nav.Item>
+              <Nav.Link eventKey="fr">
+                <span className='d-none d-lg-inline'>Flood Rescue</span>{' '}
+                <span className='d-lg-none'>FR</span>{' '}
+                <Badge className='qual-badge-iw'>{fr.l3}</Badge>{' '}
+                <Badge className='qual-badge-ow'>{fr.l2}</Badge>{' '}
+                <Badge className='qual-badge-lb'>{fr.l1}</Badge>
+              </Nav.Link>
+            </Nav.Item>
+          )}
+          {config.capabilities.publicAccessDefib && (
+            <Nav.Item>
+              <Nav.Link eventKey='pad'>
+                <span className='d-none d-lg-inline'>Public Access Defib</span>{' '}
+                <span className='d-lg-none'>PAD</span>{' '}
+                <Badge variant='success'>{pad.length}</Badge>{' '}
+              </Nav.Link>
+            </Nav.Item>
+          )}
         </Nav>
       </Card.Header>
       {key === 'vr' && (
@@ -306,6 +326,17 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
         <ListGroup variant='flush'>
           {flood.length > 0 ? (
             flood.map(availability => (
+              <RescueCardListItem key={availability.member.number} data={availability} />
+            ))
+          ) : (
+            <Card.Body>There are no members available.</Card.Body>
+          )}
+        </ListGroup>
+      )}
+      {key === 'pad' && (
+        <ListGroup variant='flush'>
+          {pad.length > 0 ? (
+            pad.map(availability => (
               <RescueCardListItem key={availability.member.number} data={availability} />
             ))
           ) : (
