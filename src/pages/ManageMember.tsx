@@ -48,7 +48,7 @@ import {
   FaRegSquare,
   FaTimes,
 } from 'react-icons/fa';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 interface RescueMemberBadgesProps {
   storm?: StormAvailable;
@@ -285,7 +285,10 @@ const ManageMember: React.FC = () => {
 
   const days = getDayIntervals(week);
   const visible = Interval.fromDateTimes(days[0].start, days[days.length - 1].end);
-  const unitCode = auth.unit!.code;
+
+  const query = new URLSearchParams(useLocation().search);
+  const defaultUnitCode = auth.unit!.code;
+  const unitCode = query.get('unit') || defaultUnitCode;
 
   // We don't allow editing availability data in the past.
   const inPast = DateTime.local() > visible.end;
@@ -353,11 +356,19 @@ const ManageMember: React.FC = () => {
   const handleChangeWeek = (value: Interval) => {
     setSelections([]);
 
+    let url: string;
+
     if (number === (auth.member as any).number) {
-      history.push(`/member/me/${value.start.toISODate()}`);
+      url = `/member/me/${value.start.toISODate()}`;
     } else {
-      history.push(`/member/${number}/${value.start.toISODate()}`);
+      url = `/member/${number}/${value.start.toISODate()}`;
     }
+
+    if (unitCode !== defaultUnitCode) {
+      url += `?unit=${unitCode}`;
+    }
+
+    history.push(url);
   };
 
   const setAvailabilities = (availabilities: AvailabilityInterval[]) => {

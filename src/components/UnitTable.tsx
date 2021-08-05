@@ -42,11 +42,13 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
                    (unit?.permission === 'EDIT_TEAM' && unit?.team === membership.team) ||
                    (me?.number === member.number);
 
+  const link = (unit?.code === membership.code) ? `/member/${member.number}` : `/member/${member.number}?unit=${membership.code}`;
+
   return (
     <div className='unit-table-row' style={style}>
       <div title={member.number.toString()} className='unit-table-cell unit-table-name'>
         {editable ? (
-          <Link to={`/member/${member.number}`}>{member.fullName}</Link>
+          <Link to={link}>{member.fullName}</Link>
         ) : (
           <>{member.fullName}</>
         )}
