@@ -157,9 +157,10 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>Qualifications</div>
         )}
         <div className='unit-table-days'>
-          {days.map(({ start }) => (
+          {days.map(({ start }, index) => (
             <div key={start.toString()} className='unit-table-cell unit-table-day'>
               {start.toLocaleString({ weekday: 'short', day: '2-digit'})}
+              {index === 0 && <span className='unit-table-day-start-time d-none d-xl-inline'>06:00</span>}
             </div>
           ))}
         </div>

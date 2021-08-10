@@ -260,6 +260,16 @@
     width: 12.5%;
     min-width: 100px;
     justify-content: center;
+    position: relative;
+  }
+  .unit-table-day-start-time, .unit-table-day-mid-time {
+    position: absolute;
+    bottom: 0;
+    font-weight: normal;
+    font-size: 10px;
+  }
+  .unit-table-day-start-time {
+    left: 2px;
   }
   .unit-table-day-block {
     align-items: center;
