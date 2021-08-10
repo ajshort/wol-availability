@@ -10,6 +10,7 @@ import Popover from 'react-bootstrap/Popover';
 import { FaChevronDown } from 'react-icons/fa';
 
 export interface MemberFilter {
+  unit?: string;
   team?: string;
   qualifications?: string[];
   hideBlankAndUnavailable?: boolean;
@@ -18,6 +19,7 @@ export interface MemberFilter {
 
 interface MemberFilterButtonProps {
   id: string;
+  units?: string[];
   teams?: string[];
   qualifications?: { [code: string]: string };
   value: MemberFilter;
@@ -25,12 +27,26 @@ interface MemberFilterButtonProps {
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
-  const { id, teams, value, onChange } = props;
+  const { id, teams, units, value, onChange } = props;
   const qualifications = props.qualifications || {};
 
   const popover = (
     <Popover id={id} title='Filter Members'>
       <Form className='p-3'>
+        {units && units.length > 1 && (
+          <Form.Group controlId='unit-filter'>
+            <Form.Label>Unit</Form.Label>
+            <Form.Control
+              as='select'
+              className='custom-select'
+              value={value.unit}
+              onChange={e => onChange({ ...value, unit: e.target.value })}
+            >
+              <option value={''}>All</option>
+              {units.map(unit => <option key={unit}>{unit}</option>)}
+            </Form.Control>
+          </Form.Group>
+        )}
         <Form.Group controlId='team-filter'>
           <Form.Label>Team</Form.Label>
           <Form.Control
@@ -92,6 +108,10 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
 };
 
 export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvailabilityData) {
+  if (filter.unit && data.membership.code !== filter.unit) {
+    return false;
+  }
+
   if (filter.team && data.membership.team !== filter.team) {
     return false;
   }

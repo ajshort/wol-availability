@@ -92,9 +92,12 @@ const Rescue: React.FC<RescueProps> = props => {
     members = data.units.flatMap(unit => unit.membersWithAvailabilities);
   }
 
+  const units = new Set<string>();
   const teams = new Set<string>();
 
   members.forEach(({ membership }) => {
+    units.add(membership.code);
+
     if (membership.team !== undefined) {
       teams.add(membership.team);
     }
@@ -138,6 +141,7 @@ const Rescue: React.FC<RescueProps> = props => {
         <div>
           <MemberFilterButton
             id='storm-member-filter'
+            units={Array.from(units).sort()}
             teams={Array.from(teams).sort()}
             qualifications={filterQualifications}
             value={filter}

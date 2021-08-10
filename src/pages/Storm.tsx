@@ -70,9 +70,12 @@ const Storm: React.FC = () => {
     members = data.units.flatMap(unit => unit.membersWithAvailabilities);
   }
 
+  const units = new Set<string>();
   const teams = new Set<string>();
 
   members.forEach(({ membership }) => {
+    units.add(membership.code);
+
     if (membership.team !== undefined) {
       teams.add(membership.team);
     }
@@ -88,6 +91,7 @@ const Storm: React.FC = () => {
         <div>
           <MemberFilterButton
             id='storm-member-filter'
+            units={Array.from(units).sort()}
             teams={Array.from(teams).sort()}
             qualifications={qualifications}
             value={filter}
