@@ -67,9 +67,7 @@ const Storm: React.FC = () => {
   let members: MemberWithAvailabilityData[] = [];
 
   if (data) {
-    members = data.units
-      .flatMap(unit => unit.membersWithAvailabilities)
-      .filter(member => filterAcceptsMember(filter, member));
+    members = data.units.flatMap(unit => unit.membersWithAvailabilities);
   }
 
   const teams = new Set<string>();
@@ -122,6 +120,8 @@ const Storm: React.FC = () => {
             <Alert variant='danger' className='m-3'> Error loading unit availability.</Alert>
           );
         }
+
+        members = members.filter(member => filterAcceptsMember(filter, member));
 
         return (
           <UnitTable
