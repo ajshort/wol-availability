@@ -14,6 +14,7 @@ export interface MemberFilter {
   team?: string;
   qualifications?: string[];
   hideBlankAndUnavailable?: boolean;
+  hideOperations?: boolean;
   hideFlexibleAndSupport?: boolean;
 }
 
@@ -82,6 +83,16 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             )}
           />
         </Form.Group>
+        <Form.Group controlId='hide-ops-filter'>
+          <Form.Check
+            type='checkbox'
+            label='Hide operations (IMT) teams?'
+            checked={value.hideOperations}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
+              { ...value, hideOperations: e.target.checked}
+            )}
+          />
+        </Form.Group>
         <Form.Group controlId='hide-flexible-support-filter'>
           <Form.Check
             type='checkbox'
@@ -139,6 +150,15 @@ export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvaila
     const config = UNIT_CONFIGS[code];
 
     if (team && filter.team !== team && config.flexibleAndSupportTeams && config.flexibleAndSupportTeams.includes(team)) {
+      return false;
+    }
+  }
+
+  if (filter.hideOperations) {
+    const { code, team } = data.membership;
+    const config = UNIT_CONFIGS[code];
+
+    if (team && filter.team !== team && config.operationsTeams && config.operationsTeams.includes(team)) {
       return false;
     }
   }
