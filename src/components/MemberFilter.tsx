@@ -150,7 +150,9 @@ export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvaila
     const config = UNIT_CONFIGS[code];
 
     if (team && filter.team !== team && config.flexibleAndSupportTeams && config.flexibleAndSupportTeams.includes(team)) {
-      return false;
+      if (!data.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
+        return false;
+      }
     }
   }
 
