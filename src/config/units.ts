@@ -7,6 +7,7 @@ export interface UnitConfig {
     floodRescue?: boolean;
     publicAccessDefib?: boolean;
   };
+  operationsTeams?: string[];
   flexibleAndSupportTeams?: string[];
 }
 
@@ -23,6 +24,7 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
     flexibleAndSupportTeams: [
       'Foxtrot', 'Quebec', 'Catering', 'Logistics', 'Training', 'India', 'Planning'
     ],
+    operationsTeams: ['Oscar'],
   },
   'DPT': {
     stormUnits: ['DPT'],

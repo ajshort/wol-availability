@@ -115,6 +115,36 @@ function formatMobile(mobile?: string) {
   return [nums.substring(0, 4), nums.substring(4, 7), nums.substring(7, 10)].join(' ');
 }
 
+interface StormMemberItemProps {
+  member: any;
+  membership: any;
+}
+
+const StormMemberItem: React.FC<StormMemberItemProps> = ({ member, membership }) => (
+  <ListGroup.Item>
+    <div className='d-flex align-items-center justify-content-between'>
+      <div>
+        {member.fullName}
+        <a className='ml-1' href={`tel:${member.mobile}`}>
+          <small>
+            <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
+          </small>
+        </a>
+      </div>
+      <div className='text-right'>
+        <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
+        {membership.team && <TeamBadge team={membership.team} />}
+        {
+          FEATURED
+            .filter(qual => member.qualifications.includes(qual))
+            .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
+            .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
+        }
+      </div>
+    </div>
+  </ListGroup.Item>
+);
+
 interface StormCardProps {
   data: MemberWithAvailability[];
 }
@@ -125,6 +155,23 @@ const StormCard: React.FC<StormCardProps> = ({ data }) => {
   const members = data
     .filter(({ membership }) => config.stormUnits.includes(membership.code))
     .sort(({ member: a }, { member: b }) => a.lastName.localeCompare(b.lastName));
+
+  const items = config.operationsTeams ? (
+    <>
+      <ListGroup.Item className='list-group-subheading'>Field</ListGroup.Item>
+      {members.filter(({ membership }) => !config.operationsTeams?.includes(membership.team)).map(({ member, membership }) => (
+        <StormMemberItem key={member.number} member={member} membership={membership} />
+      ))}
+      <ListGroup.Item className='list-group-subheading'>Operations</ListGroup.Item>
+      {members.filter(({ membership }) => config.operationsTeams?.includes(membership.team)).map(({ member, membership }) => (
+        <StormMemberItem key={member.number} member={member} membership={membership} />
+      ))}
+    </>
+  ) : (
+    members.map(({ member, membership }) => (
+      <StormMemberItem key={member.number} member={member} membership={membership} />
+    ))
+  );
 
   return (
     <Card className='mb-3'>
@@ -140,30 +187,7 @@ const StormCard: React.FC<StormCardProps> = ({ data }) => {
         <Card.Body>There are no members available.</Card.Body>
       ) : (
         <ListGroup variant='flush'>
-          {members.map(({ member, membership }) => (
-            <ListGroup.Item key={member.number}>
-              <div className='d-flex align-items-center justify-content-between'>
-                <div>
-                  {member.fullName}
-                  <a className='ml-1' href={`tel:${member.mobile}`}>
-                    <small>
-                      <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
-                    </small>
-                  </a>
-                </div>
-                <div className='text-right'>
-                  <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
-                  {membership.team && <TeamBadge team={membership.team} />}
-                  {
-                    FEATURED
-                      .filter(qual => member.qualifications.includes(qual))
-                      .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
-                      .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
-                  }
-                </div>
-              </div>
-            </ListGroup.Item>
-          ))}
+          {items}
         </ListGroup>
       )}
     </Card>
