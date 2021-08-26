@@ -141,6 +141,7 @@ const Rescue: React.FC<RescueProps> = props => {
         <div>
           <MemberFilterButton
             id='storm-member-filter'
+            rescue
             units={Array.from(units).sort()}
             teams={Array.from(teams).sort()}
             qualifications={filterQualifications}
@@ -175,7 +176,7 @@ const Rescue: React.FC<RescueProps> = props => {
           );
         }
 
-        members = members.filter(member => filterAcceptsMember(filter, member));
+        members = members.filter(member => filterAcceptsMember(filter, member, true));
 
         return (
           <UnitTable

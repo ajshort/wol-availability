@@ -20,6 +20,7 @@ export interface MemberFilter {
 
 interface MemberFilterButtonProps {
   id: string;
+  rescue?: boolean;
   units?: string[];
   teams?: string[];
   qualifications?: { [code: string]: string };
@@ -28,7 +29,7 @@ interface MemberFilterButtonProps {
 }
 
 export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
-  const { id, teams, units, value, onChange } = props;
+  const { id, rescue, teams, units, value, onChange } = props;
   const qualifications = props.qualifications || {};
 
   const popover = (
@@ -83,26 +84,30 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
             )}
           />
         </Form.Group>
-        <Form.Group controlId='hide-ops-filter'>
-          <Form.Check
-            type='checkbox'
-            label='Hide operations (IMT) teams?'
-            checked={value.hideOperations}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
-              { ...value, hideOperations: e.target.checked}
-            )}
-          />
-        </Form.Group>
-        <Form.Group controlId='hide-flexible-support-filter'>
-          <Form.Check
-            type='checkbox'
-            label='Hide blank flexible and support?'
-            checked={value.hideFlexibleAndSupport}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
-              { ...value, hideFlexibleAndSupport: e.target.checked}
-            )}
-          />
-        </Form.Group>
+        {!rescue && (
+          <>
+            <Form.Group controlId='hide-ops-filter'>
+              <Form.Check
+                type='checkbox'
+                label='Hide operations (IMT) teams?'
+                checked={value.hideOperations}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
+                  { ...value, hideOperations: e.target.checked}
+                )}
+              />
+            </Form.Group>
+            <Form.Group controlId='hide-flexible-support-filter'>
+              <Form.Check
+                type='checkbox'
+                label='Hide blank flexible and support?'
+                checked={value.hideFlexibleAndSupport}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(
+                  { ...value, hideFlexibleAndSupport: e.target.checked}
+                )}
+              />
+            </Form.Group>
+          </>
+        )}
       </Form>
     </Popover>
   );
@@ -118,7 +123,7 @@ export const MemberFilterButton: React.FC<MemberFilterButtonProps> = props => {
   );
 };
 
-export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvailabilityData) {
+export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvailabilityData, isRescue: boolean = false) {
   if (filter.unit && data.membership.code !== filter.unit) {
     return false;
   }
@@ -140,7 +145,7 @@ export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvaila
       return false;
     }
 
-    if (!data.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
+    if (!data.availabilities.some(({ storm, rescue }) => isRescue ? (rescue === 'IMMEDIATE' || rescue === 'SUPPORT') : storm === 'AVAILABLE')) {
       return false;
     }
   }
@@ -150,7 +155,7 @@ export function filterAcceptsMember(filter: MemberFilter, data: MemberWithAvaila
     const config = UNIT_CONFIGS[code];
 
     if (team && filter.team !== team && config.flexibleAndSupportTeams && config.flexibleAndSupportTeams.includes(team)) {
-      if (!data.availabilities.some(({ storm, rescue }) => (storm === 'AVAILABLE' || rescue === 'IMMEDIATE' || rescue === 'SUPPORT'))) {
+      if (!data.availabilities.some(({ storm, rescue }) => isRescue ? !!rescue : !!storm)) {
         return false;
       }
     }
