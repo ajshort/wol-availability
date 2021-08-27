@@ -20,6 +20,7 @@ import {
 } from '../model/qualifications';
 
 import gql from 'graphql-tag';
+import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import { Query } from '@apollo/client/react/components';
 import _ from 'lodash';
@@ -38,7 +39,7 @@ import { FaCircle, FaMobileAlt } from 'react-icons/fa';
 
 interface MemberWithAvailability {
   member: MemberData & { mobile: string; };
-  availability: { storm?: StormAvailable; rescue?: RescueAvailable; }
+  availability: { storm?: StormAvailable; rescue?: RescueAvailable; end: string; }
   membership: { code: string; team: string; }
 }
 
@@ -78,6 +79,7 @@ const QUERY = gql`
       availability {
         storm
         rescue
+        end
       }
 
       membership {
@@ -116,11 +118,10 @@ function formatMobile(mobile?: string) {
 }
 
 interface StormMemberItemProps {
-  member: any;
-  membership: any;
+  data: MemberWithAvailability;
 }
 
-const StormMemberItem: React.FC<StormMemberItemProps> = ({ member, membership }) => (
+const StormMemberItem: React.FC<StormMemberItemProps> = ({ data: { member, membership, availability } }) => (
   <ListGroup.Item>
     <div className='d-flex align-items-center justify-content-between'>
       <div>
@@ -130,6 +131,13 @@ const StormMemberItem: React.FC<StormMemberItemProps> = ({ member, membership })
             <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
           </small>
         </a>
+        <small className='d-none d-md-inline'>
+          {DateTime.fromISO(availability.end).hasSame(DateTime.local(), 'day') ? (
+            ` until ${DateTime.fromISO(availability.end).toLocaleString(DateTime.TIME_24_SIMPLE)}`
+          ) : (
+            ' all day'
+          )}
+        </small>
       </div>
       <div className='text-right'>
         <RankImage rank={member.rank} className='mr-1' width={8} height={16} />
@@ -159,17 +167,17 @@ const StormCard: React.FC<StormCardProps> = ({ data }) => {
   const items = config.operationsTeams ? (
     <>
       <ListGroup.Item className='list-group-subheading'>Field</ListGroup.Item>
-      {members.filter(({ membership }) => !config.operationsTeams?.includes(membership.team)).map(({ member, membership }) => (
-        <StormMemberItem key={member.number} member={member} membership={membership} />
+      {members.filter(data => !config.operationsTeams?.includes(data.membership.team)).map(data => (
+        <StormMemberItem key={data.member.number} data={data} />
       ))}
       <ListGroup.Item className='list-group-subheading'>Operations</ListGroup.Item>
-      {members.filter(({ membership }) => config.operationsTeams?.includes(membership.team)).map(({ member, membership }) => (
-        <StormMemberItem key={member.number} member={member} membership={membership} />
+      {members.filter(data => config.operationsTeams?.includes(data.membership.team)).map(data => (
+        <StormMemberItem key={data.member.number} data={data} />
       ))}
     </>
   ) : (
-    members.map(({ member, membership }) => (
-      <StormMemberItem key={member.number} member={member} membership={membership} />
+    members.map(data => (
+      <StormMemberItem key={data.member.number} data={data} />
     ))
   );
 
