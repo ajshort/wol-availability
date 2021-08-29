@@ -110,7 +110,7 @@ class MapModal extends React.Component<MapModalProps> {
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  <MarkerClusterGroup>
+                  <MarkerClusterGroup disableClusteringAtZoom={14}>
                     {visible.map(({ member }, i) => {
                       let icon: L.Icon;
 
