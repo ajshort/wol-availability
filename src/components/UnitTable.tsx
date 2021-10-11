@@ -8,7 +8,7 @@ import { MemberWithAvailabilityData } from '../queries/availability';
 
 import clsx from 'clsx';
 import _ from 'lodash';
-import { Interval } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import React, { ReactNode, useRef, useState } from 'react';
 import Measure from 'react-measure';
 import { Link } from 'react-router-dom';
@@ -157,9 +157,13 @@ const UnitTable: React.FC<UnitTableProps> = props => {
           <div className='unit-table-cell unit-table-quals d-none d-xl-flex'>Qualifications</div>
         )}
         <div className='unit-table-days'>
-          {days.map(({ start }, index) => (
-            <div key={start.toString()} className='unit-table-cell unit-table-day'>
-              {start.toLocaleString({ weekday: 'short', day: '2-digit'})}
+          {days.map((interval, index) => (
+            <div key={interval.start.toString()} className={clsx([
+              'unit-table-cell',
+              'unit-table-day',
+              interval.contains(DateTime.local()) && 'unit-table-day-today',
+            ])}>
+              {interval.start.toLocaleString({ weekday: 'short', day: '2-digit'})}
               {index === 0 && <span className='unit-table-day-start-time d-none d-xl-inline'>06:00</span>}
             </div>
           ))}

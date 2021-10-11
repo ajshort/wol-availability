@@ -262,6 +262,9 @@
     justify-content: center;
     position: relative;
   }
+  .unit-table-day-today {
+    background: lighten($blue, 35%);
+  }
   .unit-table-day-start-time, .unit-table-day-mid-time {
     position: absolute;
     bottom: 0;
