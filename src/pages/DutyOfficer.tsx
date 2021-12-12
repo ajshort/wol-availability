@@ -226,7 +226,7 @@ interface TableProps {
   data: Array<{
     shift: Shift;
     interval: Interval;
-    member: { fullName: string; };
+    member?: { fullName: string; };
   }>;
 }
 
@@ -276,7 +276,7 @@ const Table: React.FC<TableProps> = ({ interval, data }) => (
 
             return (
               <div className={className} style={style}>
-                {member.fullName}
+                {member?.fullName || '(unknown)'}
               </div>
             );
          })
