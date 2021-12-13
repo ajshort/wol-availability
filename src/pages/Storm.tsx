@@ -52,6 +52,7 @@ const Storm: React.FC = () => {
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
+      fetchPolicy: 'network-only',
       variables: {
         units: config.stormUnits,
         start: visible.start.toJSDate(),

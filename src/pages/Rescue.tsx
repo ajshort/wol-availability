@@ -73,6 +73,7 @@ const Rescue: React.FC<RescueProps> = props => {
   const { loading, error, data } = useQuery<GetMembersAvailabilitiesData, GetMembersAvailabilitiesVars>(
     GET_MEMBERS_AVAILABILITIES_QUERY,
     {
+      fetchPolicy: 'network-only',
       variables: {
         units: config.rescueUnits,
         filter: { qualificationsAny: qualifications },
