@@ -50,7 +50,11 @@ const LoginForm = ({ location, history }) => {
       {(loginMutation, { loading, error }) => (
         <Form onSubmit={e => handleSubmit(e, loginMutation)}>
           {error && (
-            <Alert variant='danger'>Invalid member number and/or password.</Alert>
+            (error.networkError ? (
+              <Alert variant='danger'>There was a network error tying to sign in.</Alert>
+            ) : (
+              <Alert variant='danger'>Invalid member number and/or password.</Alert>
+            ))
           )}
           <Form.Group controlId='member-number'>
             <Form.Label>Member number</Form.Label>
