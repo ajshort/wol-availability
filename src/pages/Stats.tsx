@@ -12,7 +12,7 @@ import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import DatePicker from 'react-datepicker';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Area, AreaChart, Bar, BarChart, Legend, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, Legend, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 
 enum Type {
   STORM = 'STORM',

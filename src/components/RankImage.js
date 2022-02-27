@@ -9,7 +9,7 @@ import go from '../assets/group-officer.svg';
 import sgo from '../assets/senior-group-officer.svg';
 import ins from '../assets/inspector.svg';
 
-export default ({ rank, ...props }) => {
+const RankImage = ({ rank, ...props }) => {
   if (rank === 'None') {
     return null;
   }
@@ -51,4 +51,6 @@ export default ({ rank, ...props }) => {
   }
 
   return null;
-}
+};
+
+export default RankImage;

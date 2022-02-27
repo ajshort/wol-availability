@@ -1,6 +1,6 @@
 import logo from '../assets/logo.svg';
 import { anyRescueCapabilities } from '../config/units';
-import { AuthConsumer, LoggedInMember, useAuth } from './AuthContext';
+import { AuthConsumer, useAuth } from './AuthContext';
 
 import React, { useEffect } from 'react';
 import Div100vh from 'react-div-100vh';
