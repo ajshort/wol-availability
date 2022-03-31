@@ -41,7 +41,7 @@ import { FaCircle, FaClock, FaMobileAlt } from 'react-icons/fa';
 
 interface MemberWithAvailability {
   member: MemberData & { mobile: string; };
-  availability: { storm?: StormAvailable; rescue?: RescueAvailable; end: string; }
+  availability: { storm?: StormAvailable; rescue?: RescueAvailable; end: string; note?: string; }
   membership: { code: string; team: string; }
 }
 
@@ -83,6 +83,7 @@ const QUERY = gql`
         storm
         rescue
         end
+        note
       }
 
       membership {
@@ -135,12 +136,13 @@ const StormMemberItem: React.FC<StormMemberItemProps> = ({ instant, data: { memb
             <FaMobileAlt /> <span className='d-none d-md-inline'>{formatMobile(member.mobile)}</span>
           </small>
         </a>
-        <small className='d-none d-md-inline'>
+        <small className='d-block d-md-inline'>
           {DateTime.fromISO(availability.end).hasSame(instant, 'day') ? (
             ` until ${DateTime.fromISO(availability.end).toLocaleString(DateTime.TIME_24_SIMPLE)}`
           ) : (
             ' all day'
           )}
+          {availability.note && ` (${availability.note})`}
         </small>
       </div>
       <div className='text-right'>
