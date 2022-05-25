@@ -1,6 +1,7 @@
 import { useAuth } from '../components/AuthContext';
 import Page from '../components/Page';
 import RadioButtonGroup from '../components/RadioButtonGroup';
+import { UNIT_CONFIGS } from '../config/units';
 import { getDayIntervals, getWeekInterval } from '../model/dates'
 import { VERTICAL_RESCUE } from '../model/qualifications';
 import { GET_STATISTICS_QUERY, GetStatisticsData, GetStatisticsVars } from '../queries/availability';
@@ -119,17 +120,17 @@ const Stats = () => {
           frOnLand: data.frOnLand.immediate,
         }));
 
-        // const teams = data.statistics.teams
-        //   .filter(({ team }) => (
-        //     !FLEXIBLE_TEAMS.includes(team) && !SUPPORT_TEAMS.includes(team)
-        //   ))
-        //   .map(data => ({
-        //     name: data.team,
-        //     enteredStorm: data.enteredStorm,
-        //     missingStorm: data.members - data.enteredStorm,
-        //     percentage: data.enteredStorm / data.members,
-        //   }))
-        //   .sort((a, b) => a.name.localeCompare(b.name));
+        const teams = data.statistics.teams
+          .filter(({ unit, team }) => (
+            config.stormUnits.includes(unit) && !UNIT_CONFIGS[unit]?.flexibleAndSupportTeams?.includes(team)
+          ))
+          .map(data => ({
+            name: data.team,
+            enteredStorm: data.enteredStorm,
+            missingStorm: data.members - data.enteredStorm,
+            percentage: data.enteredStorm / data.members,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
 
         const formatDays = (seconds: any) => (seconds / (24 * 60 * 60)).toLocaleString();
 
@@ -210,13 +211,13 @@ const Stats = () => {
                     {tooltip}
                     <Area type='stepAfter' dataKey='storm' stroke='#004085' fill='#b8daff' />
                   </AreaChart>
-                  {/* <BarChart width={width} height={400} data={teams}>
+                  <BarChart width={width} height={400} data={teams}>
                     <XAxis dataKey='name' />
                     <YAxis />
                     <Tooltip />
                     <Bar dataKey='enteredStorm' name='Entered Storm Availability' stackId={1} fill='#28a745' />
                     <Bar dataKey='missingStorm' name='Missing Storm Availability' stackId={1} fill='#dc3545' />
-                  </BarChart> */}
+                  </BarChart>
                 </>
               );
             }}

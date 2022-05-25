@@ -150,6 +150,13 @@ export const GET_STATISTICS_QUERY = gql`
         rescueSupport
         rescueUnavailable
       }
+
+      teams {
+        unit
+        team
+        members
+        enteredStorm
+      }
     }
   }
 `;
@@ -165,6 +172,7 @@ interface StatisticCount {
 }
 
 interface TeamEnteredCount {
+  unit: string;
   team: string;
   members: number;
   enteredStorm: number;
@@ -181,6 +189,7 @@ export interface GetStatisticsData {
   statistics: {
     counts: StatisticCount[];
     members: MemberAvailabilitySum[];
+    teams: TeamEnteredCount[];
   };
 }
 
