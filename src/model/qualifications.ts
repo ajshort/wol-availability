@@ -13,7 +13,7 @@ export const QUALIFICATIONS: { [code: string]: { name: string; abbreviation: str
   'GR2-ACC': { name: 'General Land Rescue (GLR)', abbreviation: 'GLR' },
   'SAR1-ACC': { name: 'Land search level 2', abbreviation: 'LS' },
   'SAR2-ACC': { name: 'Land search level 2', abbreviation: 'LS2' },
-  'SWDG-ACC': { name: 'Storm and water damage (ground)', abbreviation: 'SWD' },
+  'SWDG-ACC': { name: 'Storm and water damage (ground)', abbreviation: 'SWDG' },
   'SWDH-ACC': { name: 'Storm and water damage (heights)', abbreviation: 'SWD' },
   'USAR1-ACC': { name: 'Urban Search and Rescue (USAR)', abbreviation: 'USAR' },
   'VR-ACC': { name: 'Vertical Rescue (VR)', abbreviation: 'VR' },
@@ -35,6 +35,7 @@ export const PAD = 'PAD Operator';
 
 export const FEATURED = [
   'SWDG-ACC',
+  'SWDH-ACC',
   'CL1-ACC',
   'SAR1-ACC',
   'FRL1-ACC',
@@ -48,6 +49,7 @@ export const FEATURED = [
 
 export const SUPPRESSED_BY: { [key: string]: string } = {
   [FLOOD_RESCUE_L1]: FLOOD_RESCUE_L3,
+  ['SWDG-ACC']: 'SWDH-ACC',
 };
 
 export function compareFloodRescue(qualificationsA: string[], qualificationsB: string[]) {
