@@ -350,6 +350,9 @@
 .qual-badge-iw { background: #0d47a1; color: #fff; }
 .qual-badge-ls { background: #8d6e63; color: #fff; }
 .qual-badge-swdg, .qual-badge-swdh, .qual-badge-swd { background: #ef6c00; color: #fff; }
+.qual-badge-hsks, .qual-badge-hskw { background: lighten(#ef6c00, 10%); color: #fff; border-bottom-left-radius: 0; border-top-left-radius: 0; }
+
+.qual-badge-combined :first-child { border-bottom-right-radius: 0; border-top-right-radius: 0; }
 .qual-badge-vr { background: #c62828; color: #fff; }
 .qual-badge-ic { background: #fff; border: 1px solid #bbb; }
 .qual-badge-imt { background: #00695c; color: #fff; }

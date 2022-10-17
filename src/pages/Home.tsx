@@ -152,7 +152,7 @@ const StormMemberItem: React.FC<StormMemberItemProps> = ({ instant, data: { memb
           FEATURED
             .filter(qual => member.qualifications.includes(qual))
             .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
-            .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
+            .map(qual => <QualificationBadge key={qual} qualification={qual} member={member} className='ml-1' />)
         }
       </div>
     </div>
@@ -233,7 +233,7 @@ const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ data: { member,
           FEATURED_RESCUE
             .filter(qual => member.qualifications.includes(qual))
             .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
-            .map(qual => <QualificationBadge key={qual} qualification={qual} className='ml-1' />)
+            .map(qual => <QualificationBadge key={qual} qualification={qual} member={member} className='ml-1' />)
         }
       </div>
     </div>

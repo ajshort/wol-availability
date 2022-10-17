@@ -65,7 +65,7 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
             featuredQualifications
               .filter(qual => member.qualifications.includes(qual))
               .filter(qual => !member.qualifications.includes(SUPPRESSED_BY[qual]))
-              .map(qual => <QualificationBadge key={qual} qualification={qual} className='mr-1' />)
+              .map(qual => <QualificationBadge key={qual} qualification={qual} member={member} className='mr-1' />)
           }
         </div>
       )}
