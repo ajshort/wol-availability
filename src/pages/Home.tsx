@@ -40,7 +40,7 @@ import { FaCircle, FaClock, FaMobileAlt } from 'react-icons/fa';
 
 interface MemberWithAvailability {
   member: MemberData & { mobile: string; };
-  availability: { storm?: StormAvailable; rescue?: RescueAvailable; end: string; note?: string; }
+  availability: { storm?: StormAvailable; rescue?: RescueAvailable; end: string; note?: string; vehicle?: string; }
   membership: { code: string; team: string; }
 }
 
@@ -82,6 +82,7 @@ const QUERY = gql`
         storm
         rescue
         end
+        vehicle
         note
       }
 
@@ -228,6 +229,7 @@ const RescueCardListItem: React.FC<RescueCardListItemProps> = ({ data: { member,
         </a>
       </div>
       <div className='text-right'>
+      {availability.vehicle && <Badge className='ml-1'>{availability.vehicle}</Badge>}
         {
           FEATURED_RESCUE
             .filter(qual => member.qualifications.includes(qual))
