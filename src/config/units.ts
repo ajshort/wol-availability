@@ -5,7 +5,6 @@ export interface UnitConfig {
   capabilities: {
     verticalRescue?: boolean;
     floodRescue?: boolean;
-    publicAccessDefib?: boolean;
   };
   operationsTeams?: string[];
   flexibleAndSupportTeams?: string[];
@@ -19,7 +18,6 @@ export const UNIT_CONFIGS: { [code: string]: UnitConfig } = {
     capabilities: {
       verticalRescue: true,
       floodRescue: true,
-      publicAccessDefib: true,
     },
     flexibleAndSupportTeams: [
       'Foxtrot', 'Quebec', 'Catering', 'Logistics', 'Training', 'India', 'Planning'

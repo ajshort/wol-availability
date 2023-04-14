@@ -14,7 +14,6 @@ import {
   FLOOD_RESCUE_L1,
   FLOOD_RESCUE_L2,
   FLOOD_RESCUE_L3,
-  PAD,
   SUPPRESSED_BY,
   VERTICAL_RESCUE,
 } from '../model/qualifications';
@@ -277,11 +276,6 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
       a.member.lastName.localeCompare(b.member.lastName)
     ));
 
-  const pad = data
-    .filter(({ member: { qualifications } }) => qualifications.includes(PAD))
-    .filter(({ availability: { rescue } }) => rescue === 'IMMEDIATE')
-    .sort((a, b) => a.member.lastName.localeCompare(b.member.lastName));
-
   const vr = { immediate: 0, support: 0 };
   const fr = { l1: 0, l2: 0, l3: 0 };
 
@@ -339,15 +333,6 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
               </Nav.Link>
             </Nav.Item>
           )}
-          {config.capabilities.publicAccessDefib && (
-            <Nav.Item>
-              <Nav.Link eventKey='pad'>
-                <span className='d-none d-lg-inline'>Public Access Defib</span>{' '}
-                <span className='d-lg-none'>PAD</span>{' '}
-                <Badge variant='success'>{pad.length}</Badge>{' '}
-              </Nav.Link>
-            </Nav.Item>
-          )}
         </Nav>
       </Card.Header>
       {key === 'vr' && (
@@ -365,17 +350,6 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
         <ListGroup variant='flush'>
           {flood.length > 0 ? (
             flood.map(availability => (
-              <RescueCardListItem key={availability.member.number} data={availability} />
-            ))
-          ) : (
-            <Card.Body>There are no members available.</Card.Body>
-          )}
-        </ListGroup>
-      )}
-      {key === 'pad' && (
-        <ListGroup variant='flush'>
-          {pad.length > 0 ? (
-            pad.map(availability => (
               <RescueCardListItem key={availability.member.number} data={availability} />
             ))
           ) : (

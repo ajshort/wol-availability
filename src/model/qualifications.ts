@@ -31,8 +31,6 @@ export const FLOOD_RESCUE = [
   FLOOD_RESCUE_L3,
 ];
 
-export const PAD = 'PAD Operator';
-
 export const FEATURED = [
   'SWDG-ACC',
   'SWDH-ACC',

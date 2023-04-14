@@ -26,7 +26,6 @@ const App = () => (
           <ProtectedRoute path='/unit/storm/:week?' component={Storm} />
           <ProtectedRoute path='/unit/fr/:week?' component={FloodRescue} />
           <ProtectedRoute path='/unit/vr/:week?' component={VerticalRescue} />
-          <ProtectedRoute path='/unit/pad/:week?' component={PublicAccessDefib} />
           <ProtectedRoute path='/unit/do/:week?' component={DutyOfficer} />
           <ProtectedRoute path='/stats' component={Stats} />
           <Route path='/login' component={Login} />

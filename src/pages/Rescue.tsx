@@ -127,16 +127,6 @@ const Rescue: React.FC<RescueProps> = props => {
             </Nav.Link>
           </LinkContainer>
         </Nav.Item>
-        {config.capabilities.publicAccessDefib && (
-          <Nav.Item>
-            <LinkContainer to='/unit/pad'>
-                <Nav.Link>
-                  <span className='d-none d-lg-inline'>Public Access Defib</span>
-                  <span className='d-lg-none'>PAD</span>
-                </Nav.Link>
-            </LinkContainer>
-          </Nav.Item>
-        )}
       </Nav>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
         <div>
@@ -346,25 +336,6 @@ export const VerticalRescue: React.FC = () => (
       {
         title: 'Support',
         included: (_, { rescue }) => rescue === 'SUPPORT',
-      },
-    ]}
-  />
-);
-
-export const PublicAccessDefib: React.FC = () => (
-  <Rescue
-    title='Public Access Defib'
-    baseUrl='/unit/pad'
-    qualifications={['PAD Operator']}
-    immediateOnly
-    sort={(a, b) => (
-      a.member.lastName.localeCompare(b.member.lastName)
-    )}
-    footers={[
-      {
-        title: '',
-        included: (_, { rescue }) => rescue === 'IMMEDIATE',
-        highlightLessThan: 2,
       },
     ]}
   />
