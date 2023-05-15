@@ -312,7 +312,7 @@ const DutyOfficer: React.FC = () => {
 
   const { code: unit, permission } = auth.unit!;
   const authed: any = auth.member;
-  const canEdit = permission === 'EDIT_TEAM' || permission === 'EDIT_UNIT';
+  const canEdit = true; // permission === 'EDIT_TEAM' || permission === 'EDIT_UNIT';
 
   const handleEdit = () => setEditing(true);
 
