@@ -197,7 +197,7 @@ const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect 
             options={[
               'DPT56',
               'NIC19',
-              'WOL43',
+              'SEZ58',
               'WOL56',
               'WOL57',
             ]}
