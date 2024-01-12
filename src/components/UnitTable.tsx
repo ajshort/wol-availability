@@ -47,12 +47,16 @@ const UnitTableRow: React.FC<UnitTableRowProps> = props => {
   return (
     <div className='unit-table-row' style={style}>
       <div title={member.number.toString()} className='unit-table-cell unit-table-name'>
-        {editable ? (
-          <Link to={link}>{member.fullName}</Link>
-        ) : (
-          <>{member.fullName}</>
-        )}
-        <RankImage rank={member.rank} width={8} height={16} />
+        <div className='text-truncate'>
+          {editable ? (
+            <Link to={link}>{member.fullName}</Link>
+          ) : (
+            <>{member.fullName}</>
+          )}
+        </div>
+        <div>
+          <RankImage rank={member.rank} width={8} height={16} />
+        </div>
       </div>
       {infoColumns && infoColumns.map(column => (
         <div key={column.key} className={clsx('unit-table-cell', column.className)}>
