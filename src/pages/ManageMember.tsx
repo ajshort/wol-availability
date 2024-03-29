@@ -192,10 +192,10 @@ const CoverVehicleModal: React.FC<CoverVehicleModalProps> = ({ onHide, onSelect 
         <Modal.Body>
           <Typeahead
             id='cover-vehicle-typeahead'
-            allowNew
             autoFocus
             options={[
               'DPT56',
+              'FLT43',
               'NIC19',
               'SEZ58',
               'WOL56',
