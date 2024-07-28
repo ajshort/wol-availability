@@ -462,6 +462,13 @@ const Home: React.FC = () => {
 
             return (
               <React.Fragment>
+                <Alert variant='info' className='mb-3'>
+                  Please note that from August, this application will be used for Vertical Rescue
+                  {' '}
+                  <strong>only</strong>. All other availability will be managed using
+                  {' '}
+                  <a href='https://membersesnswgov.sharepoint.com/sites/mySES-Availability'>myAvailability</a>.
+                </Alert>
                 {config.dutyOfficers && (
                   <DutyOfficersAlert dutyOfficers={data.dutyOfficersAt} shiftTeams={data.shiftTeams} />
                 )}

@@ -56,6 +56,13 @@ const LoginForm = ({ location, history }) => {
               <Alert variant='danger'>Invalid member number and/or password.</Alert>
             ))
           )}
+          <Alert variant='info' className='mb-3'>
+            Please note that from August, this application will be used for Vertical Rescue
+            {' '}
+            <strong>only</strong>. All other availability will be managed using
+            {' '}
+            <a href='https://membersesnswgov.sharepoint.com/sites/mySES-Availability'>myAvailability</a>.
+          </Alert>
           <Form.Group controlId='member-number'>
             <Form.Label>Member number</Form.Label>
             <Form.Control
