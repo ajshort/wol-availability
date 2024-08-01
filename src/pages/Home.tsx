@@ -324,7 +324,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
               </Nav.Link>
             </Nav.Item>
           )}
-          {config.capabilities.floodRescue && (
+          {/*config.capabilities.floodRescue && (
             <Nav.Item>
               <Nav.Link eventKey="fr">
                 <span className='d-none d-lg-inline'>Flood Rescue</span>{' '}
@@ -334,7 +334,7 @@ const RescueCard: React.FC<RescueCardProps> = ({ data }) => {
                 <Badge className='qual-badge-lb'>{fr.l1}</Badge>
               </Nav.Link>
             </Nav.Item>
-          )}
+          )*/}
         </Nav>
       </Card.Header>
       {key === 'vr' && (
@@ -461,38 +461,23 @@ const Home: React.FC = () => {
             }
 
             return (
-              <React.Fragment>
+              <Container>
                 <Alert variant='info' className='mb-3'>
-                  Please note that from August, this application will be used for Vertical Rescue
+                  This application is used for Vertical Rescue
                   {' '}
                   <strong>only</strong>. All other availability will be managed using
                   {' '}
                   <a href='https://membersesnswgov.sharepoint.com/sites/mySES-Availability'>myAvailability</a>.
                 </Alert>
-                {config.dutyOfficers && (
-                  <DutyOfficersAlert dutyOfficers={data.dutyOfficersAt} shiftTeams={data.shiftTeams} />
-                )}
                 <p>
                   Viewing members available <a href="#" onClick={e => { setChoosingInstant(true); e.preventDefault(); }}>{instant ? `at ${instant.toLocaleString(DateTime.DATETIME_MED)}` : 'now'} <FaClock /></a>
                 </p>
-                <Row>
-                  <Col md={rescue ? 6 : 12}>
-                    <StormCard
-                      instant={instant || DateTime.local()}
-                      data={data.availableAt.filter(({ availability }) => availability.storm === 'AVAILABLE')}
-                    />
-                  </Col>
-                  {rescue && (
-                    <Col md={6}>
-                      <RescueCard
-                        data={data.availableAt.filter(({ availability }) => (
-                          availability.rescue === 'IMMEDIATE' || availability.rescue === 'SUPPORT'
-                        ))}
-                      />
-                    </Col>
-                  )}
-                </Row>
-              </React.Fragment>
+                <RescueCard
+                  data={data.availableAt.filter(({ availability }) => (
+                    availability.rescue === 'IMMEDIATE' || availability.rescue === 'SUPPORT'
+                  ))}
+                />
+              </Container>
             );
           }}
         </Query>

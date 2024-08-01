@@ -119,14 +119,14 @@ const Rescue: React.FC<RescueProps> = props => {
             </Nav.Link>
           </LinkContainer>
         </Nav.Item>
-        <Nav.Item>
+        {/* <Nav.Item>
           <LinkContainer to='/unit/fr'>
             <Nav.Link>
               <span className='d-none d-lg-inline'>Flood Rescue</span>
               <span className='d-lg-none'>FR</span>
             </Nav.Link>
           </LinkContainer>
-        </Nav.Item>
+        </Nav.Item> */}
       </Nav>
       <div className='d-flex align-items-center justify-content-between border-bottom p-3'>
         <div>

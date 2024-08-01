@@ -25,7 +25,7 @@ const Stats = () => {
   const week = getWeekInterval();
 
   const [interval, setInterval] = useState(week);
-  const [type, setType] = useState(Type.STORM);
+  const [type, setType] = useState(Type.VR);
 
   const { unit, config } = useAuth();
 
@@ -59,15 +59,16 @@ const Stats = () => {
     }
   };
 
-  const radios = [{ value: Type.STORM, label: 'Storm', variant: 'info' }];
+  // const radios = [{ value: Type.STORM, label: 'Storm', variant: 'info' }];
+  const radios = [];
 
-  if (config.capabilities.verticalRescue) {
+  // if (config.capabilities.verticalRescue) {
     radios.push({ value: Type.VR, label: 'VR', variant: 'info' });
-  }
+  // }
 
-  if (config.capabilities.floodRescue) {
-    radios.push({ value: Type.FR, label: 'FR', variant: 'info' });
-  }
+  // if (config.capabilities.floodRescue) {
+  //   radios.push({ value: Type.FR, label: 'FR', variant: 'info' });
+  // }
 
   return (
     <Page title='Statistics'>

@@ -348,7 +348,7 @@ const ManageMember: React.FC = () => {
   });
 
   // Figure out if the member should be shown storm only mode, or rescue mode.
-  const rescueQuals = [VERTICAL_RESCUE, ...FLOOD_RESCUE];
+  const rescueQuals = [VERTICAL_RESCUE];
   const rescueMember = anyRescueCapabilities(auth.config) && member.qualifications.some(
     qual => rescueQuals.includes(qual)
   );
@@ -580,35 +580,40 @@ const ManageMember: React.FC = () => {
     <Page title={member.fullName}>
       <div className='d-flex justify-content-between border-bottom p-3'>
         {!inPast ? (
-          <div className='d-flex align-items-center'>
-            {toggle}
-            {rescueMember ? (
-              <React.Fragment>
-                {storm}
-                {rescue}
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <Button
-                  variant='success'
-                  className='mr-2'
-                  onClick={() => handleSet({ storm: 'AVAILABLE' })}
-                  disabled={mutating || selections.length === 0}
-                >
-                  <FaCheck /> <span className='d-none d-md-inline'>Available</span>
-                </Button>
-                <Button
-                  variant='danger'
-                  className='mr-2'
-                  onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
-                  disabled={mutating || selections.length === 0}
-                >
-                  <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
-                </Button>
-              </React.Fragment>
-            )}
-            {more}
-          </div>
+          rescueMember ? (
+            <div className='d-flex align-items-center'>
+              {toggle}
+              {rescueMember ? (
+                <React.Fragment>
+                  {rescue}
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <Button
+                    variant='success'
+                    className='mr-2'
+                    onClick={() => handleSet({ storm: 'AVAILABLE' })}
+                    disabled={mutating || selections.length === 0}
+                  >
+                    <FaCheck /> <span className='d-none d-md-inline'>Available</span>
+                  </Button>
+                  <Button
+                    variant='danger'
+                    className='mr-2'
+                    onClick={() => handleSet({ storm: 'UNAVAILABLE' })}
+                    disabled={mutating || selections.length === 0}
+                  >
+                    <FaTimes /> <span className='d-none d-md-inline'>Unavailable</span>
+                  </Button>
+                </React.Fragment>
+              )}
+              {more}
+            </div>
+          ) : (
+            <div className='d-flex align-items-center'>
+              <span className='text-muted'>This app is for Vertical Rescue only.</span>
+            </div>
+          )
         ) : (
           <div className='d-flex align-items-center'>
             <span className='text-muted'>You can&apos;t edit availability in the past.</span>
